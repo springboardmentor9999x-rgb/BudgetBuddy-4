@@ -5,14 +5,11 @@ from app.database import engine
 app = FastAPI()
 
 @app.get("/")
-def home():
-    return {"message": "BudgetBuddy API is running successfully!"}
+def root():
+    return {"message": "budget_buddy is running"}
 
-@app.get("/db-test")
-def db_test():
-    try:
-        with engine.connect() as connection:
-            connection.execute(text("SELECT 1"))
-        return {"status": "Database connected successfully!"}
-    except Exception as e:
-        return {"error": str(e)}
+@app.get("/test-db")
+def test_db():
+    with engine.connect() as conn:
+        result = conn.execute(text("SELECT NOW();"))
+        return {"Database Time": str(result.scalar())}
