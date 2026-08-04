@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class Signup(BaseModel):
@@ -20,3 +20,8 @@ class Token(BaseModel):
 class ResetPassword(BaseModel):
     email: EmailStr
     new_password: str
+
+
+class VerifyEmailCode(BaseModel):
+    email: EmailStr
+    code: str = Field(min_length=6, max_length=6, pattern=r"^[A-Z0-9]{6}$")

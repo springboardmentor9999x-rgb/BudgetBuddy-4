@@ -51,7 +51,6 @@ const getPasswordStrength = (password) => {
 
 function Signup() {
   const navigate = useNavigate();
-
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -126,10 +125,7 @@ function Signup() {
       );
 
       setMessage(response.data.message);
-
-      setTimeout(() => {
-        navigate("/login");
-      }, 1200);
+      navigate(`/verify-email?email=${encodeURIComponent(email.trim())}`);
 
     } catch (err) {
       setError(
@@ -504,7 +500,7 @@ function Signup() {
               >
 
                 {loading
-                  ? "Creating Account..."
+                  ? "Sending verification email..."
                   : "Create Account"}
 
               </button>

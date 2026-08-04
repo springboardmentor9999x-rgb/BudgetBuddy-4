@@ -1,13 +1,9 @@
 import os
 from datetime import datetime, timedelta, timezone
 
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
-
-# ============================================
-# SECURITY CONFIGURATION
-# ============================================
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-me")
 
@@ -16,49 +12,30 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
-# ============================================
-# PASSWORD HASHING
-# ============================================
-
-pwd_context = CryptContext(
-    schemes=["bcrypt"],
-    deprecated="auto"
-)
-
-
 def hash_password(password: str):
-    """
-    Hash the user's password before storing it
-    in the database.
-    """
-    return pwd_context.hash(password)
+    """Hash a password using bcrypt's standard $2b$ format."""
+    password_bytes = password.encode("utf-8")
+    if len(password_bytes) > 72:
+        raise ValueError("Password must be at most 72 bytes long.")
+    return bcrypt.hashpw(password_bytes, bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(
     plain_password: str,
     hashed_password: str
 ):
-    """
-    Check whether the entered password matches
-    the hashed password stored in the database.
-    """
-    return pwd_context.verify(
-        plain_password,
-        hashed_password
-    )
+    """Check a plaintext password against a stored bcrypt hash."""
+    password_bytes = plain_password.encode("utf-8")
+    if len(password_bytes) > 72:
+        return False
+    return bcrypt.checkpw(password_bytes, hashed_password.encode("utf-8"))
 
 
-# ============================================
-# CREATE ACCESS TOKEN
-# ============================================
 
 def create_access_token(
     data: dict,
     expires_delta: timedelta | None = None
 ):
-    """
-    Create JWT access token.
-    """
 
     to_encode = data.copy()
 
@@ -87,10 +64,6 @@ def create_access_token(
 
     return encoded_jwt
 
-
-# ============================================
-# VERIFY / DECODE ACCESS TOKEN
-# ============================================
 
 def decode_access_token(token: str):
     """

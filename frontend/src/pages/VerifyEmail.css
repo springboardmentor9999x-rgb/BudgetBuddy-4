@@ -1,0 +1,55 @@
+.verification-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #f5f7fb;
+}
+
+.verification-card {
+  width: min(100%, 460px);
+  padding: 36px;
+  text-align: center;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(22, 39, 74, 0.12);
+}
+
+.verification-success { color: #147a42; }
+.verification-error { color: #b42318; }
+.verification-description { color: #475467; line-height: 1.55; }
+
+.verification-form { display: grid; gap: 14px; margin-top: 24px; }
+
+.verification-code {
+  padding: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.verification-submit {
+  border: 0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #fff;
+  background: #2563eb;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.verification-submit:disabled { cursor: wait; opacity: 0.7; }
+
+.verification-link {
+  display: inline-block;
+  margin-top: 18px;
+  color: #fff;
+  background: #2563eb;
+  border-radius: 8px;
+  padding: 10px 16px;
+  text-decoration: none;
+}

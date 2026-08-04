@@ -5,14 +5,13 @@ from sqlalchemy import text
 from app.database import engine
 from app.routers.auth import router as auth_router
 
-
 app = FastAPI()
 
-
-# Allow React frontend to connect with FastAPI backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
         "http://localhost:5173",
         "http://127.0.0.1:5173"
     ],
@@ -21,8 +20,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# Connect authentication routes
 app.include_router(auth_router)
 
 
@@ -35,13 +32,8 @@ def root():
 
 @app.get("/test-db")
 def test_db():
-
     with engine.connect() as conn:
-
-        result = conn.execute(
-            text("SELECT NOW();")
-        )
-
+        result = conn.execute(text("SELECT NOW();"))
         return {
             "Database Time": str(result.scalar())
         }

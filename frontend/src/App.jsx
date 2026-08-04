@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
+import VerifyEmail from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./routers/ProtectedRoute";
 
@@ -28,6 +29,11 @@ function App() {
       <Route
         path="/forgot-password"
         element={<ForgotPassword />}
+      />
+
+      <Route
+        path="/verify-email"
+        element={<VerifyEmail />}
       />
 
       <Route
