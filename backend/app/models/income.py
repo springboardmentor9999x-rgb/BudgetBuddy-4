@@ -1,4 +1,12 @@
-from sqlalchemy import Column, Integer, Float, String, Date, DateTime, ForeignKey
+from sqlalchemy import (
+    Column,
+    Integer,
+    Float,
+    String,
+    Date,
+    DateTime,
+    ForeignKey,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -16,16 +24,38 @@ class Income(Base):
         nullable=False
     )
 
-    source = Column(String(100), nullable=False)
-    amount = Column(Float, nullable=False)
-    description = Column(String(255), nullable=True)
-    date = Column(Date, nullable=False)
+    # Income Details
+    source = Column(
+        String(100),
+        nullable=False
+    )
+
+    bank_name = Column(
+        String(100),
+        nullable=False
+    )
+
+    amount = Column(
+        Float,
+        nullable=False
+    )
+
+    description = Column(
+        String(255),
+        nullable=True
+    )
+
+    date = Column(
+        Date,
+        nullable=False
+    )
 
     created_at = Column(
         DateTime(timezone=True),
         server_default=func.now()
     )
 
+    # Relationship
     user = relationship(
         "User",
         back_populates="incomes"

@@ -1,91 +1,152 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+
 import { useAuth } from "../context/AuthContext";
 
-import Navbar from "../components/Navbar";
-import Sidebar from "../components/Sidebar";
-import StatCard from "../components/StatCard";
+import { getDashboard } from "../api/dashboard";
+import { getBudgetProgress } from "../api/budget";
+
+import ProtectedLayout from "../components/ProtectedLayout";
+
+import DashboardCards from "../components/dashboard/DashboardCards";
+import ExpensePieChart from "../components/dashboard/ExpensePieChart";
+import RecentTransactions from "../components/dashboard/RecentTransactions";
+import IncomeExpenseChart from "../components/dashboard/IncomeExpenseChart";
+import BudgetProgress from "../components/dashboard/BudgetProgress";
 
 function Dashboard() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
+  const [dashboard, setDashboard] = useState({
+    total_income: 0,
+    total_expense: 0,
+    balance: 0,
+    expense_summary: [],
+    recent_transactions: [],
+  });
+
+  const [budgets, setBudgets] = useState([]);
+
+  useEffect(() => {
+    loadDashboard();
+  }, []);
+
+  const loadDashboard = async () => {
+    try {
+      const dashboardData = await getDashboard();
+      setDashboard(dashboardData);
+
+      const budgetData = await getBudgetProgress();
+      setBudgets(budgetData);
+
+    } catch (error) {
+      console.error("Dashboard Error:", error);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar */}
-      <Sidebar onLogout={handleLogout} />
+    <ProtectedLayout>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Top Navbar */}
-        <Navbar user={user} />
+      {/* Welcome */}
+      <div className="mb-8">
 
-        {/* Dashboard Body */}
-        <main className="p-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Welcome Back, {user?.full_name || "User"} 👋
-            </h1>
+        <h1 className="text-4xl font-bold text-gray-900">
+          Welcome Back, {user?.full_name || "User"} 👋
+        </h1>
 
-            <p className="text-gray-500 mt-2">
-              Here's an overview of your finances.
+        <p className="text-gray-500 mt-2 text-lg">
+          Here's your financial overview for today.
+        </p>
+
+      </div>
+
+      {/* Dashboard Cards */}
+      <DashboardCards dashboard={dashboard} />
+
+      {/* Expense Chart + Recent Transactions */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+
+        <ExpensePieChart
+          data={dashboard.expense_summary}
+        />
+
+        <RecentTransactions
+          transactions={dashboard.recent_transactions}
+        />
+
+      </div>
+
+      {/* Income vs Expense */}
+      <div className="mt-8">
+
+        <IncomeExpenseChart
+          dashboard={dashboard}
+        />
+
+      </div>
+
+      {/* Budget Progress */}
+      <div className="mt-8">
+
+        <BudgetProgress
+          budgets={budgets}
+        />
+
+      </div>
+
+      {/* Account Information */}
+      <div className="mt-8 bg-white rounded-2xl shadow-md p-6">
+
+        <h2 className="text-2xl font-bold mb-6">
+          Account Information
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <div>
+            <p className="text-gray-500">
+              User ID
+            </p>
+
+            <p className="font-semibold text-lg">
+              {user?.id}
             </p>
           </div>
 
-          {/* Statistics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-            <StatCard
-              title="Current Balance"
-              value="₹0"
-            />
+          <div>
+            <p className="text-gray-500">
+              Full Name
+            </p>
 
-            <StatCard
-              title="Monthly Income"
-              value="₹0"
-            />
-
-            <StatCard
-              title="Monthly Expenses"
-              value="₹0"
-            />
-
-            <StatCard
-              title="Savings"
-              value="₹0"
-            />
+            <p className="font-semibold text-lg">
+              {user?.full_name || "N/A"}
+            </p>
           </div>
 
-          {/* User Information */}
-          <div className="mt-8 bg-white border border-gray-200 rounded-xl shadow-sm p-6">
-            <h2 className="text-xl font-semibold mb-4">
-              Account Information
-            </h2>
+          <div>
+            <p className="text-gray-500">
+              Email
+            </p>
 
-            <div className="space-y-3 text-gray-700">
-              <p>
-                <strong>ID:</strong> {user?.id}
-              </p>
-
-              <p>
-                <strong>Name:</strong> {user?.full_name || "N/A"}
-              </p>
-
-              <p>
-                <strong>Email:</strong> {user?.email}
-              </p>
-
-              <p>
-                <strong>Role:</strong> {user?.role}
-              </p>
-            </div>
+            <p className="font-semibold text-lg">
+              {user?.email}
+            </p>
           </div>
-        </main>
+
+          <div>
+            <p className="text-gray-500">
+              Role
+            </p>
+
+            <p className="font-semibold text-lg">
+              {user?.role}
+            </p>
+          </div>
+
+        </div>
+
       </div>
-    </div>
+
+    </ProtectedLayout>
   );
 }
 

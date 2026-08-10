@@ -23,22 +23,22 @@ function Sidebar({ onLogout }) {
     {
       icon: <FaWallet />,
       label: "Income",
-      path: null,
+      path: "/income",
     },
     {
       icon: <FaMoneyBillWave />,
       label: "Expenses",
-      path: null,
+      path: "/expenses",
     },
     {
       icon: <FaBullseye />,
       label: "Budgets",
-      path: null,
+      path: "/budgets",
     },
     {
       icon: <FaChartLine />,
       label: "Reports",
-      path: null,
+      path: "/reports",
     },
     {
       icon: <FaCog />,
@@ -59,25 +59,17 @@ function Sidebar({ onLogout }) {
       {/* Navigation */}
       <nav className="flex-1 p-4">
         {menu.map((item) => {
-          const isActive =
-            item.path &&
-            location.pathname === item.path;
+          const isActive = location.pathname === item.path;
 
           return (
             <button
               key={item.label}
               type="button"
-              onClick={() =>
-                handleNavigation(item.path)
-              }
+              onClick={() => handleNavigation(item.path)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition mb-2 text-left ${
                 isActive
-                  ? "bg-blue-50 text-blue-700 font-medium"
-                  : "text-gray-700 hover:bg-gray-100"
-              } ${
-                !item.path
-                  ? "cursor-default"
-                  : ""
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
               }`}
             >
               <span className="text-lg">

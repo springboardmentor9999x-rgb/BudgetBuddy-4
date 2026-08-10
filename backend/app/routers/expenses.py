@@ -9,6 +9,7 @@ from app.schemas.expense import (
     ExpenseCreate,
     ExpenseUpdate,
     ExpenseOut,
+    ExpenseSummary,
 )
 
 from app.crud.expense import (
@@ -17,6 +18,7 @@ from app.crud.expense import (
     get_expense,
     update_expense,
     delete_expense,
+    get_expense_summary,
 )
 
 router = APIRouter()
@@ -53,6 +55,20 @@ def list_expenses(
         current_user.id,
         skip,
         limit,
+    )
+
+
+# -------------------------
+# Expense Summary
+# -------------------------
+@router.get("/summary", response_model=list[ExpenseSummary])
+def expense_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return get_expense_summary(
+        db,
+        current_user.id,
     )
 
 

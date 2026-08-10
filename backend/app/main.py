@@ -12,6 +12,7 @@ from app.routers import (
     expenses,
     incomes,
     budgets,
+    dashboard,
 )
 
 app = FastAPI(title="BudgetBuddy API")
@@ -57,6 +58,15 @@ app.include_router(
     budgets.router,
     prefix="/budgets",
     tags=["Budgets"],
+)
+
+# -------------------------
+# Dashboard
+# -------------------------
+app.include_router(
+    dashboard.router,
+    prefix="/dashboard",
+    tags=["Dashboard"],
 )
 
 

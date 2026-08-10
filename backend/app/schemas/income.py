@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 class IncomeBase(BaseModel):
     source: str
+    bank_name: str
     amount: float = Field(..., gt=0)
     description: Optional[str] = None
     date: date

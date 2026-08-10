@@ -4,6 +4,8 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import VerifyEmail from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard";
+import Income from "./pages/Income";
+import Expense from "./pages/Expense";
 import Settings from "./pages/Settings";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -47,6 +49,26 @@ function App() {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Income */}
+      <Route
+        path="/income"
+        element={
+          <ProtectedRoute>
+            <Income />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Expense */}
+      <Route
+        path="/expenses"
+        element={
+          <ProtectedRoute>
+            <Expense />
           </ProtectedRoute>
         }
       />

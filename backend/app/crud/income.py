@@ -1,4 +1,6 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from app.models.income import Income
 from app.schemas.income import (
@@ -15,9 +17,27 @@ def create_income(
     user_id: int,
     income_in: IncomeCreate,
 ):
+    # Check duplicate bank name
+    if income_in.bank_name:
+        existing_bank = (
+            db.query(Income)
+            .filter(
+                Income.user_id == user_id,
+                func.lower(Income.bank_name)
+                == income_in.bank_name.lower(),
+            )
+            .first()
+        )
+
+        if existing_bank:
+            raise HTTPException(
+                status_code=400,
+                detail=f"{income_in.bank_name} bank is already added.",
+            )
+
     income = Income(
         user_id=user_id,
-        **income_in.model_dump()
+        **income_in.model_dump(),
     )
 
     db.add(income)
@@ -71,7 +91,33 @@ def update_income(
     income: Income,
     income_in: IncomeUpdate,
 ):
-    for key, value in income_in.model_dump().items():
+    update_data = income_in.model_dump(
+        exclude_unset=True
+    )
+
+    # Check duplicate bank name when bank is changed
+    new_bank_name = update_data.get("bank_name")
+
+    if new_bank_name:
+        existing_bank = (
+            db.query(Income)
+            .filter(
+                Income.user_id == income.user_id,
+                Income.id != income.id,
+                func.lower(Income.bank_name)
+                == new_bank_name.lower(),
+            )
+            .first()
+        )
+
+        if existing_bank:
+            raise HTTPException(
+                status_code=400,
+                detail=f"{new_bank_name} bank is already added.",
+            )
+
+    # Update fields
+    for key, value in update_data.items():
         setattr(income, key, value)
 
     db.commit()

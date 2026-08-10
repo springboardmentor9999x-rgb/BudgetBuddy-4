@@ -17,6 +17,7 @@ from app.crud.budget import (
     get_budget,
     update_budget,
     delete_budget,
+    get_budget_progress,
 )
 
 router = APIRouter()
@@ -35,6 +36,20 @@ def add_budget(
         db,
         current_user.id,
         budget_in,
+    )
+
+
+# -------------------------
+# Get Budget Progress
+# -------------------------
+@router.get("/progress")
+def budget_progress(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return get_budget_progress(
+        db,
+        current_user.id,
     )
 
 
