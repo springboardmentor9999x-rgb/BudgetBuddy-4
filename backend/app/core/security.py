@@ -5,7 +5,10 @@ import bcrypt
 from jose import JWTError, jwt
 
 
-SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-me")
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY must be set in backend/.env")
 
 ALGORITHM = "HS256"
 

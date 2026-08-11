@@ -1,0 +1,43 @@
+/* ===== Global Layout ===== */
+
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+/* ===== Main Content ===== */
+
+.main-content {
+  flex: 1;
+  margin-left: 280px;
+  padding: 30px;
+  overflow-x: auto;
+  transition: margin-left 0.3s ease;
+}
+
+/* ===== Laptop ===== */
+
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 240px;
+    padding: 24px;
+  }
+}
+
+/* ===== Tablet ===== */
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 20px;
+  }
+}
+
+/* ===== Mobile ===== */
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 16px;
+  }
+}

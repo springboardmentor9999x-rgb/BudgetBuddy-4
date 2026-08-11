@@ -29,3 +29,34 @@ class User(Base):
         back_populates="owner",
         cascade="all, delete-orphan"
     )
+    income = relationship(
+    "Income",
+    back_populates="user",
+    cascade="all, delete-orphan"
+)
+    profile = relationship(
+    "Profile",
+    back_populates="user",
+    uselist=False,
+    cascade="all, delete-orphan"
+)
+    budgets = relationship(
+    "Budget",
+    back_populates="user",
+    cascade="all, delete-orphan"
+)
+    saving_goals = relationship(
+    "SavingGoal",
+    back_populates="user",
+    cascade="all, delete-orphan"
+)
+    notifications = relationship(
+    "Notification",
+    back_populates="user",
+    cascade="all, delete-orphan"
+)
+    reports = relationship(
+    "Report",
+    back_populates="user",
+    cascade="all, delete-orphan"
+)

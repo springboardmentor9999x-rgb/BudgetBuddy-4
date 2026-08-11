@@ -1,0 +1,155 @@
+/* ===== Sidebar ===== */
+
+.sidebar {
+  width: 280px;
+  height: 100vh;
+  background: #0f172a;
+  color: white;
+
+  position: fixed;
+  left: 0;
+  top: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 24px 18px;
+  box-sizing: border-box;
+
+  box-shadow: 6px 0 25px rgba(0, 0, 0, 0.08);
+
+  z-index: 1000;
+}
+
+/* ===== Header ===== */
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  margin-bottom: 40px;
+}
+
+.logo-circle {
+  width: 52px;
+  height: 52px;
+
+  border-radius: 50%;
+
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 24px;
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.sidebar-header p {
+  margin-top: 4px;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+/* ===== Menu ===== */
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  flex: 1;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  text-decoration: none;
+
+  color: #cbd5e1;
+
+  padding: 14px 16px;
+
+  border-radius: 14px;
+
+  transition: all 0.25s ease;
+
+  font-weight: 500;
+}
+
+.menu-item:hover {
+  background: rgba(255,255,255,.08);
+  color: white;
+  transform: translateX(6px);
+}
+
+.menu-item.active {
+  background: linear-gradient(135deg,#4f46e5,#6366f1);
+  color: white;
+
+  box-shadow: 0 10px 25px rgba(79,70,229,.35);
+}
+
+.menu-icon {
+  font-size: 20px;
+}
+
+/* ===== Footer ===== */
+
+.sidebar-footer {
+  margin-top: auto;
+}
+
+.logout-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  text-decoration: none;
+
+  background: #dc2626;
+  color: white;
+
+  padding: 14px;
+
+  border-radius: 14px;
+
+  font-weight: 600;
+
+  transition: .3s;
+}
+
+.logout-btn:hover {
+  background: #b91c1c;
+}
+
+/* ===== Tablet ===== */
+
+@media (max-width:1024px){
+
+  .sidebar{
+    width:230px;
+  }
+
+}
+
+/* ===== Mobile ===== */
+
+@media (max-width:768px){
+
+  .sidebar{
+
+    transform:translateX(-100%);
+
+  }
+
+}

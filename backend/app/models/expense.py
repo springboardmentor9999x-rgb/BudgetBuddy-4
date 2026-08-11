@@ -18,6 +18,9 @@ class Expense(Base):
 
     description = Column(String, nullable=True)
 
+    # Stores a display-safe label, for example "HDFC Bank •••• 1234".
+    bank_account = Column(String, nullable=True)
+
     date = Column(DateTime, default=datetime.utcnow)
 
     owner = relationship("User", back_populates="expenses")

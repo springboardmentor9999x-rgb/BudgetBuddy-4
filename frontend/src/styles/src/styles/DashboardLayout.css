@@ -1,0 +1,8 @@
+.main-content {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    min-height: 100vh;
+    padding: 30px;
+    background: #f5f7fa;
+    box-sizing: border-box;
+}
