@@ -1,0 +1,50 @@
+/* Goals - tokenized */
+.goals-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 12px 0 42px;
+}
+
+.goals-page header {
+  margin-bottom: 22px;
+}
+
+.goals-page header p {
+  margin: 0 0 6px;
+  color: var(--success);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.goals-page h1 { margin: 0; color: var(--text); font-size: 2rem; }
+.goals-page header span { display: block; margin-top: 8px; color: var(--muted); }
+
+.goals-panel { margin-top: 20px; padding: 22px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); box-shadow: 0 5px 16px rgba(16,24,40,0.04); }
+
+.goals-panel-heading { display:flex; align-items:center; gap:12px; margin-bottom:18px; color: var(--success); }
+.goals-panel-heading h2 { margin:0; color: var(--text); font-size:1.12rem; }
+.goals-panel-heading p { margin:4px 0 0; color: var(--muted); font-size:.9rem; }
+
+.goals-panel form { display:grid; grid-template-columns:1.2fr .8fr .8fr auto; gap:12px; }
+.goals-panel input, .contribute input { box-sizing:border-box; width:100%; padding:11px 12px; border:1px solid var(--border); border-radius:8px; font:inherit; outline:0; }
+.goals-panel input:focus, .contribute input:focus { border-color: var(--success); box-shadow: 0 0 0 3px rgba(16,185,129,0.12); }
+
+.goals-panel form button, .contribute button { border:0; border-radius:8px; background: var(--success); color: var(--surface); padding:11px 16px; font:inherit; font-weight:700; cursor:pointer; }
+
+.goals-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:15px; }
+.goal-card { border:1px solid var(--border); border-radius:11px; padding:17px; background: var(--surface); }
+.goal-card-top { display:flex; justify-content:space-between; gap:10px; }
+.goal-card h3 { margin:0; color: var(--text); }
+.goal-card-top span { display:block; margin-top:4px; color: var(--muted); font-size:.82rem; }
+.goal-card-top button { border:0; border-radius:7px; padding:7px 9px; background: var(--surface); color: var(--danger); cursor:pointer; }
+.goal-card > strong { display:block; margin:17px 0 11px; color: var(--text); font-size:1.15rem; }
+.goal-card strong small { color: var(--muted); font-size:.82rem; font-weight:500; }
+
+.goal-progress { height:9px; overflow:hidden; border-radius:999px; background: var(--border); }
+.goal-progress span { display:block; height:100%; border-radius:inherit; background: var(--success); }
+
+.goal-details { margin-top:12px; color: var(--muted); }
+
+.goal-card .goal-actions { display:flex; gap:8px; margin-top:12px; }

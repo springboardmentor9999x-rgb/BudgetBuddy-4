@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.core.deps import get_current_user
 from app.models.user import User
+from app.models.expense import Expense
 
 from app.schemas.expense import (
     ExpenseCreate,
@@ -39,10 +41,23 @@ def add_expense(
 # -----------------------------
 @router.get("/", response_model=list[ExpenseOut])
 def read_expenses(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=200),
     db: Session =Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return get_all_expenses(db, current_user.id)
+    return get_all_expenses(db, current_user.id)[skip:skip + limit]
+
+
+@router.get("/summary")
+def expense_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    rows = db.query(Expense.category, func.sum(Expense.amount).label("amount")).filter(
+        Expense.user_id == current_user.id
+    ).group_by(Expense.category).order_by(func.sum(Expense.amount).desc()).all()
+    return [{"category": row.category, "amount": float(row.amount)} for row in rows]
 
 
 # -----------------------------

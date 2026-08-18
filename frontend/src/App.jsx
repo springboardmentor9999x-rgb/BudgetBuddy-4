@@ -13,6 +13,7 @@ import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Accounts from "./pages/Accounts";
 import Profile from "./pages/Profile";
+import Goals from "./pages/Goals";
 
 import DashboardLayout from "./layouts/DashboardLayout";
 import ProtectedRoute from "./routers/ProtectedRoute";
@@ -45,6 +46,7 @@ function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/accounts" element={<Accounts />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/goals" element={<Goals />} />
       </Route>
     </Routes>
   );

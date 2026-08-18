@@ -92,17 +92,9 @@ function BarChartCard({ dashboard }) {
 
           <Legend />
 
-          <Bar
-            dataKey="income"
-            fill="#10B981"
-            radius={[8, 8, 0, 0]}
-          />
+          <Bar dataKey="income" fill="var(--success)" radius={[8, 8, 0, 0]} />
 
-          <Bar
-            dataKey="expense"
-            fill="#EF4444"
-            radius={[8, 8, 0, 0]}
-          />
+          <Bar dataKey="expense" fill="var(--danger)" radius={[8, 8, 0, 0]} />
 
         </BarChart>
 

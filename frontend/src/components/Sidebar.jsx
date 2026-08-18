@@ -4,19 +4,22 @@ import {
   FaMoneyBillWave,
   FaChartBar,
   FaUniversity,
+  FaPiggyBank,
   FaCog,
   FaSignOutAlt,
 } from "react-icons/fa";
 
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import "../styles/Sidebar.css";
 
 function Sidebar() {
+  const navigate = useNavigate();
   const menuItems = [
     { path: "/dashboard", icon: <FaHome />, label: "Dashboard" },
     { path: "/income", icon: <FaWallet />, label: "Income" },
     { path: "/expenses", icon: <FaMoneyBillWave />, label: "Expenses" },
     { path: "/accounts", icon: <FaUniversity />, label: "Accounts" },
+    { path: "/goals", icon: <FaPiggyBank />, label: "Savings Goals" },
     { path: "/budget", icon: "🎯", label: "Budget" },
     { path: "/reports", icon: <FaChartBar />, label: "Reports" },
     { path: "/settings", icon: <FaCog />, label: "Settings" },
@@ -51,10 +54,10 @@ function Sidebar() {
       </nav>
 
       <div className="sidebar-footer">
-        <NavLink to="/login" className="logout-btn">
+        <button className="logout-btn" onClick={() => { localStorage.removeItem("token"); navigate("/login", { replace: true }); }}>
           <FaSignOutAlt />
           <span style={{ marginLeft: "10px" }}>Logout</span>
-        </NavLink>
+        </button>
       </div>
     </aside>
   );

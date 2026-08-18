@@ -10,14 +10,14 @@ import {
 import "../../styles/Charts.css";
 
 const COLORS = [
-  "#4F46E5",
-  "#10B981",
-  "#F59E0B",
-  "#EF4444",
-  "#06B6D4",
-  "#8B5CF6",
-  "#EC4899",
-  "#84CC16",
+  "var(--primary)",
+  "var(--success)",
+  "var(--savings)",
+  "var(--danger)",
+  "var(--balance)",
+  "var(--primary-hover)",
+  "var(--danger)",
+  "var(--muted)",
 ];
 
 function PieChartCard({ dashboard }) {
@@ -49,10 +49,7 @@ function PieChartCard({ dashboard }) {
 
             {chartData.map((entry, index) => (
 
-              <Cell
-                key={index}
-                fill={COLORS[index % COLORS.length]}
-              />
+              <Cell key={index} fill={COLORS[index % COLORS.length]} />
 
             ))}
 

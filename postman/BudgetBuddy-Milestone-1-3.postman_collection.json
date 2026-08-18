@@ -1,0 +1,18 @@
+{
+  "info": {
+    "name": "BudgetBuddy — Milestones 1 to 3",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:8000" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    { "name": "Login", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"your-verified-email@example.com\",\n  \"password\": \"your-password\"\n}" }, "url": "{{baseUrl}}/auth/login" } },
+    { "name": "Authenticated user", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/auth/me" } },
+    { "name": "Create expense", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"category\": \"Shopping\",\n  \"amount\": 6000,\n  \"bank_account\": \"Test Bank 1234\"\n}" }, "url": "{{baseUrl}}/expenses/" } },
+    { "name": "Create budget", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"category\": \"Shopping\",\n  \"amount\": 5000,\n  \"month\": \"2026-08\"\n}" }, "url": "{{baseUrl}}/budgets/" } },
+    { "name": "Create savings goal", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"goal_name\": \"Emergency fund\",\n  \"target_amount\": 10000\n}" }, "url": "{{baseUrl}}/goals/" } },
+    { "name": "List notifications", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{baseUrl}}/notifications/" } }
+  ]
+}

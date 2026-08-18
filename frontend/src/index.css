@@ -19,8 +19,8 @@ body {
 
 body {
   font-family: Arial, Helvetica, sans-serif;
-  background: #f6f8fb;
-  color: #172033;
+  background: var(--bg);
+  color: var(--text);
 }
 
 button,

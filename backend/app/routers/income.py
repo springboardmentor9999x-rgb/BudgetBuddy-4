@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -39,10 +39,12 @@ def add_income(
 # -----------------------------
 @router.get("/", response_model=list[IncomeOut])
 def read_income(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=200),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return get_all_income(db, current_user.id)
+    return get_all_income(db, current_user.id)[skip:skip + limit]
 
 
 # -----------------------------

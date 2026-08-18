@@ -26,7 +26,9 @@ from app.core.security import (
 
 from app.models.user import User
 from app.models.pending_user import PendingUser
+from app.models.profile import Profile
 from app.services.email import send_verification_email
+from app.core.deps import get_current_user
 
 router = APIRouter(
     prefix="/auth",
@@ -132,6 +134,9 @@ def verify_email(
     )
 
     db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    db.add(Profile(user_id=new_user.id))
     db.delete(pending_user)
     db.commit()
 
@@ -164,11 +169,28 @@ def login(
             detail="Invalid credentials"
         )
 
+    if not db_user.is_verified:
+        raise HTTPException(
+            status_code=403,
+            detail="Please verify your email before signing in."
+        )
+
     token = create_access_token({"sub": db_user.email})
 
     return {
         "access_token": token,
         "token_type": "bearer"
+    }
+
+
+@router.get("/me")
+def read_current_user(current_user: User = Depends(get_current_user)):
+    """JWT round-trip endpoint and authenticated user identity for clients."""
+    return {
+        "id": current_user.id,
+        "full_name": current_user.full_name,
+        "email": current_user.email,
+        "is_verified": current_user.is_verified,
     }
 
 

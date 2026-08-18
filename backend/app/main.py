@@ -9,6 +9,12 @@ from app.routers.auth import router as auth_router
 from app.routers import expenses
 from app.routers import dashboard
 from app.routers import income
+from app.routers import budgets
+from app.routers import saving_goals
+from app.routers import notifications
+from app.routers import analytics
+from app.routers import profile
+from app.routers import reports
 
 app = FastAPI(
     title="BudgetBuddy API",
@@ -52,6 +58,42 @@ app.include_router(
     dashboard.router,
     prefix="/dashboard",
     tags=["Dashboard"],
+)
+
+app.include_router(
+    budgets.router,
+    prefix="/budgets",
+    tags=["Budgets"],
+)
+
+app.include_router(
+    saving_goals.router,
+    prefix="/goals",
+    tags=["Savings Goals"],
+)
+
+app.include_router(
+    notifications.router,
+    prefix="/notifications",
+    tags=["Notifications"],
+)
+
+app.include_router(
+    analytics.router,
+    prefix="/analytics",
+    tags=["Analytics"],
+)
+
+app.include_router(
+    profile.router,
+    prefix="/profile",
+    tags=["Profile"],
+)
+
+app.include_router(
+    reports.router,
+    prefix="/reports",
+    tags=["Reports"],
 )
 
 # -----------------------------

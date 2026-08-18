@@ -4,6 +4,7 @@ import { FaCheckCircle, FaPlus, FaTrashAlt } from "react-icons/fa";
 import ExpenseForm from "../components/ExpenseForm";
 import ExpenseList from "../components/ExpenseList";
 import { createExpense, deleteExpense, getExpenses } from "../services/expenseService";
+import { getBudgetSummary } from "../services/budgetService";
 import "./Expenses.css";
 
 const BANK_STORAGE_KEY = "budgetbuddy-bank-details";
@@ -48,9 +49,25 @@ function Expenses() {
   }, []);
 
   const handleAdd = async (expense) => {
+    let alert = null;
+    try {
+      const today = new Date();
+      const month = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+      const budgets = await getBudgetSummary(month);
+      const budget = budgets.find((item) => item.category === expense.category);
+      if (budget) {
+        const projectedSpent = Number(budget.spent) + Number(expense.amount);
+        const projectedUsage = (projectedSpent / Number(budget.amount)) * 100;
+        const projectedRemaining = Number(budget.amount) - projectedSpent;
+        const money = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
+        if (projectedUsage > 100) alert = { type: "error", message: `Budget exceeded: this ${money.format(expense.amount)} ${expense.category} expense takes you to ${money.format(projectedSpent)} of your ${money.format(budget.amount)} budget (${money.format(Math.abs(projectedRemaining))} over).` };
+        else if (projectedUsage >= 80) alert = { type: "warning", message: `Budget alert: ${expense.category} will be ${Math.round(projectedUsage)}% used after this expense. ${money.format(projectedRemaining)} remains.` };
+      }
+    } catch { /* A budget lookup is optional; the expense can still be saved. */ }
+
     await createExpense(expense);
     await loadExpenses();
-    showToast("success", "Expense added successfully.");
+    showToast(alert?.type || "success", alert?.message || "Expense added successfully.");
   };
 
   const handleDelete = async (expense) => {

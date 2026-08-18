@@ -1,0 +1,131 @@
+/* Shared product polish. Loaded last so page features retain their own layout rules. */
+:root { --page-max: 1180px; --panel-padding: 24px; }
+
+.dashboard, .income-container, .expenses-page, .accounts-page, .budget-page, .goals-page, .reports-page, .profile-page, .settings-page {
+  max-width: var(--page-max) !important;
+  animation: page-enter .35s ease-out both;
+}
+
+.dashboard-heading h1, .expenses-hero h1, .accounts-header h1, .budget-header h1, .goals-page h1, .reports-page h1 {
+  font-size: clamp(2rem, 3vw, 2.65rem);
+  letter-spacing: -.04em;
+}
+
+.dashboard-heading p, .expenses-hero p, .accounts-header span, .budget-header span, .goals-page header > div > span, .reports-page header span {
+  max-width: 620px;
+  line-height: 1.65;
+}
+
+.dashboard-card, .chart-card, .recent-transactions, .progress-card, .expense-panel, .accounts-panel, .budget-panel, .goals-panel, .reports-stats > div, .reports-charts article, .goal-report, .profile-card, .settings-panel {
+  border-color: var(--border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--soft-shadow) !important;
+}
+
+.dashboard-card, .progress-card, .expense-panel, .accounts-panel, .budget-panel, .goals-panel, .reports-stats > div, .reports-charts article, .goal-report, .profile-card { background: var(--surface); }
+.dashboard-card:hover, .goal-card:hover, .account-item:hover, .budget-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.dashboard-card, .goal-card, .account-item, .budget-card { transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+
+.dashboard-balance-simple, .income-header-total { border-radius: var(--radius); }
+.cards { gap: 16px; }
+.chart-card, .recent-transactions, .progress-card { overflow: hidden; }
+.chart-card h2, .recent-transactions h2, .progress-card h3 { letter-spacing: -.015em; }
+
+.expense-panel, .accounts-panel, .budget-panel, .goals-panel, .reports-charts article, .goal-report { padding: var(--panel-padding); }
+.expense-panel-heading > .panel-icon, .accounts-title > svg, .budget-panel-heading > span, .goals-panel-heading > svg { border-radius: 12px; }
+
+.expense-form input, .expense-form select, .income-form input, .income-form select, .account-form input, .budget-form input, .budget-form select, .goals-panel input, .profile-form input, .profile-form textarea, .settings-controls select {
+  min-height: 44px;
+  border-radius: 10px !important;
+  background: var(--surface) !important;
+}
+
+.expense-form button, .income-form button, .account-form button, .budget-form button, .goals-panel form button, .contribute button, .profile-form button {
+  min-height: 44px;
+  border-radius: 10px !important;
+  color: #fff;
+}
+
+.budget-stats > div, .reports-stats > div, .stat-card { position: relative; overflow: hidden; }
+.budget-stats > div::after, .reports-stats > div::after { content: ""; position: absolute; width: 70px; height: 70px; right: -30px; bottom: -36px; border-radius: 50%; background: color-mix(in srgb, var(--primary) 10%, transparent); }
+.budget-stats > div:first-child::after, .reports-stats > div:nth-child(2)::after { background: color-mix(in srgb, var(--success) 12%, transparent); }
+.budget-stats > div:nth-child(2)::after, .reports-stats > div:nth-child(3)::after { background: color-mix(in srgb, var(--danger) 10%, transparent); }
+
+.budget-card, .goal-card, .account-item { background: var(--surface-muted); border-color: var(--border); }
+.budget-card-top button, .goal-card-top button, .account-item button { color: var(--danger); }
+.budget-progress, .goal-progress, .goal-report-track, .progress-bar { background: color-mix(in srgb, var(--muted) 15%, transparent); }
+.goal-details { display: flex; justify-content: space-between; gap: 12px; }
+.contribute { display: flex; gap: 9px; margin-top: 16px; }
+.contribute input { min-height: 40px; }
+.contribute button { min-height: 40px; }
+
+.expense-table th, .income-table th, .transaction-table th { color: var(--muted); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
+.expense-table td, .income-table td, .transaction-table td { border-color: var(--border); }
+.income-table, .transaction-table { width: 100%; border-collapse: collapse; }
+.income-table th, .income-table td { padding: 15px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+.income-table th { background: var(--surface-muted); }.income-table tr:last-child td { border-bottom: 0; }
+.income-amount { color: var(--success); font-weight: 800; }.delete-btn { border: 0; border-radius: 8px; padding: 7px 10px; background: color-mix(in srgb, var(--danger) 10%, var(--surface)); color: var(--danger); font-weight: 700; }
+
+.accounts-notice, .income-toast, .budget-notice, .goals-notice, .profile-notice, .settings-notice { border: 1px solid color-mix(in srgb, var(--success) 24%, transparent); box-shadow: var(--soft-shadow); }
+.goals-notice, .budget-notice { display: flex; align-items: center; gap: 9px; margin-bottom: 20px; padding: 14px 16px; border-radius: 12px; background: color-mix(in srgb, var(--success) 8%, var(--surface)); color: var(--success); font-weight: 700; }.goals-notice.error, .budget-notice.error { border-color: color-mix(in srgb, var(--danger) 28%, transparent); background: color-mix(in srgb, var(--danger) 8%, var(--surface)); color: var(--danger); }
+.goals-notice, .budget-notice { position: fixed; z-index: 2000; top: 24px; right: 24px; width: min(390px, calc(100vw - 32px)); margin: 0; animation: toast-in .25s ease-out; }
+
+.auth-page, .signup-page, .forgot-page, .verification-page { background: radial-gradient(circle at 15% 5%, color-mix(in srgb, var(--primary) 20%, transparent), transparent 34%), var(--bg); }
+.auth-container, .signup-container, .forgot-container, .verification-card { border: 1px solid var(--border); box-shadow: 0 26px 70px rgba(18, 28, 47, .15); }
+.auth-left, .signup-left, .forgot-left { background: linear-gradient(145deg, #39249b, var(--primary) 60%, #8a73ff); }
+.verification-card { border-radius: 24px; }.verification-code { border-radius: 12px; }.verification-submit, .verification-link { border-radius: 12px; }
+
+:root[data-theme="dark"] .dashboard-card, :root[data-theme="dark"] .progress-card, :root[data-theme="dark"] .goal-card, :root[data-theme="dark"] .account-item, :root[data-theme="dark"] .income-table th, :root[data-theme="dark"] .profile-contact p { background: var(--surface-muted); }
+:root[data-theme="dark"] .expenses-total-card { box-shadow: none; }
+
+@media (max-width: 900px) {
+  :root { --panel-padding: 20px; }
+  .reports-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .goals-panel form, .budget-form { grid-template-columns: 1fr 1fr; }
+  .goals-panel form button, .budget-form button { grid-column: 1 / -1; }
+  .reports-insight { grid-template-columns: auto 1fr; }
+  .reports-spend-rate { grid-column: 1 / -1; }
+}
+
+@media (max-width: 620px) {
+  :root { --panel-padding: 18px; }
+  .dashboard, .income-container, .expenses-page, .accounts-page, .budget-page, .goals-page, .reports-page { padding-top: 4px !important; }
+  .accounts-grid, .goals-grid, .reports-stats, .budget-stats { grid-template-columns: 1fr; }
+  .goals-panel form, .budget-form { grid-template-columns: 1fr; }
+  .expense-table, .income-table { min-width: 620px; }
+  .expense-table-wrap, .income-records .table-card { overflow-x: auto; }
+  .goal-details { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .contribute { flex-direction: column; }
+  .contribute button { width: 100%; }
+  .reports-insight { grid-template-columns: 1fr; }
+  .reports-insight-icon { display: none; }
+  .reports-spend-rate { grid-column: auto; }
+}
+
+@keyframes page-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.auth-checking { display: grid; min-height: 100vh; place-items: center; background: var(--bg); color: var(--muted); font-weight: 700; }
+
+/* Navigation contrast: these controls sit on the darkest surfaces in both themes. */
+.sidebar-header h2 { color: #f8fafc !important; }
+.sidebar-header p { color: #cbd5e1 !important; }
+.sidebar .menu-item { color: #cbd5e1 !important; }
+.sidebar .menu-item:hover, .sidebar .menu-item:hover span, .sidebar .menu-item.active, .sidebar .menu-item.active span { color: #ffffff !important; }
+.topbar .icon-btn { color: var(--text) !important; }
+.topbar .icon-btn svg { color: currentColor !important; fill: currentColor !important; }
+:root[data-theme="dark"] .topbar .icon-btn { background: var(--surface-muted); border: 1px solid var(--border); color: #f8fafc !important; }
+:root[data-theme="dark"] .topbar .icon-btn:hover { background: var(--primary); color: #ffffff !important; }
+
+.profile-email-field > span { display: flex; align-items: center; gap: 5px; color: var(--success); font-size: .72rem; font-weight: 700; }
+.profile-email-field input { border-color: color-mix(in srgb, var(--success) 30%, var(--border)) !important; background: color-mix(in srgb, var(--success) 7%, var(--surface-muted)) !important; color: var(--muted); cursor: not-allowed; }
+.profile-email-field input:focus { box-shadow: none !important; }
+
+.profile-heading, .settings-heading { isolation: isolate; }
+.profile-heading::before, .settings-heading::before { content: ""; position: absolute; inset: auto auto -80px 42%; z-index: -1; width: 180px; height: 180px; border-radius: 50%; background: color-mix(in srgb, var(--primary) 9%, transparent); filter: blur(4px); }
+.profile-card, .settings-panel { transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+.profile-card:hover, .settings-panel:hover { border-color: color-mix(in srgb, var(--primary) 28%, var(--border)); box-shadow: var(--shadow) !important; }
+.profile-security, .settings-account-summary div { position: relative; overflow: hidden; }
+.profile-security::after, .settings-account-summary div::after { content: ""; position: absolute; right: -20px; bottom: -26px; width: 58px; height: 58px; border-radius: 50%; background: color-mix(in srgb, var(--primary) 10%, transparent); }
+.settings-section { animation: page-enter .35s ease-out both; }.settings-section:nth-child(2) { animation-delay: .05s; }.settings-section:nth-child(3) { animation-delay: .1s; }.settings-section:nth-child(4) { animation-delay: .15s; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }

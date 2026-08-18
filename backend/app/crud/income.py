@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 
+from app.crud.notification import create_notification
 from app.models.income import Income
 from app.schemas.income import IncomeCreate, IncomeUpdate
 
@@ -19,6 +20,8 @@ def create_income(db: Session, user_id: int, income: IncomeCreate):
     db.add(db_income)
     db.commit()
     db.refresh(db_income)
+    create_notification(db, user_id, f"Income added: {db_income.source} (₹{float(db_income.amount):,.2f}).", "transaction_added")
+    db.commit()
 
     return db_income
 
@@ -80,7 +83,10 @@ def delete_income(db: Session, income_id: int, user_id: int):
     if not db_income:
         return None
 
+    source = db_income.source
     db.delete(db_income)
+    db.commit()
+    create_notification(db, user_id, f"Income deleted: {source}.", "transaction_deleted")
     db.commit()
 
     return db_income
