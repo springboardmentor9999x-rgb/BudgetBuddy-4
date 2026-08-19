@@ -1,9 +1,8 @@
-from datetime import datetime
-
 from sqlalchemy import Column, Integer, Float, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 from app.database import Base
+from app.core.time import utcnow_naive
 
 
 class Budget(Base):
@@ -16,7 +15,7 @@ class Budget(Base):
     amount = Column(Float, nullable=False)
 
     # Stored as YYYY-MM so a user can maintain a separate limit each month.
-    month = Column(String(7), nullable=False, default=lambda: datetime.utcnow().strftime("%Y-%m"))
+    month = Column(String(7), nullable=False, default=lambda: utcnow_naive().strftime("%Y-%m"))
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 

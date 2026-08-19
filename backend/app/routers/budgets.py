@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
@@ -8,6 +6,7 @@ from app.crud.budget import create_budget, delete_budget, get_budget, get_budget
 from app.database import get_db
 from app.models.user import User
 from app.schemas.budget import BudgetCreate, BudgetOut, BudgetSummary, BudgetUpdate
+from app.core.time import utcnow_naive
 
 router = APIRouter()
 
@@ -23,7 +22,7 @@ def list_budgets(month: str | None = Query(default=None, pattern=r"^\d{4}-(0[1-9
 
 
 @router.get("/summary", response_model=list[BudgetSummary])
-def budget_summary(month: str = Query(default_factory=lambda: datetime.utcnow().strftime("%Y-%m"), pattern=r"^\d{4}-(0[1-9]|1[0-2])$"), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def budget_summary(month: str = Query(default_factory=lambda: utcnow_naive().strftime("%Y-%m"), pattern=r"^\d{4}-(0[1-9]|1[0-2])$"), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return get_budget_summary(db, current_user.id, month)
 
 

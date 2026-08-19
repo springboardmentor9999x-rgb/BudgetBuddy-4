@@ -12,12 +12,13 @@ from app.core.deps import get_current_user
 from app.crud.report import monthly_report
 from app.database import get_db
 from app.models.user import User
+from app.core.time import utcnow_naive
 
 router = APIRouter()
 
 
 def _period(month: int | None, year: int | None) -> tuple[int, int]:
-    now = datetime.utcnow()
+    now = utcnow_naive()
     return year or now.year, month or now.month
 
 

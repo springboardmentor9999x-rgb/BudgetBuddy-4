@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.models.expense import Expense
 from app.models.income import Income
 from app.models.saving_goal import SavingGoal
+from app.core.time import utcnow_naive
 
 
 def _month_start(value: datetime) -> datetime:
@@ -20,7 +21,7 @@ def spending_by_category(db: Session, user_id: int):
 
 
 def monthly_trend(db: Session, user_id: int, months: int = 6):
-    now = datetime.utcnow()
+    now = utcnow_naive()
     cursor = _month_start(now)
     month_starts = []
     for _ in range(months):

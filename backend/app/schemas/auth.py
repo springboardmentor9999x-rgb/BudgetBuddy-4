@@ -2,9 +2,9 @@ from pydantic import BaseModel, EmailStr, Field
 
 
 class Signup(BaseModel):
-    full_name: str
+    full_name: str = Field(min_length=1, max_length=100)
     email: EmailStr
-    password: str
+    password: str = Field(min_length=8, max_length=72)
 
 
 class Login(BaseModel):
@@ -19,7 +19,7 @@ class Token(BaseModel):
 
 class ResetPassword(BaseModel):
     email: EmailStr
-    new_password: str
+    new_password: str = Field(min_length=8, max_length=72)
 
 
 class VerifyEmailCode(BaseModel):

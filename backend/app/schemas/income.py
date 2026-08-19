@@ -3,10 +3,10 @@ from datetime import datetime
 
 
 class IncomeBase(BaseModel):
-    source: str
+    source: str = Field(min_length=1, max_length=100)
     amount: float = Field(gt=0)
-    description: str | None = None
-    bank_account: str | None = None
+    description: str | None = Field(default=None, max_length=500)
+    bank_account: str | None = Field(default=None, max_length=120)
 
     @field_validator("source")
     @classmethod
@@ -31,10 +31,18 @@ class IncomeCreate(IncomeBase):
 
 
 class IncomeUpdate(BaseModel):
-    source: str | None = None
+    source: str | None = Field(default=None, min_length=1, max_length=100)
     amount: float | None = Field(default=None, gt=0)
     description: str | None = Field(default=None, min_length=1, max_length=500)
-    bank_account: str | None = None
+    bank_account: str | None = Field(default=None, max_length=120)
+
+    @field_validator("source")
+    @classmethod
+    def normalize_update_source(cls, value: str | None) -> str | None:
+        value = value.strip() if value is not None else value
+        if value == "":
+            raise ValueError("Source cannot be blank")
+        return value
 
 
 class IncomeOut(IncomeBase):
@@ -45,5 +53,4 @@ class IncomeOut(IncomeBase):
     user_id: int
     date: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}

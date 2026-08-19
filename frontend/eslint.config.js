@@ -32,7 +32,7 @@ export default defineConfig([
     },
 
     languageOptions: {
-      globals: globals.browser,
+      globals: { ...globals.browser, process: "readonly", __VITE_API_URL__: "readonly" },
       parserOptions: {
         ecmaFeatures: {
           jsx: true,

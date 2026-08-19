@@ -18,6 +18,11 @@ function ExpenseForm({ bankAccounts, onAdd }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
+    const parsedAmount = Number(amount);
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      setError("Amount must be greater than zero.");
+      return;
+    }
     try {
       setSaving(true);
       const account = bankAccounts.find((item) => item.id === selectedBank);

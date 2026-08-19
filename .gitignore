@@ -15,6 +15,7 @@ backend/.env
 frontend/.env
 backend/.env.*
 frontend/.env.*
+*.db
 
 # Node
 node_modules/

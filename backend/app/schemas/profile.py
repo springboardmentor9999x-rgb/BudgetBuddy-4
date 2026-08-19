@@ -13,5 +13,4 @@ class ProfileOut(BaseModel):
     phone: str | None
     address: str | None
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaCheckCircle, FaPlus, FaTrashAlt } from "react-icons/fa";
 
 import ExpenseForm from "../components/ExpenseForm";
@@ -20,12 +20,12 @@ function Expenses() {
     [expenses]
   );
 
-  const showToast = (type, message) => {
+  const showToast = useCallback((type, message) => {
     setToast({ type, message });
     window.setTimeout(() => setToast(null), 3500);
-  };
+  }, []);
 
-  const loadExpenses = async () => {
+  const loadExpenses = useCallback(async () => {
     try {
       setLoading(true);
       setExpenses(await getExpenses());
@@ -34,7 +34,7 @@ function Expenses() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast]);
 
   useEffect(() => {
     loadExpenses();
@@ -46,7 +46,7 @@ function Expenses() {
         setBankAccounts(Array.isArray(parsed) ? parsed : parsed.bankName ? [{ id: "primary", ...parsed }] : []);
       } catch { localStorage.removeItem(BANK_STORAGE_KEY); }
     }
-  }, []);
+  }, [loadExpenses]);
 
   const handleAdd = async (expense) => {
     let alert = null;

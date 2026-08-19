@@ -1,14 +1,22 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class ExpenseBase(BaseModel):
-    category: str
+    category: str = Field(min_length=1, max_length=80)
     amount: float = Field(gt=0)
-    description: Optional[str] = None
-    bank_account: Optional[str] = None
+    description: Optional[str] = Field(default=None, max_length=500)
+    bank_account: Optional[str] = Field(default=None, max_length=120)
+
+    @field_validator("category")
+    @classmethod
+    def normalize_category(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("Category cannot be blank")
+        return value
 
 
 class ExpenseCreate(ExpenseBase):
@@ -16,10 +24,15 @@ class ExpenseCreate(ExpenseBase):
 
 
 class ExpenseUpdate(BaseModel):
-    category: Optional[str] = None
+    category: Optional[str] = Field(default=None, min_length=1, max_length=80)
     amount: Optional[float] = Field(default=None, gt=0)
-    description: Optional[str] = None
-    bank_account: Optional[str] = None
+    description: Optional[str] = Field(default=None, max_length=500)
+    bank_account: Optional[str] = Field(default=None, max_length=120)
+
+    @field_validator("category")
+    @classmethod
+    def normalize_update_category(cls, value: str | None) -> str | None:
+        return value.strip() if value is not None else value
 
 
 class ExpenseOut(ExpenseBase):
@@ -27,5 +40,4 @@ class ExpenseOut(ExpenseBase):
     user_id: int
     date: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}

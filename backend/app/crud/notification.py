@@ -1,11 +1,10 @@
-from datetime import datetime
-
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.models.expense import Expense
 from app.models.income import Income
 from app.models.notification import Notification
+from app.core.time import utcnow_naive
 
 
 def create_notification(db: Session, user_id: int, message: str, notification_type: str):
@@ -30,7 +29,7 @@ def mark_notification_read(db: Session, notification_id: int, user_id: int):
 
 def generate_monthly_report_notification(db: Session, user_id: int):
     """Create one manual monthly-report notification per user and month."""
-    now = datetime.utcnow()
+    now = utcnow_naive()
     month_label = now.strftime("%B %Y")
     existing = db.query(Notification).filter(
         Notification.user_id == user_id,

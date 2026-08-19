@@ -1,4 +1,4 @@
-from datetime import datetime
+from app.core.time import utcnow_naive
 import re
 
 from pydantic import BaseModel, Field, field_validator
@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field, field_validator
 class BudgetBase(BaseModel):
     category: str = Field(min_length=1, max_length=80)
     amount: float = Field(gt=0)
-    month: str = Field(default_factory=lambda: datetime.utcnow().strftime("%Y-%m"))
+    month: str = Field(default_factory=lambda: utcnow_naive().strftime("%Y-%m"))
 
     @field_validator("category")
     @classmethod
@@ -51,8 +51,7 @@ class BudgetOut(BudgetBase):
     id: int
     user_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 
 class BudgetSummary(BudgetOut):

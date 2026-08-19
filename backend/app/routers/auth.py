@@ -118,7 +118,10 @@ def verify_email(
     if not pending_user:
         raise HTTPException(status_code=400, detail="Invalid email or verification code")
 
-    if pending_user.expires_at < datetime.now(timezone.utc):
+    expires_at = pending_user.expires_at
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    if expires_at < datetime.now(timezone.utc):
         db.delete(pending_user)
         db.commit()
         raise HTTPException(status_code=400, detail="Verification code expired. Please sign up again.")

@@ -7,6 +7,7 @@ from app.crud.notification import create_notification
 from app.models.budget import Budget
 from app.models.expense import Expense
 from app.schemas.expense import ExpenseCreate, ExpenseUpdate
+from app.core.time import utcnow_naive
 
 
 def create_expense(db: Session, user_id: int, expense: ExpenseCreate):
@@ -31,7 +32,7 @@ def create_expense(db: Session, user_id: int, expense: ExpenseCreate):
 
 def _create_budget_alert_if_crossed(db: Session, user_id: int, expense: Expense):
     """Notify once when an expense crosses its category limit for the current month."""
-    expense_date = expense.date or datetime.utcnow()
+    expense_date = expense.date or utcnow_naive()
     month = expense_date.strftime("%Y-%m")
     budget = db.query(Budget).filter(
         Budget.user_id == user_id,

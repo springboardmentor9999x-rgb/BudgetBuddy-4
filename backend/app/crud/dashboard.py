@@ -5,11 +5,12 @@ from sqlalchemy.orm import Session
 
 from app.models.expense import Expense
 from app.models.income import Income
+from app.core.time import utcnow_naive
 
 
 def get_dashboard_summary(db: Session, user_id: int):
     """Return the current-month summary plus chart-ready historical data."""
-    now = datetime.utcnow()
+    now = utcnow_naive()
     start = datetime(now.year, now.month, 1)
     end = datetime(start.year + (start.month == 12), (start.month % 12) + 1, 1)
 

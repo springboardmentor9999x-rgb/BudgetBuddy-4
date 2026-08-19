@@ -1,3 +1,32 @@
+def test_signup_verification_and_login_flow(client, monkeypatch):
+    verification = {}
+
+    def capture_code(email, code):
+        verification["email"] = email
+        verification["code"] = code
+
+    monkeypatch.setattr("app.routers.auth.send_verification_email", capture_code)
+    signup = client.post(
+        "/auth/signup",
+        json={"email": "new-user@example.com", "password": "CorrectPassword1", "full_name": "New User"},
+    )
+    assert signup.status_code == 200
+    assert verification["email"] == "new-user@example.com"
+
+    verified = client.post(
+        "/auth/verify-email",
+        json={"email": verification["email"], "code": verification["code"]},
+    )
+    assert verified.status_code == 200
+
+    login = client.post(
+        "/auth/login",
+        json={"email": "new-user@example.com", "password": "CorrectPassword1"},
+    )
+    assert login.status_code == 200
+    assert login.json()["token_type"] == "bearer"
+
+
 def test_login_and_authenticated_identity(client, user_a):
     login = client.post("/auth/login", json={"email": user_a.email, "password": "CorrectPassword1"})
     assert login.status_code == 200

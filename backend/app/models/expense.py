@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from datetime import datetime
+from app.core.time import utcnow_naive
 
 from app.database import Base
 
@@ -21,6 +21,6 @@ class Expense(Base):
     # Stores a display-safe label, for example "HDFC Bank •••• 1234".
     bank_account = Column(String, nullable=True)
 
-    date = Column(DateTime, default=datetime.utcnow)
+    date = Column(DateTime, default=utcnow_naive)
 
     owner = relationship("User", back_populates="expenses")
