@@ -15,76 +15,195 @@ import ExpenseForm from "../components/expense/ExpenseForm";
 import ExpenseTable from "../components/expense/ExpenseTable";
 import EmptyExpense from "../components/expense/EmptyExpense";
 
+
 function Expense() {
   const [expenses, setExpenses] = useState([]);
 
   // Currently editing expense
   const [editingExpense, setEditingExpense] = useState(null);
 
+
+  // =========================================================
+  // Error Message Helper
+  // =========================================================
+
+  const getErrorMessage = (error, defaultMessage) => {
+    console.error("API Error:", error);
+
+    const data = error?.response?.data;
+
+
+    // =======================================================
+    // FastAPI validation errors
+    // =======================================================
+
+    if (Array.isArray(data?.detail)) {
+      return data.detail
+        .map((item) => {
+          const location = item?.loc
+            ? item.loc.join(" → ")
+            : "unknown field";
+
+          const message =
+            item?.msg ||
+            "Validation error";
+
+          return `${location}: ${message}`;
+        })
+        .join("\n");
+    }
+
+
+    // =======================================================
+    // Normal FastAPI detail
+    // =======================================================
+
+    if (typeof data?.detail === "string") {
+      return data.detail;
+    }
+
+
+    // =======================================================
+    // Object detail
+    // =======================================================
+
+    if (
+      data?.detail &&
+      typeof data.detail === "object"
+    ) {
+      return (
+        data.detail.message ||
+        JSON.stringify(data.detail)
+      );
+    }
+
+
+    // =======================================================
+    // Normal message
+    // =======================================================
+
+    if (typeof data?.message === "string") {
+      return data.message;
+    }
+
+
+    // =======================================================
+    // Plain response
+    // =======================================================
+
+    if (typeof data === "string") {
+      return data;
+    }
+
+
+    // =======================================================
+    // Axios error
+    // =======================================================
+
+    if (error?.message) {
+      return error.message;
+    }
+
+
+    return defaultMessage;
+  };
+
+
+  // =========================================================
+  // Load Expenses
+  // =========================================================
+
   useEffect(() => {
     loadExpenses();
   }, []);
 
-  // -------------------------
-  // Load Expenses
-  // -------------------------
+
   const loadExpenses = async () => {
     try {
       const data = await getExpenses();
-      setExpenses(data);
+
+      setExpenses(data || []);
+
     } catch (error) {
-      console.error("Failed to load expenses:", error);
+      console.error(
+        "Failed to load expenses:",
+        error
+      );
 
       alert(
-        error.response?.data?.detail ||
-        "Failed to load expenses."
+        getErrorMessage(
+          error,
+          "Failed to load expenses."
+        )
       );
     }
   };
 
-  // -------------------------
+
+  // =========================================================
   // Create Expense
-  // -------------------------
+  // =========================================================
+
   const handleCreateExpense = async (formData) => {
     try {
       await createExpense(formData);
 
       await loadExpenses();
 
-      alert("Expense added successfully.");
+      alert(
+        "Expense added successfully."
+      );
 
     } catch (error) {
-      console.error("Failed to create expense:", error);
+      console.error(
+        "Failed to create expense:",
+        error
+      );
 
       alert(
-        error.response?.data?.detail ||
-        "Failed to create expense."
+        getErrorMessage(
+          error,
+          "Failed to create expense."
+        )
       );
     }
   };
 
-  // -------------------------
+
+  // =========================================================
   // Start Editing
-  // -------------------------
+  // =========================================================
+
   const handleEditExpense = (expense) => {
     setEditingExpense(expense);
 
-    // Scroll to the form
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
   };
 
-  // -------------------------
+
+  // =========================================================
   // Update Expense
-  // -------------------------
+  // =========================================================
+
   const handleUpdateExpense = async (formData) => {
     if (!editingExpense) {
       return;
     }
 
     try {
+      console.log(
+        "Updating expense:",
+        editingExpense.id
+      );
+
+      console.log(
+        "Update data:",
+        formData
+      );
+
       await updateExpense(
         editingExpense.id,
         formData
@@ -94,21 +213,30 @@ function Expense() {
 
       setEditingExpense(null);
 
-      alert("Expense updated successfully.");
+      alert(
+        "Expense updated successfully."
+      );
 
     } catch (error) {
-      console.error("Failed to update expense:", error);
+      console.error(
+        "Failed to update expense:",
+        error
+      );
 
       alert(
-        error.response?.data?.detail ||
-        "Failed to update expense."
+        getErrorMessage(
+          error,
+          "Failed to update expense."
+        )
       );
     }
   };
 
-  // -------------------------
+
+  // =========================================================
   // Form Submit
-  // -------------------------
+  // =========================================================
+
   const handleFormSubmit = async (formData) => {
     if (editingExpense) {
       await handleUpdateExpense(formData);
@@ -117,16 +245,20 @@ function Expense() {
     }
   };
 
-  // -------------------------
+
+  // =========================================================
   // Cancel Edit
-  // -------------------------
+  // =========================================================
+
   const handleCancelEdit = () => {
     setEditingExpense(null);
   };
 
-  // -------------------------
+
+  // =========================================================
   // Delete Expense
-  // -------------------------
+  // =========================================================
+
   const handleDeleteExpense = async (id) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this expense?"
@@ -141,28 +273,40 @@ function Expense() {
 
       await loadExpenses();
 
-      // If deleted item was being edited
       if (editingExpense?.id === id) {
         setEditingExpense(null);
       }
 
-      alert("Expense deleted successfully.");
+      alert(
+        "Expense deleted successfully."
+      );
 
     } catch (error) {
-      console.error("Failed to delete expense:", error);
+      console.error(
+        "Failed to delete expense:",
+        error
+      );
 
       alert(
-        error.response?.data?.detail ||
-        "Failed to delete expense."
+        getErrorMessage(
+          error,
+          "Failed to delete expense."
+        )
       );
     }
   };
+
+
+  // =========================================================
+  // UI
+  // =========================================================
 
   return (
     <ProtectedLayout>
 
       {/* Header */}
       <ExpenseHeader />
+
 
       {/* Statistics */}
       <div className="mb-8">
@@ -171,10 +315,15 @@ function Expense() {
         />
       </div>
 
+
       {/* Form + Table */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-        {/* Expense Form */}
+
+        {/* =================================================
+            Expense Form
+        ================================================= */}
+
         <div className="lg:col-span-1">
 
           <ExpenseForm
@@ -185,17 +334,25 @@ function Expense() {
 
         </div>
 
-        {/* Expense Table */}
+
+        {/* =================================================
+            Expense Table
+        ================================================= */}
+
         <div className="lg:col-span-2">
 
           {expenses.length === 0 ? (
+
             <EmptyExpense />
+
           ) : (
+
             <ExpenseTable
               expenses={expenses}
               onDelete={handleDeleteExpense}
               onEdit={handleEditExpense}
             />
+
           )}
 
         </div>
@@ -205,5 +362,6 @@ function Expense() {
     </ProtectedLayout>
   );
 }
+
 
 export default Expense;

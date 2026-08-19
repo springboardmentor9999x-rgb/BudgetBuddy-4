@@ -12,4 +12,4 @@ backend/.env
 .vscode/
 
 # macOS
-.DS_Store
+.DS_Storebackend/uploads/

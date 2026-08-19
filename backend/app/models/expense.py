@@ -16,14 +16,24 @@ from app.database import Base
 class Expense(Base):
     __tablename__ = "expenses"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True,
+    )
 
     user_id = Column(
         Integer,
-        ForeignKey("users.id", ondelete="CASCADE"),
+        ForeignKey(
+            "users.id",
+            ondelete="CASCADE",
+        ),
         nullable=False,
     )
 
+    # -------------------------
+    # Expense Details
+    # -------------------------
     category = Column(
         String(100),
         nullable=False,
@@ -39,9 +49,24 @@ class Expense(Base):
         nullable=False,
     )
 
+    # Keep this temporarily
+    # because existing expense records use it
     bank_name = Column(
         String(100),
         nullable=True,
+    )
+
+    # -------------------------
+    # Bank Account
+    # -------------------------
+    bank_account_id = Column(
+        Integer,
+        ForeignKey(
+            "bank_accounts.id",
+            ondelete="SET NULL",
+        ),
+        nullable=True,
+        index=True,
     )
 
     description = Column(
@@ -59,7 +84,18 @@ class Expense(Base):
         server_default=func.now(),
     )
 
+    # -------------------------
+    # User Relationship
+    # -------------------------
     user = relationship(
         "User",
+        back_populates="expenses",
+    )
+
+    # -------------------------
+    # Bank Account Relationship
+    # -------------------------
+    bank_account = relationship(
+        "BankAccount",
         back_populates="expenses",
     )

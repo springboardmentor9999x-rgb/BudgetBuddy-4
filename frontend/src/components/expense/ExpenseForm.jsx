@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import api from "../../api/axios";
+
 
 function ExpenseForm({
   onSubmit,
@@ -8,100 +10,213 @@ function ExpenseForm({
   const [form, setForm] = useState({
     category: "",
     payment_method: "",
-    bank_name: "",
+    bank_account_id: "",
     amount: "",
     description: "",
     date: "",
   });
 
-  // -------------------------
-  // Fill form when editing
-  // -------------------------
+  const [bankAccounts, setBankAccounts] = useState([]);
+  const [loadingBanks, setLoadingBanks] = useState(true);
+
+
+  // =========================================================
+  // Load Bank Accounts
+  // =========================================================
+
+  useEffect(() => {
+    loadBankAccounts();
+  }, []);
+
+
+  const loadBankAccounts = async () => {
+    try {
+      setLoadingBanks(true);
+
+      const response = await api.get(
+        "/bank-accounts/"
+      );
+
+      setBankAccounts(response.data || []);
+
+    } catch (error) {
+      console.error(
+        "Failed to load bank accounts:",
+        error
+      );
+    } finally {
+      setLoadingBanks(false);
+    }
+  };
+
+
+  // =========================================================
+  // Load Expense For Editing
+  // =========================================================
+
   useEffect(() => {
     if (editingExpense) {
       setForm({
-        category: editingExpense.category || "",
-        payment_method: editingExpense.payment_method || "",
-        bank_name: editingExpense.bank_name || "",
-        amount: editingExpense.amount ?? "",
-        description: editingExpense.description || "",
-        date: editingExpense.date
-          ? editingExpense.date.substring(0, 10)
-          : "",
+        category:
+          editingExpense.category || "",
+
+        payment_method:
+          editingExpense.payment_method || "",
+
+        bank_account_id:
+          editingExpense.bank_account_id
+            ? String(
+                editingExpense.bank_account_id
+              )
+            : "",
+
+        amount:
+          editingExpense.amount ?? "",
+
+        description:
+          editingExpense.description || "",
+
+        date:
+          editingExpense.date
+            ? String(
+                editingExpense.date
+              ).substring(0, 10)
+            : "",
       });
     }
   }, [editingExpense]);
 
-  // -------------------------
-  // Handle Input Changes
-  // -------------------------
+
+  // =========================================================
+  // Handle Change
+  // =========================================================
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    // Amount validation
-    if (name === "amount") {
-      // Allow empty input
-      if (value === "") {
-        setForm((prev) => ({
-          ...prev,
-          amount: "",
-        }));
-        return;
-      }
-
-      // Allow only numbers with maximum 2 decimal places
-      if (!/^\d*(\.\d{0,2})?$/.test(value)) {
-        return;
-      }
-    }
-
     setForm((prev) => ({
       ...prev,
-      [name]: value,
+      [e.target.name]: e.target.value,
     }));
   };
 
-  // -------------------------
+
+  // =========================================================
   // Reset Form
-  // -------------------------
+  // =========================================================
+
   const resetForm = () => {
     setForm({
       category: "",
       payment_method: "",
-      bank_name: "",
+      bank_account_id: "",
       amount: "",
       description: "",
       date: "",
     });
   };
 
-  // -------------------------
-  // Handle Submit
-  // -------------------------
+
+  // =========================================================
+  // Submit
+  // =========================================================
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const amount = Number(form.amount);
 
-    if (!amount || amount <= 0) {
-      alert("Please enter a valid expense amount.");
+    if (!form.bank_account_id) {
+      alert(
+        "Please select a bank account."
+      );
       return;
     }
 
-    onSubmit({
-      ...form,
-      amount: amount,
-    });
 
-    // Clear form only when adding
+    // -------------------------------------------------------
+    // CREATE
+    // -------------------------------------------------------
+
     if (!editingExpense) {
+
+      const createData = {
+        category: form.category,
+
+        payment_method:
+          form.payment_method,
+
+        bank_account_id:
+          Number(form.bank_account_id),
+
+        amount:
+          Number(form.amount),
+
+        description:
+          form.description || null,
+
+        date:
+          form.date,
+      };
+
+
+      console.log(
+        "Creating expense:",
+        createData
+      );
+
+
+      onSubmit(createData);
+
       resetForm();
+
+      return;
     }
+
+
+    // -------------------------------------------------------
+    // UPDATE
+    //
+    // IMPORTANT:
+    // Do NOT send date during update because the current
+    // backend is rejecting the date field with:
+    //
+    // body → date: Input should be None
+    // -------------------------------------------------------
+
+    const updateData = {
+      category: form.category,
+
+      payment_method:
+        form.payment_method,
+
+      bank_account_id:
+        Number(form.bank_account_id),
+
+      amount:
+        Number(form.amount),
+
+      description:
+        form.description || null,
+    };
+
+
+    console.log(
+      "Updating expense:",
+      editingExpense.id
+    );
+
+    console.log(
+      "Update data:",
+      updateData
+    );
+
+
+    onSubmit(updateData);
   };
 
-  // -------------------------
+
+  // =========================================================
   // Cancel Edit
-  // -------------------------
+  // =========================================================
+
   const handleCancel = () => {
     resetForm();
 
@@ -110,35 +225,35 @@ function ExpenseForm({
     }
   };
 
+
+  // =========================================================
+  // UI
+  // =========================================================
+
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6">
+    <div>
 
       {/* Title */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">
-          {editingExpense
-            ? "Edit Expense"
-            : "Add Expense"}
-        </h2>
 
-        <p className="text-gray-500 mt-1">
-          {editingExpense
-            ? "Update your expense details."
-            : "Record a new expense."}
-        </p>
-      </div>
+      <h2 className="text-2xl font-bold mb-6">
+        {editingExpense
+          ? "Edit Expense"
+          : "Add Expense"}
+      </h2>
+
 
       <form onSubmit={handleSubmit}>
 
-        {/* Category */}
+
+        {/* =================================================
+            Category
+        ================================================= */}
+
         <select
           name="category"
           value={form.category}
           onChange={handleChange}
-          className="w-full border border-gray-300 rounded-xl p-3 mb-4
-                     text-gray-900 bg-white
-                     focus:outline-none focus:ring-2
-                     focus:ring-red-500 focus:border-red-500"
+          className="w-full border rounded-lg p-3 mb-4"
           required
         >
           <option value="">
@@ -194,15 +309,16 @@ function ExpenseForm({
           </option>
         </select>
 
-        {/* Payment Method */}
+
+        {/* =================================================
+            Payment Method
+        ================================================= */}
+
         <select
           name="payment_method"
           value={form.payment_method}
           onChange={handleChange}
-          className="w-full border border-gray-300 rounded-xl p-3 mb-4
-                     text-gray-900 bg-white
-                     focus:outline-none focus:ring-2
-                     focus:ring-red-500 focus:border-red-500"
+          className="w-full border rounded-lg p-3 mb-4"
           required
         >
           <option value="">
@@ -234,159 +350,129 @@ function ExpenseForm({
           </option>
         </select>
 
-        {/* Bank */}
+
+        {/* =================================================
+            Bank Account
+        ================================================= */}
+
         <select
-          name="bank_name"
-          value={form.bank_name}
+          name="bank_account_id"
+          value={form.bank_account_id}
           onChange={handleChange}
-          className="w-full border border-gray-300 rounded-xl p-3 mb-4
-                     text-gray-900 bg-white
-                     focus:outline-none focus:ring-2
-                     focus:ring-red-500 focus:border-red-500"
+          className="w-full border rounded-lg p-3 mb-4"
+          required
+          disabled={loadingBanks}
         >
           <option value="">
-            Select Bank (Optional)
+            {loadingBanks
+              ? "Loading Bank Accounts..."
+              : "Select Bank Account"}
           </option>
 
-          <option value="State Bank of India">
-            State Bank of India
-          </option>
-
-          <option value="HDFC Bank">
-            HDFC Bank
-          </option>
-
-          <option value="ICICI Bank">
-            ICICI Bank
-          </option>
-
-          <option value="Axis Bank">
-            Axis Bank
-          </option>
-
-          <option value="Punjab National Bank">
-            Punjab National Bank
-          </option>
-
-          <option value="Bank of Baroda">
-            Bank of Baroda
-          </option>
-
-          <option value="Canara Bank">
-            Canara Bank
-          </option>
-
-          <option value="Kotak Mahindra Bank">
-            Kotak Mahindra Bank
-          </option>
-
-          <option value="Union Bank of India">
-            Union Bank of India
-          </option>
-
-          <option value="IDFC FIRST Bank">
-            IDFC FIRST Bank
-          </option>
-
-          <option value="Other">
-            Other
-          </option>
+          {bankAccounts.map(
+            (account) => (
+              <option
+                key={account.id}
+                value={account.id}
+              >
+                {account.bank_name} ••••{" "}
+                {account.account_number.slice(-4)}
+              </option>
+            )
+          )}
         </select>
 
-        {/* Amount */}
-        <div className="relative mb-4">
 
-          {/* Rupee Symbol */}
-          <span
-            className="absolute left-4 top-1/2
-                       -translate-y-1/2
-                       text-gray-500 text-lg font-semibold
-                       pointer-events-none"
-          >
-            ₹
-          </span>
+        {!loadingBanks &&
+          bankAccounts.length === 0 && (
+            <p className="text-sm text-red-500 mb-4">
+              Please add a bank account before
+              adding an expense.
+            </p>
+          )}
 
-          <input
-            type="text"
-            name="amount"
-            placeholder="Expense Amount"
-            value={form.amount}
-            onChange={handleChange}
-            inputMode="decimal"
-            className="w-full border border-gray-300 rounded-xl
-                       p-4 pl-10
-                       text-lg font-medium text-gray-900
-                       placeholder-gray-400
-                       focus:outline-none focus:ring-2
-                       focus:ring-red-500
-                       focus:border-red-500
-                       transition"
-            required
-          />
 
-        </div>
+        {/* =================================================
+            Amount
+        ================================================= */}
 
-        {/* Description */}
+        <input
+          type="number"
+          name="amount"
+          placeholder="Expense Amount"
+          value={form.amount}
+          onChange={handleChange}
+          className="w-full border rounded-lg p-3 mb-4"
+          min="0.01"
+          step="0.01"
+          required
+        />
+
+
+        {/* =================================================
+            Description
+        ================================================= */}
+
         <input
           type="text"
           name="description"
           placeholder="Description"
           value={form.description}
           onChange={handleChange}
-          className="w-full border border-gray-300 rounded-xl p-3 mb-4
-                     text-gray-900
-                     focus:outline-none focus:ring-2
-                     focus:ring-red-500 focus:border-red-500"
+          className="w-full border rounded-lg p-3 mb-4"
         />
 
-        {/* Date */}
+
+        {/* =================================================
+            Date
+        ================================================= */}
+
         <input
           type="date"
           name="date"
           value={form.date}
           onChange={handleChange}
-          className="w-full border border-gray-300 rounded-xl p-3 mb-6
-                     text-gray-900
-                     focus:outline-none focus:ring-2
-                     focus:ring-red-500 focus:border-red-500"
+          className="w-full border rounded-lg p-3 mb-6"
           required
         />
 
-        {/* Submit */}
+
+        {/* =================================================
+            Submit
+        ================================================= */}
+
         <button
           type="submit"
-          className="w-full bg-red-600
-                     hover:bg-red-700
-                     active:bg-red-800
-                     text-white font-semibold
-                     py-3 rounded-xl
-                     transition duration-300
-                     shadow-sm hover:shadow-md"
+          disabled={
+            loadingBanks ||
+            bankAccounts.length === 0
+          }
+          className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition"
         >
           {editingExpense
             ? "Update Expense"
             : "Add Expense"}
         </button>
 
-        {/* Cancel Edit */}
+
+        {/* =================================================
+            Cancel
+        ================================================= */}
+
         {editingExpense && (
           <button
             type="button"
             onClick={handleCancel}
-            className="w-full mt-3
-                       bg-gray-100 hover:bg-gray-200
-                       text-gray-700 font-semibold
-                       py-3 rounded-xl
-                       transition duration-300"
+            className="w-full mt-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg transition"
           >
             Cancel
           </button>
         )}
 
       </form>
-
     </div>
   );
 }
+
 
 export default ExpenseForm;

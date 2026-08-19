@@ -3,15 +3,22 @@ from sqlalchemy import func
 
 from app.models.income import Income
 from app.models.expense import Expense
+from app.models.savings_goal import SavingsGoal
+from app.models.bank_account import BankAccount
 
 
-def get_dashboard_data(db: Session, user_id: int):
+def get_dashboard_data(
+    db: Session,
+    user_id: int,
+):
     # -------------------------
     # Total Income
     # -------------------------
     total_income = (
         db.query(func.sum(Income.amount))
-        .filter(Income.user_id == user_id)
+        .filter(
+            Income.user_id == user_id
+        )
         .scalar()
         or 0
     )
@@ -21,9 +28,97 @@ def get_dashboard_data(db: Session, user_id: int):
     # -------------------------
     total_expense = (
         db.query(func.sum(Expense.amount))
-        .filter(Expense.user_id == user_id)
+        .filter(
+            Expense.user_id == user_id
+        )
         .scalar()
         or 0
+    )
+
+    # -------------------------
+    # Total Savings Goals
+    # -------------------------
+    total_savings = (
+        db.query(
+            func.sum(
+                SavingsGoal.current_amount
+            )
+        )
+        .filter(
+            SavingsGoal.user_id == user_id
+        )
+        .scalar()
+        or 0
+    )
+
+    # -------------------------
+    # Current Bank Balance
+    #
+    # Opening Balance
+    # + Bank-linked Income
+    # - Bank-linked Expenses
+    # -------------------------
+
+    total_opening_balance = (
+        db.query(
+            func.coalesce(
+                func.sum(
+                    BankAccount.opening_balance
+                ),
+                0,
+            )
+        )
+        .filter(
+            BankAccount.user_id == user_id
+        )
+        .scalar()
+        or 0
+    )
+
+    bank_income = (
+        db.query(
+            func.coalesce(
+                func.sum(Income.amount),
+                0,
+            )
+        )
+        .join(
+            BankAccount,
+            Income.bank_account_id
+            == BankAccount.id,
+        )
+        .filter(
+            Income.user_id == user_id,
+            BankAccount.user_id == user_id,
+        )
+        .scalar()
+        or 0
+    )
+
+    bank_expense = (
+        db.query(
+            func.coalesce(
+                func.sum(Expense.amount),
+                0,
+            )
+        )
+        .join(
+            BankAccount,
+            Expense.bank_account_id
+            == BankAccount.id,
+        )
+        .filter(
+            Expense.user_id == user_id,
+            BankAccount.user_id == user_id,
+        )
+        .scalar()
+        or 0
+    )
+
+    balance = (
+        float(total_opening_balance)
+        + float(bank_income)
+        - float(bank_expense)
     )
 
     # -------------------------
@@ -32,10 +127,16 @@ def get_dashboard_data(db: Session, user_id: int):
     summary = (
         db.query(
             Expense.category,
-            func.sum(Expense.amount).label("total"),
+            func.sum(
+                Expense.amount
+            ).label("total"),
         )
-        .filter(Expense.user_id == user_id)
-        .group_by(Expense.category)
+        .filter(
+            Expense.user_id == user_id
+        )
+        .group_by(
+            Expense.category
+        )
         .all()
     )
 
@@ -52,8 +153,12 @@ def get_dashboard_data(db: Session, user_id: int):
     # -------------------------
     recent_income = (
         db.query(Income)
-        .filter(Income.user_id == user_id)
-        .order_by(Income.date.desc())
+        .filter(
+            Income.user_id == user_id
+        )
+        .order_by(
+            Income.date.desc()
+        )
         .limit(5)
         .all()
     )
@@ -63,8 +168,12 @@ def get_dashboard_data(db: Session, user_id: int):
     # -------------------------
     recent_expense = (
         db.query(Expense)
-        .filter(Expense.user_id == user_id)
-        .order_by(Expense.date.desc())
+        .filter(
+            Expense.user_id == user_id
+        )
+        .order_by(
+            Expense.date.desc()
+        )
         .limit(5)
         .all()
     )
@@ -94,17 +203,23 @@ def get_dashboard_data(db: Session, user_id: int):
             }
         )
 
-    # Sort latest first
+    # -------------------------
+    # Sort Latest First
+    # -------------------------
     recent_transactions = sorted(
         recent_transactions,
         key=lambda x: x["date"],
         reverse=True,
     )[:5]
 
+    # -------------------------
+    # Return Dashboard Data
+    # -------------------------
     return {
         "total_income": total_income,
         "total_expense": total_expense,
-        "balance": total_income - total_expense,
+        "total_savings": total_savings,
+        "balance": balance,
         "expense_summary": expense_summary,
         "recent_transactions": recent_transactions,
     }

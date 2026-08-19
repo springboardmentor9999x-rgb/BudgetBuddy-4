@@ -19,6 +19,7 @@ from app.crud.income import (
     delete_income,
 )
 
+
 router = APIRouter()
 
 

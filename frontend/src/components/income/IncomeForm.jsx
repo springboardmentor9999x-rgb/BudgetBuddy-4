@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import api from "../../api/axios";
 
 function IncomeForm({
   onSubmit,
@@ -7,11 +8,38 @@ function IncomeForm({
 }) {
   const [form, setForm] = useState({
     source: "",
-    bank_name: "",
+    bank_account_id: "",
     amount: "",
     description: "",
     date: "",
   });
+
+  const [bankAccounts, setBankAccounts] = useState([]);
+  const [loadingBanks, setLoadingBanks] = useState(true);
+
+  // -------------------------
+  // Load Bank Accounts
+  // -------------------------
+  useEffect(() => {
+    loadBankAccounts();
+  }, []);
+
+  const loadBankAccounts = async () => {
+    try {
+      setLoadingBanks(true);
+
+      const response = await api.get("/bank-accounts/");
+
+      setBankAccounts(response.data);
+    } catch (error) {
+      console.error(
+        "Failed to load bank accounts:",
+        error
+      );
+    } finally {
+      setLoadingBanks(false);
+    }
+  };
 
   // -------------------------
   // Load Income for Editing
@@ -20,9 +48,13 @@ function IncomeForm({
     if (editingIncome) {
       setForm({
         source: editingIncome.source || "",
-        bank_name: editingIncome.bank_name || "",
+        bank_account_id:
+          editingIncome.bank_account_id
+            ? String(editingIncome.bank_account_id)
+            : "",
         amount: editingIncome.amount || "",
-        description: editingIncome.description || "",
+        description:
+          editingIncome.description || "",
         date: editingIncome.date
           ? editingIncome.date.substring(0, 10)
           : "",
@@ -46,7 +78,7 @@ function IncomeForm({
   const resetForm = () => {
     setForm({
       source: "",
-      bank_name: "",
+      bank_account_id: "",
       amount: "",
       description: "",
       date: "",
@@ -59,9 +91,23 @@ function IncomeForm({
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    if (!form.bank_account_id) {
+      alert("Please select a bank account.");
+      return;
+    }
+
     onSubmit({
-      ...form,
+      source: form.source,
+
+      bank_account_id: Number(
+        form.bank_account_id
+      ),
+
       amount: Number(form.amount),
+
+      description: form.description,
+
+      date: form.date,
     });
 
     // Clear only when adding
@@ -82,11 +128,12 @@ function IncomeForm({
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6">
-
+    <div>
       {/* Title */}
       <h2 className="text-2xl font-bold mb-6">
-        {editingIncome ? "Edit Income" : "Add Income"}
+        {editingIncome
+          ? "Edit Income"
+          : "Add Income"}
       </h2>
 
       <form onSubmit={handleSubmit}>
@@ -102,62 +149,40 @@ function IncomeForm({
           required
         />
 
-        {/* Bank Name */}
+        {/* Bank Account */}
         <select
-          name="bank_name"
-          value={form.bank_name}
+          name="bank_account_id"
+          value={form.bank_account_id}
           onChange={handleChange}
           className="w-full border rounded-lg p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
+          disabled={loadingBanks}
         >
           <option value="">
-            Select Bank
+            {loadingBanks
+              ? "Loading Bank Accounts..."
+              : "Select Bank Account"}
           </option>
 
-          <option value="State Bank of India">
-            State Bank of India
-          </option>
-
-          <option value="HDFC Bank">
-            HDFC Bank
-          </option>
-
-          <option value="ICICI Bank">
-            ICICI Bank
-          </option>
-
-          <option value="Axis Bank">
-            Axis Bank
-          </option>
-
-          <option value="Punjab National Bank">
-            Punjab National Bank
-          </option>
-
-          <option value="Bank of Baroda">
-            Bank of Baroda
-          </option>
-
-          <option value="Canara Bank">
-            Canara Bank
-          </option>
-
-          <option value="Kotak Mahindra Bank">
-            Kotak Mahindra Bank
-          </option>
-
-          <option value="Union Bank of India">
-            Union Bank of India
-          </option>
-
-          <option value="IDFC FIRST Bank">
-            IDFC FIRST Bank
-          </option>
-
-          <option value="Other">
-            Other
-          </option>
+          {bankAccounts.map((account) => (
+            <option
+              key={account.id}
+              value={account.id}
+            >
+              {account.bank_name} ••••{" "}
+              {account.account_number.slice(-4)}
+            </option>
+          ))}
         </select>
+
+        {/* No Bank Account */}
+        {!loadingBanks &&
+          bankAccounts.length === 0 && (
+            <p className="text-sm text-red-500 mb-4">
+              Please add a bank account before
+              adding income.
+            </p>
+          )}
 
         {/* Amount */}
         <input
@@ -195,7 +220,11 @@ function IncomeForm({
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-300"
+          disabled={
+            loadingBanks ||
+            bankAccounts.length === 0
+          }
+          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition duration-300"
         >
           {editingIncome
             ? "Update Income"
@@ -214,7 +243,6 @@ function IncomeForm({
         )}
 
       </form>
-
     </div>
   );
 }

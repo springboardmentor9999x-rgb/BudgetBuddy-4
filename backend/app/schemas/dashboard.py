@@ -17,6 +17,7 @@ class RecentTransaction(BaseModel):
 class DashboardResponse(BaseModel):
     total_income: float
     total_expense: float
+    total_savings: float
     balance: float
     expense_summary: list[ExpenseCategorySummary]
     recent_transactions: list[RecentTransaction]

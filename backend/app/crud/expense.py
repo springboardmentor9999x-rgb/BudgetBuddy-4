@@ -1,12 +1,20 @@
+from datetime import date
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
 from app.models.expense import Expense
+from app.models.bank_account import BankAccount
+from app.models.budget import Budget
+from app.models.notification import Notification
+
 from app.schemas.expense import (
     ExpenseCreate,
     ExpenseUpdate,
 )
+
+from app.crud.bank_account import get_current_balance
 
 
 # -------------------------
@@ -17,32 +25,169 @@ def create_expense(
     user_id: int,
     expense_in: ExpenseCreate,
 ):
-    # Check duplicate bank name
-    if expense_in.bank_name:
-        existing_bank = (
-            db.query(Expense)
-            .filter(
-                Expense.user_id == user_id,
-                func.lower(Expense.bank_name)
-                == expense_in.bank_name.lower(),
-            )
-            .first()
+    # =====================================================
+    # Bank Account is required for a real transaction
+    # =====================================================
+
+    if not expense_in.bank_account_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Please select a bank account.",
         )
 
-        if existing_bank:
-            raise HTTPException(
-                status_code=400,
-                detail=f"{expense_in.bank_name} bank is already added.",
-            )
+    # -------------------------
+    # Validate Bank Account
+    # -------------------------
+    bank_account = (
+        db.query(BankAccount)
+        .filter(
+            BankAccount.id == expense_in.bank_account_id,
+            BankAccount.user_id == user_id,
+        )
+        .first()
+    )
 
+    if not bank_account:
+        raise HTTPException(
+            status_code=404,
+            detail="Bank account not found.",
+        )
+
+    # =====================================================
+    # Check Current Bank Balance
+    # =====================================================
+
+    current_balance = get_current_balance(
+        db,
+        bank_account,
+    )
+
+    if expense_in.amount > current_balance:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Insufficient balance. "
+                f"Available balance is "
+                f"₹{current_balance:.2f}, "
+                f"but the expense is "
+                f"₹{expense_in.amount:.2f}."
+            ),
+        )
+
+    # -------------------------
+    # Prepare Expense Data
+    # -------------------------
+    expense_data = expense_in.model_dump()
+
+    expense_data["bank_name"] = (
+        bank_account.bank_name
+    )
+
+    # -------------------------
+    # Create Expense
+    # -------------------------
     expense = Expense(
         user_id=user_id,
-        **expense_in.model_dump(),
+        **expense_data,
     )
 
     db.add(expense)
     db.commit()
     db.refresh(expense)
+
+    # =====================================================
+    # Budget Alert
+    # =====================================================
+
+    budget = (
+        db.query(Budget)
+        .filter(
+            Budget.user_id == user_id,
+            Budget.category == expense.category,
+        )
+        .first()
+    )
+
+    if budget:
+
+        expense_date = expense.date
+
+        # -------------------------
+        # Current Month Start
+        # -------------------------
+        month_start = expense_date.replace(
+            day=1
+        )
+
+        # -------------------------
+        # Next Month
+        # -------------------------
+        if expense_date.month == 12:
+            next_month = date(
+                expense_date.year + 1,
+                1,
+                1,
+            )
+        else:
+            next_month = date(
+                expense_date.year,
+                expense_date.month + 1,
+                1,
+            )
+
+        # -------------------------
+        # Total Category Spending
+        # -------------------------
+        total_spent = (
+            db.query(
+                func.sum(Expense.amount)
+            )
+            .filter(
+                Expense.user_id == user_id,
+                Expense.category == expense.category,
+                Expense.date >= month_start,
+                Expense.date < next_month,
+            )
+            .scalar()
+            or 0
+        )
+
+        # -------------------------
+        # Check Budget Exceeded
+        # -------------------------
+        if total_spent > budget.limit_amount:
+
+            message = (
+                f"You've exceeded your "
+                f"{expense.category} budget"
+            )
+
+            # -------------------------
+            # Prevent Duplicate Alert
+            # -------------------------
+            existing_notification = (
+                db.query(Notification)
+                .filter(
+                    Notification.user_id == user_id,
+                    Notification.type == "budget_alert",
+                    Notification.message == message,
+                    Notification.created_at >= month_start,
+                    Notification.created_at < next_month,
+                )
+                .first()
+            )
+
+            if not existing_notification:
+
+                notification = Notification(
+                    user_id=user_id,
+                    message=message,
+                    type="budget_alert",
+                    is_read=False,
+                )
+
+                db.add(notification)
+                db.commit()
 
     return expense
 
@@ -58,7 +203,9 @@ def get_expenses_by_user(
 ):
     return (
         db.query(Expense)
-        .filter(Expense.user_id == user_id)
+        .filter(
+            Expense.user_id == user_id
+        )
         .offset(skip)
         .limit(limit)
         .all()
@@ -95,30 +242,142 @@ def update_expense(
         exclude_unset=True
     )
 
-    # Check duplicate bank name when bank is changed
-    new_bank_name = update_data.get("bank_name")
+    # =====================================================
+    # Determine Bank Account
+    # =====================================================
 
-    if new_bank_name:
-        existing_bank = (
-            db.query(Expense)
+    if "bank_account_id" in update_data:
+
+        new_bank_account_id = (
+            update_data["bank_account_id"]
+        )
+
+        if not new_bank_account_id:
+            raise HTTPException(
+                status_code=400,
+                detail="Please select a bank account.",
+            )
+
+        new_bank_account = (
+            db.query(BankAccount)
             .filter(
-                Expense.user_id == expense.user_id,
-                Expense.id != expense.id,
-                func.lower(Expense.bank_name)
-                == new_bank_name.lower(),
+                BankAccount.id == new_bank_account_id,
+                BankAccount.user_id == expense.user_id,
             )
             .first()
         )
 
-        if existing_bank:
+        if not new_bank_account:
             raise HTTPException(
-                status_code=400,
-                detail=f"{new_bank_name} bank is already added.",
+                status_code=404,
+                detail="Bank account not found.",
             )
 
-    # Update fields
+    else:
+
+        new_bank_account = (
+            db.query(BankAccount)
+            .filter(
+                BankAccount.id == expense.bank_account_id,
+                BankAccount.user_id == expense.user_id,
+            )
+            .first()
+        )
+
+        if not new_bank_account:
+            raise HTTPException(
+                status_code=404,
+                detail="Bank account not found.",
+            )
+
+    # =====================================================
+    # Determine New Amount
+    # =====================================================
+
+    new_amount = update_data.get(
+        "amount",
+        expense.amount,
+    )
+
+    # =====================================================
+    # Check Balance
+    # =====================================================
+
+    # Same bank account:
+    #
+    # Current balance already includes the old expense.
+    # Therefore we add the old expense back before checking
+    # the new amount.
+    #
+    # Example:
+    #
+    # Current balance = ₹4,000
+    # Old expense     = ₹2,000
+    # New expense     = ₹5,000
+    #
+    # Available for replacement = ₹4,000 + ₹2,000
+    #                             = ₹6,000
+    #
+    # New expense ₹5,000 -> allowed.
+    #
+    if (
+        new_bank_account.id
+        == expense.bank_account_id
+    ):
+
+        current_balance = get_current_balance(
+            db,
+            new_bank_account,
+        )
+
+        available_balance = (
+            current_balance
+            + float(expense.amount)
+        )
+
+    # Different bank account:
+    #
+    # The old expense belongs to another account.
+    # Therefore the new bank's current balance can be
+    # checked directly.
+    #
+    else:
+
+        available_balance = get_current_balance(
+            db,
+            new_bank_account,
+        )
+
+    if new_amount > available_balance:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Insufficient balance. "
+                f"Available balance is "
+                f"₹{available_balance:.2f}, "
+                f"but the expense is "
+                f"₹{new_amount:.2f}."
+            ),
+        )
+
+    # =====================================================
+    # Update Bank Name
+    # =====================================================
+
+    update_data["bank_name"] = (
+        new_bank_account.bank_name
+    )
+
+    # =====================================================
+    # Apply Updates
+    # =====================================================
+
     for key, value in update_data.items():
-        setattr(expense, key, value)
+        setattr(
+            expense,
+            key,
+            value,
+        )
 
     db.commit()
     db.refresh(expense)
@@ -147,9 +406,15 @@ def get_expense_summary(
     return (
         db.query(
             Expense.category,
-            func.sum(Expense.amount).label("total"),
+            func.sum(
+                Expense.amount
+            ).label("total"),
         )
-        .filter(Expense.user_id == user_id)
-        .group_by(Expense.category)
+        .filter(
+            Expense.user_id == user_id
+        )
+        .group_by(
+            Expense.category
+        )
         .all()
     )
