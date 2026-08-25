@@ -1,6 +1,13 @@
+from datetime import date
+from typing import Optional
+from io import BytesIO
+
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+
+from reportlab.pdfgen import canvas
 
 from app.database import get_db
 from app.core.deps import get_current_user
@@ -15,7 +22,7 @@ router = APIRouter()
 
 
 # =========================================================
-# Monthly Report
+# Monthly / Date Range Report
 # =========================================================
 
 @router.get("/monthly")
@@ -29,9 +36,60 @@ def monthly_report(
         ...,
         ge=2000,
     ),
+
+    from_date: Optional[date] = Query(
+        None
+    ),
+
+    to_date: Optional[date] = Query(
+        None
+    ),
+
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+
+    current_user: User = Depends(
+        get_current_user
+    ),
 ):
+
+    # =====================================================
+    # Determine Report Period
+    # =====================================================
+
+    if from_date is None:
+
+        from_date = date(
+            year,
+            month,
+            1,
+        )
+
+
+    if to_date is None:
+
+        if month == 12:
+
+            to_date = date(
+                year + 1,
+                1,
+                1,
+            )
+
+        else:
+
+            to_date = date(
+                year,
+                month + 1,
+                1,
+            )
+
+    else:
+
+        # Include selected date
+        # because database date is inclusive.
+
+        pass
+
 
     # =====================================================
     # Total Income
@@ -44,17 +102,12 @@ def monthly_report(
             )
         )
         .filter(
-            Income.user_id == current_user.id,
+            Income.user_id
+            == current_user.id,
 
-            func.extract(
-                "month",
-                Income.date,
-            ) == month,
+            Income.date >= from_date,
 
-            func.extract(
-                "year",
-                Income.date,
-            ) == year,
+            Income.date <= to_date,
         )
         .scalar()
         or 0
@@ -64,8 +117,8 @@ def monthly_report(
     # =====================================================
     # Total Expenses
     #
-    # This already includes savings contributions because
-    # contribute_to_goal() creates an Expense record.
+    # Savings contributions are already stored
+    # as Expense records.
     # =====================================================
 
     total_expenses = (
@@ -75,17 +128,12 @@ def monthly_report(
             )
         )
         .filter(
-            Expense.user_id == current_user.id,
+            Expense.user_id
+            == current_user.id,
 
-            func.extract(
-                "month",
-                Expense.date,
-            ) == month,
+            Expense.date >= from_date,
 
-            func.extract(
-                "year",
-                Expense.date,
-            ) == year,
+            Expense.date <= to_date,
         )
         .scalar()
         or 0
@@ -95,8 +143,7 @@ def monthly_report(
     # =====================================================
     # Total Savings
     #
-    # This is displayed as information only.
-    # It must NOT be subtracted again from the balance.
+    # Information only.
     # =====================================================
 
     total_savings = (
@@ -106,7 +153,8 @@ def monthly_report(
             )
         )
         .filter(
-            SavingsGoal.user_id == current_user.id
+            SavingsGoal.user_id
+            == current_user.id
         )
         .scalar()
         or 0
@@ -115,11 +163,6 @@ def monthly_report(
 
     # =====================================================
     # Net Savings
-    #
-    # Income - Expenses
-    #
-    # Since savings contributions are already expenses,
-    # they are automatically included here.
     # =====================================================
 
     net_savings = (
@@ -130,9 +173,6 @@ def monthly_report(
 
     # =====================================================
     # Available Amount
-    #
-    # Same calculation because savings contributions
-    # are already included inside total_expenses.
     # =====================================================
 
     available_amount = (
@@ -162,22 +202,18 @@ def monthly_report(
     category_results = (
         db.query(
             Expense.category,
+
             func.sum(
                 Expense.amount
             ).label("total"),
         )
         .filter(
-            Expense.user_id == current_user.id,
+            Expense.user_id
+            == current_user.id,
 
-            func.extract(
-                "month",
-                Expense.date,
-            ) == month,
+            Expense.date >= from_date,
 
-            func.extract(
-                "year",
-                Expense.date,
-            ) == year,
+            Expense.date <= to_date,
         )
         .group_by(
             Expense.category
@@ -192,8 +228,10 @@ def monthly_report(
 
 
     spending_by_category = [
+
         {
             "category": category,
+
             "total": float(
                 total or 0
             ),
@@ -201,6 +239,7 @@ def monthly_report(
 
         for category, total
         in category_results
+
     ]
 
 
@@ -209,9 +248,18 @@ def monthly_report(
     # =====================================================
 
     return {
+
         "month": month,
 
         "year": year,
+
+        "from_date": str(
+            from_date
+        ),
+
+        "to_date": str(
+            to_date
+        ),
 
         "total_income": float(
             total_income

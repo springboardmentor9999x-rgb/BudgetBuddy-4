@@ -3,6 +3,7 @@ from sqlalchemy import func
 
 from app.models.budget import Budget
 from app.models.expense import Expense
+from app.models.notification import Notification
 
 from app.schemas.budget import (
     BudgetCreate,
@@ -10,9 +11,9 @@ from app.schemas.budget import (
 )
 
 
-# -------------------------
+# =========================================================
 # Create Budget
-# -------------------------
+# =========================================================
 def create_budget(
     db: Session,
     user_id: int,
@@ -20,19 +21,37 @@ def create_budget(
 ):
     budget = Budget(
         user_id=user_id,
-        **budget_in.model_dump()
+        **budget_in.model_dump(),
     )
 
     db.add(budget)
     db.commit()
     db.refresh(budget)
 
+    # =====================================================
+    # Budget Created Notification
+    # =====================================================
+
+    notification = Notification(
+        user_id=user_id,
+        message=(
+            f"{budget.category} budget of "
+            f"₹{budget.limit_amount:,.2f} "
+            f"was created successfully."
+        ),
+        type="budget_added",
+        is_read=False,
+    )
+
+    db.add(notification)
+    db.commit()
+
     return budget
 
 
-# -------------------------
+# =========================================================
 # Get All Budgets
-# -------------------------
+# =========================================================
 def get_budgets_by_user(
     db: Session,
     user_id: int,
@@ -41,16 +60,18 @@ def get_budgets_by_user(
 ):
     return (
         db.query(Budget)
-        .filter(Budget.user_id == user_id)
+        .filter(
+            Budget.user_id == user_id
+        )
         .offset(skip)
         .limit(limit)
         .all()
     )
 
 
-# -------------------------
+# =========================================================
 # Get Single Budget
-# -------------------------
+# =========================================================
 def get_budget(
     db: Session,
     budget_id: int,
@@ -66,44 +87,94 @@ def get_budget(
     )
 
 
-# -------------------------
+# =========================================================
 # Update Budget
-# -------------------------
+# =========================================================
 def update_budget(
     db: Session,
     budget: Budget,
     budget_in: BudgetUpdate,
 ):
-    for key, value in budget_in.model_dump().items():
-        setattr(budget, key, value)
+    update_data = budget_in.model_dump(
+        exclude_unset=True
+    )
+
+    for key, value in update_data.items():
+        setattr(
+            budget,
+            key,
+            value,
+        )
 
     db.commit()
     db.refresh(budget)
 
+    # =====================================================
+    # Budget Updated Notification
+    # =====================================================
+
+    notification = Notification(
+        user_id=budget.user_id,
+        message=(
+            f"{budget.category} budget "
+            f"was updated successfully."
+        ),
+        type="budget_updated",
+        is_read=False,
+    )
+
+    db.add(notification)
+    db.commit()
+
     return budget
 
 
-# -------------------------
+# =========================================================
 # Delete Budget
-# -------------------------
+# =========================================================
 def delete_budget(
     db: Session,
     budget: Budget,
 ):
+    # Save values before deletion
+    user_id = budget.user_id
+    category = budget.category
+    limit_amount = budget.limit_amount
+
     db.delete(budget)
     db.commit()
 
+    # =====================================================
+    # Budget Deleted Notification
+    # =====================================================
 
-# -------------------------
+    notification = Notification(
+        user_id=user_id,
+        message=(
+            f"{category} budget of "
+            f"₹{limit_amount:,.2f} "
+            f"was deleted."
+        ),
+        type="budget_deleted",
+        is_read=False,
+    )
+
+    db.add(notification)
+    db.commit()
+
+
+# =========================================================
 # Budget Progress
-# -------------------------
+# =========================================================
 def get_budget_progress(
     db: Session,
     user_id: int,
 ):
     budgets = (
         db.query(Budget)
-        .filter(Budget.user_id == user_id)
+        .filter(
+            Budget.user_id == user_id
+        )
         .all()
     )
 
@@ -112,7 +183,11 @@ def get_budget_progress(
     for budget in budgets:
 
         spent = (
-            db.query(func.sum(Expense.amount))
+            db.query(
+                func.sum(
+                    Expense.amount
+                )
+            )
             .filter(
                 Expense.user_id == user_id,
                 Expense.category == budget.category,

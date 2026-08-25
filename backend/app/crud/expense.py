@@ -17,16 +17,18 @@ from app.schemas.expense import (
 from app.crud.bank_account import get_current_balance
 
 
-# -------------------------
+# =========================================================
 # Create Expense
-# -------------------------
+# =========================================================
+
 def create_expense(
     db: Session,
     user_id: int,
     expense_in: ExpenseCreate,
 ):
+
     # =====================================================
-    # Bank Account is required for a real transaction
+    # Bank Account is required
     # =====================================================
 
     if not expense_in.bank_account_id:
@@ -35,9 +37,10 @@ def create_expense(
             detail="Please select a bank account.",
         )
 
-    # -------------------------
+    # =====================================================
     # Validate Bank Account
-    # -------------------------
+    # =====================================================
+
     bank_account = (
         db.query(BankAccount)
         .filter(
@@ -54,7 +57,7 @@ def create_expense(
         )
 
     # =====================================================
-    # Check Current Bank Balance
+    # Check Current Balance
     # =====================================================
 
     current_balance = get_current_balance(
@@ -74,18 +77,20 @@ def create_expense(
             ),
         )
 
-    # -------------------------
+    # =====================================================
     # Prepare Expense Data
-    # -------------------------
+    # =====================================================
+
     expense_data = expense_in.model_dump()
 
     expense_data["bank_name"] = (
         bank_account.bank_name
     )
 
-    # -------------------------
+    # =====================================================
     # Create Expense
-    # -------------------------
+    # =====================================================
+
     expense = Expense(
         user_id=user_id,
         **expense_data,
@@ -96,7 +101,25 @@ def create_expense(
     db.refresh(expense)
 
     # =====================================================
-    # Budget Alert
+    # NORMAL EXPENSE NOTIFICATION
+    # =====================================================
+
+    expense_notification = Notification(
+        user_id=user_id,
+        message=(
+            f"Expense of ₹{expense.amount:,.2f} "
+            f"for {expense.category} "
+            f"was added successfully."
+        ),
+        type="expense_added",
+        is_read=False,
+    )
+
+    db.add(expense_notification)
+    db.commit()
+
+    # =====================================================
+    # FIND BUDGET FOR THIS CATEGORY
     # =====================================================
 
     budget = (
@@ -108,99 +131,241 @@ def create_expense(
         .first()
     )
 
-    if budget:
+    # -----------------------------------------------------
+    # No Budget
+    # -----------------------------------------------------
 
-        expense_date = expense.date
+    if not budget:
+        return expense
 
-        # -------------------------
-        # Current Month Start
-        # -------------------------
-        month_start = expense_date.replace(
-            day=1
+    # =====================================================
+    # DETERMINE MONTH
+    # =====================================================
+
+    expense_date = expense.date
+
+    month_start = expense_date.replace(
+        day=1
+    )
+
+    if expense_date.month == 12:
+
+        next_month = date(
+            expense_date.year + 1,
+            1,
+            1,
         )
 
-        # -------------------------
-        # Next Month
-        # -------------------------
-        if expense_date.month == 12:
-            next_month = date(
-                expense_date.year + 1,
-                1,
-                1,
-            )
-        else:
-            next_month = date(
-                expense_date.year,
-                expense_date.month + 1,
-                1,
-            )
+    else:
 
-        # -------------------------
-        # Total Category Spending
-        # -------------------------
-        total_spent = (
-            db.query(
-                func.sum(Expense.amount)
-            )
+        next_month = date(
+            expense_date.year,
+            expense_date.month + 1,
+            1,
+        )
+
+    # =====================================================
+    # CALCULATE TOTAL SPENDING
+    # =====================================================
+
+    total_spent = (
+        db.query(
+            func.sum(Expense.amount)
+        )
+        .filter(
+            Expense.user_id == user_id,
+            Expense.category == expense.category,
+            Expense.date >= month_start,
+            Expense.date < next_month,
+        )
+        .scalar()
+        or 0
+    )
+
+    total_spent = float(total_spent)
+
+    budget_limit = float(
+        budget.limit_amount
+    )
+
+    # =====================================================
+    # CALCULATE PERCENTAGE
+    # =====================================================
+
+    if budget_limit > 0:
+
+        percentage = (
+            total_spent
+            / budget_limit
+        ) * 100
+
+    else:
+
+        percentage = 0
+
+    # =====================================================
+    # BUDGET 50% NOTIFICATION
+    # =====================================================
+
+    if percentage >= 50:
+
+        existing_50 = (
+            db.query(Notification)
             .filter(
-                Expense.user_id == user_id,
-                Expense.category == expense.category,
-                Expense.date >= month_start,
-                Expense.date < next_month,
+                Notification.user_id == user_id,
+                Notification.type == "budget_50",
+                Notification.message == (
+                    f"You've used 50% of your "
+                    f"{expense.category} budget."
+                ),
+                Notification.created_at >= month_start,
+                Notification.created_at < next_month,
             )
-            .scalar()
-            or 0
+            .first()
         )
 
-        # -------------------------
-        # Check Budget Exceeded
-        # -------------------------
-        if total_spent > budget.limit_amount:
+        if not existing_50:
 
-            message = (
-                f"You've exceeded your "
-                f"{expense.category} budget"
+            notification = Notification(
+                user_id=user_id,
+                message=(
+                    f"You've used 50% of your "
+                    f"{expense.category} budget."
+                ),
+                type="budget_50",
+                is_read=False,
             )
 
-            # -------------------------
-            # Prevent Duplicate Alert
-            # -------------------------
-            existing_notification = (
-                db.query(Notification)
-                .filter(
-                    Notification.user_id == user_id,
-                    Notification.type == "budget_alert",
-                    Notification.message == message,
-                    Notification.created_at >= month_start,
-                    Notification.created_at < next_month,
-                )
-                .first()
+            db.add(notification)
+            db.commit()
+
+    # =====================================================
+    # BUDGET 70% NOTIFICATION
+    # =====================================================
+
+    if percentage >= 70:
+
+        existing_70 = (
+            db.query(Notification)
+            .filter(
+                Notification.user_id == user_id,
+                Notification.type == "budget_70",
+                Notification.message == (
+                    f"You've used 70% of your "
+                    f"{expense.category} budget."
+                ),
+                Notification.created_at >= month_start,
+                Notification.created_at < next_month,
+            )
+            .first()
+        )
+
+        if not existing_70:
+
+            notification = Notification(
+                user_id=user_id,
+                message=(
+                    f"You've used 70% of your "
+                    f"{expense.category} budget."
+                ),
+                type="budget_70",
+                is_read=False,
             )
 
-            if not existing_notification:
+            db.add(notification)
+            db.commit()
 
-                notification = Notification(
-                    user_id=user_id,
-                    message=message,
-                    type="budget_alert",
-                    is_read=False,
-                )
+    # =====================================================
+    # BUDGET 100% NOTIFICATION
+    # =====================================================
 
-                db.add(notification)
-                db.commit()
+    if percentage >= 100:
+
+        existing_100 = (
+            db.query(Notification)
+            .filter(
+                Notification.user_id == user_id,
+                Notification.type == "budget_100",
+                Notification.message == (
+                    f"You've reached 100% of your "
+                    f"{expense.category} budget."
+                ),
+                Notification.created_at >= month_start,
+                Notification.created_at < next_month,
+            )
+            .first()
+        )
+
+        if not existing_100:
+
+            notification = Notification(
+                user_id=user_id,
+                message=(
+                    f"You've reached 100% of your "
+                    f"{expense.category} budget."
+                ),
+                type="budget_100",
+                is_read=False,
+            )
+
+            db.add(notification)
+            db.commit()
+
+    # =====================================================
+    # BUDGET EXCEEDED NOTIFICATION
+    # =====================================================
+
+    if total_spent > budget_limit:
+
+        exceeded_amount = (
+            total_spent - budget_limit
+        )
+
+        existing_exceeded = (
+            db.query(Notification)
+            .filter(
+                Notification.user_id == user_id,
+                Notification.type == "budget_exceeded",
+                Notification.created_at >= month_start,
+                Notification.created_at < next_month,
+            )
+            .first()
+        )
+
+        if not existing_exceeded:
+
+            notification = Notification(
+                user_id=user_id,
+                message=(
+                    f"🚨 You've exceeded your "
+                    f"{expense.category} budget by "
+                    f"₹{exceeded_amount:,.2f}."
+                ),
+                type="budget_exceeded",
+                is_read=False,
+            )
+
+            db.add(notification)
+            db.commit()
+
+    # =====================================================
+    # RETURN EXPENSE
+    # =====================================================
 
     return expense
 
 
-# -------------------------
+# =========================================================
 # Get All Expenses
-# -------------------------
+# =========================================================
+
 def get_expenses_by_user(
     db: Session,
     user_id: int,
     skip: int = 0,
     limit: int = 100,
 ):
+
     return (
         db.query(Expense)
         .filter(
@@ -212,14 +377,16 @@ def get_expenses_by_user(
     )
 
 
-# -------------------------
+# =========================================================
 # Get Single Expense
-# -------------------------
+# =========================================================
+
 def get_expense(
     db: Session,
     expense_id: int,
     user_id: int,
 ):
+
     return (
         db.query(Expense)
         .filter(
@@ -230,14 +397,16 @@ def get_expense(
     )
 
 
-# -------------------------
+# =========================================================
 # Update Expense
-# -------------------------
+# =========================================================
+
 def update_expense(
     db: Session,
     expense: Expense,
     expense_in: ExpenseUpdate,
 ):
+
     update_data = expense_in.model_dump(
         exclude_unset=True
     )
@@ -249,20 +418,27 @@ def update_expense(
     if "bank_account_id" in update_data:
 
         new_bank_account_id = (
-            update_data["bank_account_id"]
+            update_data[
+                "bank_account_id"
+            ]
         )
 
         if not new_bank_account_id:
             raise HTTPException(
                 status_code=400,
-                detail="Please select a bank account.",
+                detail=(
+                    "Please select a bank account."
+                ),
             )
 
         new_bank_account = (
             db.query(BankAccount)
             .filter(
-                BankAccount.id == new_bank_account_id,
-                BankAccount.user_id == expense.user_id,
+                BankAccount.id
+                == new_bank_account_id,
+
+                BankAccount.user_id
+                == expense.user_id,
             )
             .first()
         )
@@ -270,7 +446,9 @@ def update_expense(
         if not new_bank_account:
             raise HTTPException(
                 status_code=404,
-                detail="Bank account not found.",
+                detail=(
+                    "Bank account not found."
+                ),
             )
 
     else:
@@ -278,8 +456,11 @@ def update_expense(
         new_bank_account = (
             db.query(BankAccount)
             .filter(
-                BankAccount.id == expense.bank_account_id,
-                BankAccount.user_id == expense.user_id,
+                BankAccount.id
+                == expense.bank_account_id,
+
+                BankAccount.user_id
+                == expense.user_id,
             )
             .first()
         )
@@ -287,7 +468,9 @@ def update_expense(
         if not new_bank_account:
             raise HTTPException(
                 status_code=404,
-                detail="Bank account not found.",
+                detail=(
+                    "Bank account not found."
+                ),
             )
 
     # =====================================================
@@ -299,35 +482,22 @@ def update_expense(
         expense.amount,
     )
 
+    new_amount = float(new_amount)
+
     # =====================================================
     # Check Balance
     # =====================================================
 
-    # Same bank account:
-    #
-    # Current balance already includes the old expense.
-    # Therefore we add the old expense back before checking
-    # the new amount.
-    #
-    # Example:
-    #
-    # Current balance = ₹4,000
-    # Old expense     = ₹2,000
-    # New expense     = ₹5,000
-    #
-    # Available for replacement = ₹4,000 + ₹2,000
-    #                             = ₹6,000
-    #
-    # New expense ₹5,000 -> allowed.
-    #
     if (
         new_bank_account.id
         == expense.bank_account_id
     ):
 
-        current_balance = get_current_balance(
-            db,
-            new_bank_account,
+        current_balance = (
+            get_current_balance(
+                db,
+                new_bank_account,
+            )
         )
 
         available_balance = (
@@ -335,20 +505,17 @@ def update_expense(
             + float(expense.amount)
         )
 
-    # Different bank account:
-    #
-    # The old expense belongs to another account.
-    # Therefore the new bank's current balance can be
-    # checked directly.
-    #
     else:
 
-        available_balance = get_current_balance(
-            db,
-            new_bank_account,
+        available_balance = (
+            get_current_balance(
+                db,
+                new_bank_account,
+            )
         )
 
     if new_amount > available_balance:
+
         raise HTTPException(
             status_code=400,
             detail=(
@@ -369,10 +536,11 @@ def update_expense(
     )
 
     # =====================================================
-    # Apply Updates
+    # Apply Changes
     # =====================================================
 
     for key, value in update_data.items():
+
         setattr(
             expense,
             key,
@@ -382,27 +550,75 @@ def update_expense(
     db.commit()
     db.refresh(expense)
 
+    # =====================================================
+    # UPDATE NOTIFICATION
+    # =====================================================
+
+    notification = Notification(
+        user_id=expense.user_id,
+        message=(
+            f"Expense for "
+            f"{expense.category} "
+            f"was updated successfully."
+        ),
+        type="expense_updated",
+        is_read=False,
+    )
+
+    db.add(notification)
+    db.commit()
+
     return expense
 
 
-# -------------------------
+# =========================================================
 # Delete Expense
-# -------------------------
+# =========================================================
+
 def delete_expense(
     db: Session,
     expense: Expense,
 ):
+
+    user_id = expense.user_id
+    category = expense.category
+    amount = float(expense.amount)
+
+    # =====================================================
+    # Delete Expense
+    # =====================================================
+
     db.delete(expense)
     db.commit()
 
+    # =====================================================
+    # DELETE NOTIFICATION
+    # =====================================================
 
-# -------------------------
+    notification = Notification(
+        user_id=user_id,
+        message=(
+            f"Expense of ₹{amount:,.2f} "
+            f"for {category} "
+            f"was deleted."
+        ),
+        type="expense_deleted",
+        is_read=False,
+    )
+
+    db.add(notification)
+    db.commit()
+
+
+# =========================================================
 # Expense Summary
-# -------------------------
+# =========================================================
+
 def get_expense_summary(
     db: Session,
     user_id: int,
 ):
+
     return (
         db.query(
             Expense.category,

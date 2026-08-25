@@ -18,21 +18,12 @@ from app.schemas.savings_goal import (
 # =========================================================
 # Get Available Balance
 # =========================================================
-#
-# Savings contributions are stored as Expense records.
-# Therefore:
-#
-# Available Balance =
-# Total Income - Total Expenses
-#
-# We DO NOT subtract SavingsGoal.current_amount here,
-# because that would deduct the same savings money twice.
-# =========================================================
 
 def get_available_balance(
     db: Session,
     user_id: int,
 ):
+
     total_income = (
         db.query(
             func.coalesce(
@@ -80,10 +71,6 @@ def create_savings_goal(
     goal_in: SavingsGoalCreate,
 ):
 
-    # -------------------------
-    # Validate Target
-    # -------------------------
-
     if goal_in.target_amount <= 0:
         raise HTTPException(
             status_code=400,
@@ -93,11 +80,6 @@ def create_savings_goal(
             ),
         )
 
-
-    # -------------------------
-    # Validate Current Amount
-    # -------------------------
-
     if goal_in.current_amount < 0:
         raise HTTPException(
             status_code=400,
@@ -106,7 +88,6 @@ def create_savings_goal(
                 "be negative."
             ),
         )
-
 
     if (
         goal_in.current_amount
@@ -120,18 +101,12 @@ def create_savings_goal(
             ),
         )
 
-
-    # -------------------------
-    # Check Available Balance
-    # -------------------------
-
     available_balance = (
         get_available_balance(
             db,
             user_id,
         )
     )
-
 
     if (
         goal_in.current_amount
@@ -147,11 +122,6 @@ def create_savings_goal(
             ),
         )
 
-
-    # -------------------------
-    # Determine Status
-    # -------------------------
-
     status = (
         "completed"
         if (
@@ -160,11 +130,6 @@ def create_savings_goal(
         )
         else "in_progress"
     )
-
-
-    # -------------------------
-    # Create Goal
-    # -------------------------
 
     goal = SavingsGoal(
         user_id=user_id,
@@ -176,50 +141,27 @@ def create_savings_goal(
     )
 
     db.add(goal)
-
     db.flush()
-
-
-    # =====================================================
-    # Initial Savings
-    # =====================================================
-    #
-    # If user creates a goal with initial_amount > 0,
-    # create an expense transaction so the money is
-    # actually deducted from available balance.
-    # =====================================================
 
     if goal_in.current_amount > 0:
 
         savings_expense = Expense(
             user_id=user_id,
-
             category="Savings",
-
             amount=goal_in.current_amount,
-
             payment_method="Savings Goal",
-
             bank_name="Savings Goal",
-
             bank_account_id=None,
-
             description=(
                 f"Initial savings for "
                 f"'{goal.title}'"
             ),
-
             date=date.today(),
         )
 
         db.add(
             savings_expense
         )
-
-
-    # -------------------------
-    # Commit
-    # -------------------------
 
     db.commit()
 
@@ -291,11 +233,6 @@ def update_savings_goal(
         exclude_unset=True
     )
 
-
-    # -------------------------
-    # Title
-    # -------------------------
-
     if "title" in update_data:
 
         update_data["title"] = (
@@ -308,11 +245,6 @@ def update_savings_goal(
                 status_code=400,
                 detail="Goal title cannot be empty.",
             )
-
-
-    # -------------------------
-    # Target Amount
-    # -------------------------
 
     if "target_amount" in update_data:
 
@@ -332,7 +264,6 @@ def update_savings_goal(
                 ),
             )
 
-
         if (
             goal.current_amount
             > new_target
@@ -347,11 +278,6 @@ def update_savings_goal(
                 ),
             )
 
-
-    # -------------------------
-    # Apply Updates
-    # -------------------------
-
     for key, value in update_data.items():
 
         setattr(
@@ -359,11 +285,6 @@ def update_savings_goal(
             key,
             value,
         )
-
-
-    # -------------------------
-    # Update Status
-    # -------------------------
 
     if (
         goal.current_amount
@@ -375,11 +296,6 @@ def update_savings_goal(
     else:
 
         goal.status = "in_progress"
-
-
-    # -------------------------
-    # Commit
-    # -------------------------
 
     db.commit()
 
@@ -398,10 +314,6 @@ def contribute_to_goal(
     amount: float,
 ):
 
-    # -------------------------
-    # Validate Amount
-    # -------------------------
-
     if amount <= 0:
 
         raise HTTPException(
@@ -411,11 +323,6 @@ def contribute_to_goal(
                 "be greater than zero."
             ),
         )
-
-
-    # -------------------------
-    # Check Completed Goal
-    # -------------------------
 
     if goal.status == "completed":
 
@@ -427,16 +334,14 @@ def contribute_to_goal(
             ),
         )
 
-
-    # -------------------------
-    # Check Target Limit
-    # -------------------------
+    # =====================================================
+    # EXISTING TARGET VALIDATION
+    # =====================================================
 
     new_amount = (
         goal.current_amount
         + amount
     )
-
 
     if (
         new_amount
@@ -458,10 +363,9 @@ def contribute_to_goal(
             ),
         )
 
-
-    # -------------------------
-    # Check Available Balance
-    # -------------------------
+    # =====================================================
+    # CHECK AVAILABLE BALANCE
+    # =====================================================
 
     available_balance = (
         get_available_balance(
@@ -469,7 +373,6 @@ def contribute_to_goal(
             goal.user_id,
         )
     )
-
 
     if amount > available_balance:
 
@@ -483,10 +386,9 @@ def contribute_to_goal(
             ),
         )
 
-
-    # -------------------------
-    # Old Percentage
-    # -------------------------
+    # =====================================================
+    # OLD PERCENTAGE
+    # =====================================================
 
     old_amount = (
         goal.current_amount
@@ -499,19 +401,17 @@ def contribute_to_goal(
         ) * 100
     )
 
-
-    # -------------------------
-    # Update Goal Amount
-    # -------------------------
+    # =====================================================
+    # UPDATE GOAL AMOUNT
+    # =====================================================
 
     goal.current_amount = (
         new_amount
     )
 
-
-    # -------------------------
-    # New Percentage
-    # -------------------------
+    # =====================================================
+    # NEW PERCENTAGE
+    # =====================================================
 
     new_percentage = (
         (
@@ -520,36 +420,21 @@ def contribute_to_goal(
         ) * 100
     )
 
-
     # =====================================================
-    # Create Savings Expense
-    # =====================================================
-    #
-    # This is the important part.
-    #
-    # The contribution becomes a financial transaction,
-    # so the user's available balance decreases.
+    # CREATE SAVINGS EXPENSE
     # =====================================================
 
     savings_expense = Expense(
-
         user_id=goal.user_id,
-
         category="Savings",
-
         amount=amount,
-
         payment_method="Savings Goal",
-
         bank_name="Savings Goal",
-
         bank_account_id=None,
-
         description=(
             f"Contribution to "
             f"'{goal.title}'"
         ),
-
         date=date.today(),
     )
 
@@ -557,15 +442,13 @@ def contribute_to_goal(
         savings_expense
     )
 
-
-    # -------------------------
-    # Milestone Detection
-    # -------------------------
+    # =====================================================
+    # MILESTONE DETECTION
+    # =====================================================
 
     milestone = None
 
-
-    # 50% Milestone
+    # 50%
 
     if (
         old_percentage < 50
@@ -574,8 +457,16 @@ def contribute_to_goal(
 
         milestone = 50
 
+    # 70%
 
-    # 100% Completion
+    elif (
+        old_percentage < 70
+        and new_percentage >= 70
+    ):
+
+        milestone = 70
+
+    # 100%
 
     elif (
         old_percentage < 100
@@ -584,10 +475,9 @@ def contribute_to_goal(
 
         milestone = 100
 
-
-    # -------------------------
-    # Update Status
-    # -------------------------
+    # =====================================================
+    # UPDATE STATUS
+    # =====================================================
 
     if (
         new_amount
@@ -600,26 +490,21 @@ def contribute_to_goal(
 
         goal.status = "in_progress"
 
-
     # =====================================================
-    # Notification
+    # 50% NOTIFICATION
     # =====================================================
 
     if milestone == 50:
 
         notification = Notification(
-
             user_id=goal.user_id,
-
             message=(
                 f"Great progress! "
                 f"You've reached 50% of "
                 f"your '{goal.title}' "
                 f"savings goal."
             ),
-
-            type="goal_milestone",
-
+            type="goal_50",
             is_read=False,
         )
 
@@ -627,22 +512,43 @@ def contribute_to_goal(
             notification
         )
 
+    # =====================================================
+    # 70% NOTIFICATION
+    # =====================================================
+
+    elif milestone == 70:
+
+        notification = Notification(
+            user_id=goal.user_id,
+            message=(
+                f"You're doing great! "
+                f"You've completed 70% of "
+                f"your '{goal.title}' "
+                f"savings goal."
+            ),
+            type="goal_70",
+            is_read=False,
+        )
+
+        db.add(
+            notification
+        )
+
+    # =====================================================
+    # 100% NOTIFICATION
+    # =====================================================
 
     elif milestone == 100:
 
         notification = Notification(
-
             user_id=goal.user_id,
-
             message=(
-                f"Congratulations! "
+                f"🎉 Congratulations! "
                 f"You've completed "
                 f"your '{goal.title}' "
                 f"savings goal."
             ),
-
-            type="goal_milestone",
-
+            type="goal_100",
             is_read=False,
         )
 
@@ -650,10 +556,9 @@ def contribute_to_goal(
             notification
         )
 
-
-    # -------------------------
-    # Commit Everything
-    # -------------------------
+    # =====================================================
+    # COMMIT EVERYTHING
+    # =====================================================
 
     db.commit()
 

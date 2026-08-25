@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+
 import {
   FaBell,
   FaUserCircle,
 } from "react-icons/fa";
+
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -58,7 +60,6 @@ function Navbar({ user }) {
     loadNotifications();
 
 
-    // Check notifications every 30 seconds
     const interval =
       setInterval(() => {
 
@@ -69,9 +70,7 @@ function Navbar({ user }) {
 
     return () => {
 
-      clearInterval(
-        interval
-      );
+      clearInterval(interval);
 
     };
 
@@ -99,23 +98,18 @@ function Navbar({ user }) {
       user?.profile_image;
 
 
-    // No profile picture
     if (!profileImage) {
       return null;
     }
 
 
-    // Backend already returned complete URL
     if (
-      profileImage.startsWith(
-        "http"
-      )
+      profileImage.startsWith("http")
     ) {
       return profileImage;
     }
 
 
-    // Local FastAPI backend
     return `http://127.0.0.1:8000${profileImage}`;
   };
 
@@ -132,6 +126,9 @@ function Navbar({ user }) {
 
     <header
       className="
+        sticky
+        top-0
+        z-50
         bg-white
         border-b
         border-gray-200
@@ -140,9 +137,9 @@ function Navbar({ user }) {
         items-center
         justify-between
         px-8
+        flex-shrink-0
       "
     >
-
 
       {/* =====================================================
           Logo
@@ -153,7 +150,11 @@ function Navbar({ user }) {
           text-2xl
           font-bold
           text-blue-600
+          cursor-pointer
         "
+        onClick={() =>
+          navigate("/")
+        }
       >
         BudgetBuddy
       </h1>
@@ -171,7 +172,6 @@ function Navbar({ user }) {
         "
       >
 
-
         {/* ===================================================
             Notification Bell
         =================================================== */}
@@ -179,9 +179,7 @@ function Navbar({ user }) {
         <button
           type="button"
           onClick={() =>
-            navigate(
-              "/notifications"
-            )
+            navigate("/notifications")
           }
           className="
             relative
@@ -194,8 +192,6 @@ function Navbar({ user }) {
 
           <FaBell size={20} />
 
-
-          {/* Unread Badge */}
 
           {unreadCount > 0 && (
 
@@ -236,9 +232,7 @@ function Navbar({ user }) {
         <button
           type="button"
           onClick={() =>
-            navigate(
-              "/settings"
-            )
+            navigate("/settings")
           }
           className="
             flex
@@ -254,7 +248,6 @@ function Navbar({ user }) {
           "
           title="Account Settings"
         >
-
 
           {/* =================================================
               Profile Picture
@@ -335,6 +328,7 @@ function Navbar({ user }) {
     </header>
 
   );
+
 }
 
 
