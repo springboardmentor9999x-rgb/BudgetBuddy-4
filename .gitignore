@@ -13,3 +13,4 @@ backend/.env
 
 # macOS
 .DS_Storebackend/uploads/
+backend/uploads/
