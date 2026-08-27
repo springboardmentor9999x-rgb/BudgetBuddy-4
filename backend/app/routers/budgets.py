@@ -13,7 +13,10 @@ router = APIRouter()
 
 @router.post("/", response_model=BudgetOut, status_code=status.HTTP_201_CREATED)
 def add_budget(budget_in: BudgetCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return create_budget(db, current_user.id, budget_in)
+    budget = create_budget(db, current_user.id, budget_in)
+    if not budget:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="A budget already exists for this category and month")
+    return budget
 
 
 @router.get("/", response_model=list[BudgetOut])
@@ -37,6 +40,8 @@ def read_budget(budget_id: int, db: Session = Depends(get_db), current_user: Use
 @router.put("/{budget_id}", response_model=BudgetOut)
 def edit_budget(budget_id: int, budget_in: BudgetUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     budget = update_budget(db, budget_id, current_user.id, budget_in)
+    if budget == "conflict":
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="A budget already exists for this category and month")
     if not budget:
         raise HTTPException(status_code=404, detail="Budget not found")
     return budget

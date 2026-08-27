@@ -4,6 +4,21 @@ import { Link, useLocation } from "react-router-dom";
 import { FaBell, FaSearch, FaSignOutAlt, FaUser, FaSun, FaMoon, FaCog } from "react-icons/fa";
 import { getNotifications, markNotificationRead } from "../services/notificationService";
 
+const notificationTitles = {
+  budget_added: "Budget created", budget_updated: "Budget updated", budget_deleted: "Budget deleted", budget_alert: "Budget alert",
+  expense_added: "Expense added", expense_updated: "Expense updated", expense_deleted: "Expense deleted",
+  income_added: "Income added", income_updated: "Income updated", income_deleted: "Income deleted",
+  goal_added: "Savings goal created", goal_updated: "Savings goal updated", goal_deleted: "Savings goal deleted",
+  goal_contribution: "Goal contribution", goal_milestone: "Goal milestone", monthly_report: "Monthly report", profile_updated: "Profile updated",
+};
+
+const getNotificationTitle = (notification) => {
+  if (notificationTitles[notification.type]) return notificationTitles[notification.type];
+  if (notification.type === "transaction_added") return notification.message.startsWith("Income") ? "Income added" : "Expense added";
+  if (notification.type === "transaction_deleted") return notification.message.startsWith("Income") ? "Income deleted" : "Expense deleted";
+  return "BudgetBuddy update";
+};
+
 function Topbar() {
   const location = useLocation();
   const topbarActionsRef = useRef(null);
@@ -42,6 +57,13 @@ function Topbar() {
       const updated = await markNotificationRead(notification.id);
       setNotifications((items) => items.map((item) => item.id === updated.id ? updated : item));
     } catch { /* The notification remains unread until the next successful fetch. */ }
+  };
+
+  const toggleNotifications = () => {
+    const opening = !notificationsOpen;
+    setNotificationsOpen(opening);
+    setOpen(false);
+    if (opening) getNotifications().then(setNotifications).catch(() => {});
   };
 
   const today = new Date();
@@ -83,8 +105,17 @@ function Topbar() {
     <div className="topbar-right" ref={topbarActionsRef}>
       <div className="search-box"><FaSearch /><input type="text" placeholder="Search..." /></div>
       <div className="notification-menu">
-        <button className="icon-btn" onClick={() => { setNotificationsOpen((current) => !current); setOpen(false); }} aria-label="Notifications" aria-expanded={notificationsOpen}><FaBell />{unreadCount > 0 && <span className="notification-count">{unreadCount > 9 ? "9+" : unreadCount}</span>}</button>
-        {notificationsOpen && <div className="notification-dropdown"><div className="notification-heading"><strong>Notifications</strong><span>{unreadCount ? `${unreadCount} unread` : "All caught up"}</span></div>{notifications.length ? <div className="notification-list">{notifications.map((notification) => <button key={notification.id} className={`notification-item ${notification.is_read ? "" : "unread"}`} onClick={() => markRead(notification)}><strong>{notification.type === "budget_alert" ? "Budget alert" : "Savings update"}</strong><span>{notification.message}</span></button>)}</div> : <p className="notification-empty">No notifications yet.</p>}</div>}
+        <button className="icon-btn" onClick={toggleNotifications} aria-label="Notifications" aria-expanded={notificationsOpen}><FaBell />{unreadCount > 0 && <span className="notification-count">{unreadCount > 9 ? "9+" : unreadCount}</span>}</button>
+        {notificationsOpen && <div className="notification-dropdown"><div className="notification-heading"><strong>Notifications</strong><span>{unreadCount ? `${unreadCount} unread` : "All caught up"}</span></div>{notifications.length ? <div className="notification-list">{notifications.map((notification) => {
+          const unread = !notification.is_read;
+          return <button key={notification.id} className={`notification-item ${unread ? "unread" : ""}`} onClick={() => markRead(notification)} aria-label={`${unread ? "Unread" : "Read"} notification: ${notification.message}`}>
+            <span className="notification-status" aria-hidden="true" />
+            <span className="notification-content">
+              <span className="notification-title"><strong>{getNotificationTitle(notification)}</strong>{unread && <span className="notification-new">New</span>}</span>
+              <span className="notification-message">{notification.message}</span>
+            </span>
+          </button>;
+        })}</div> : <p className="notification-empty">No notifications yet.</p>}</div>}
       </div>
       <button className="icon-btn" onClick={toggleTheme} aria-label="Toggle theme">
         {theme === 'dark' ? <FaSun /> : <FaMoon />}

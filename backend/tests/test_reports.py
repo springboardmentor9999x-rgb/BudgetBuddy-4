@@ -35,7 +35,7 @@ def test_monthly_report_contains_only_current_users_transactions(client, headers
     expense = client.post(
         "/expenses/",
         headers=headers_a,
-        json={"category": "Food", "amount": 450, "bank_account": "Test Bank 1234"},
+        json={"category": "Food", "amount": 450, "description": "Groceries", "bank_account": "Test Bank 1234"},
     )
     assert income.status_code == 200
     assert expense.status_code == 200

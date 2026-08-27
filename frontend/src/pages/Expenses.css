@@ -126,6 +126,13 @@ bank-form button { background: var(--surface); color: var(--primary); }
 .expense-amount { color: var(--danger) !important; font-weight: 800; }
 
 .delete-expense { display: inline-flex; align-items: center; gap: 6px; border: 0; background: rgba(255,240,240,0.8); color: var(--danger); border-radius: 7px; padding: 7px 9px; cursor: pointer; }
+.expense-actions { display:flex; gap:6px; }
+.edit-expense, .save-expense, .cancel-expense { display:inline-flex; align-items:center; gap:6px; border:0; border-radius:7px; padding:7px 9px; cursor:pointer; }
+.edit-expense { background:color-mix(in srgb,var(--primary) 12%,var(--surface)); color:var(--primary); }
+.save-expense { background:color-mix(in srgb,var(--success) 14%,var(--surface)); color:var(--success); }
+.cancel-expense { background:var(--surface-muted); color:var(--muted); }
+.expense-editing { background:color-mix(in srgb,var(--primary) 7%,var(--surface)); }
+.expense-editing input, .expense-editing select { box-sizing:border-box; width:100%; min-width:100px; padding:7px 8px; border:1px solid var(--border); border-radius:7px; background:var(--surface); color:var(--text); }
 
 .expense-empty { margin: 8px 0 0; padding: 32px 12px; color: var(--muted); text-align: center; }
 

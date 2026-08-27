@@ -38,9 +38,51 @@ def test_login_and_authenticated_identity(client, user_a):
     assert me.json()["is_verified"] is True
 
 
+def test_password_reset_requires_a_short_lived_email_code(client, user_a, monkeypatch):
+    reset = {}
+
+    def capture_code(email, code):
+        reset["email"] = email
+        reset["code"] = code
+
+    monkeypatch.setattr("app.routers.auth.send_password_reset_email", capture_code)
+    requested = client.post("/auth/forgot-password", json={"email": user_a.email})
+    assert requested.status_code == 200
+    assert reset["email"] == user_a.email
+
+    rejected = client.post("/auth/reset-password", json={
+        "email": user_a.email, "code": "AAAAAA", "new_password": "NewPassword1",
+    })
+    assert rejected.status_code == 400
+
+    completed = client.post("/auth/reset-password", json={
+        "email": user_a.email, "code": reset["code"], "new_password": "NewPassword1",
+    })
+    assert completed.status_code == 200
+    assert client.post("/auth/login", json={"email": user_a.email, "password": "NewPassword1"}).status_code == 200
+
+
+def test_update_rejects_null_and_blank_required_fields(client, headers_a):
+    expense = client.post("/expenses/", headers=headers_a, json={
+        "category": "Food", "amount": 10, "description": "Lunch", "bank_account": "Test Bank 1234",
+    }).json()
+    assert client.put(f"/expenses/{expense['id']}", headers=headers_a, json={"category": None}).status_code == 422
+    assert client.put(f"/expenses/{expense['id']}", headers=headers_a, json={"category": "   "}).status_code == 422
+
+
+def test_monthly_budget_is_unique_per_user_category_and_month(client, headers_a):
+    payload = {"category": "Food", "amount": 500, "month": "2026-08"}
+    assert client.post("/budgets/", headers=headers_a, json=payload).status_code == 201
+    duplicate = client.post("/budgets/", headers=headers_a, json=payload)
+    assert duplicate.status_code == 409
+
+
 def test_expense_ownership_and_amount_validation(client, headers_a, headers_b):
     invalid = client.post("/expenses/", headers=headers_a, json={"category": "Shopping", "amount": 0, "bank_account": "Test Bank 1234"})
     assert invalid.status_code == 422
+
+    missing_note = client.post("/expenses/", headers=headers_a, json={"category": "Shopping", "amount": 500, "bank_account": "Test Bank 1234"})
+    assert missing_note.status_code == 422
 
     created = client.post("/expenses/", headers=headers_a, json={"category": "Shopping", "amount": 500, "description": "Shoes", "bank_account": "Test Bank 1234"})
     assert created.status_code == 200

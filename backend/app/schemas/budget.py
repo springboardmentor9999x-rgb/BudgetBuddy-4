@@ -37,7 +37,12 @@ class BudgetUpdate(BaseModel):
     @field_validator("category")
     @classmethod
     def normalize_category(cls, value: str | None) -> str | None:
-        return value.strip() if value is not None else value
+        if value is None:
+            raise ValueError("Category cannot be null")
+        value = value.strip()
+        if not value:
+            raise ValueError("Category cannot be blank")
+        return value
 
     @field_validator("month")
     @classmethod

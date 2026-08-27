@@ -15,3 +15,15 @@ test("rejects a non-positive expense amount", () => {
   expect(screen.getByText("Amount must be greater than zero.")).toBeInTheDocument();
   expect(onAdd).not.toHaveBeenCalled();
 });
+
+test("requires a note before adding an expense", () => {
+  const onAdd = jest.fn();
+  render(<ExpenseForm bankAccounts={accounts} onAdd={onAdd} />);
+
+  fireEvent.change(screen.getByLabelText("Amount"), { target: { value: "10" } });
+  fireEvent.change(screen.getByLabelText("Bank account"), { target: { value: "primary" } });
+  fireEvent.submit(screen.getByRole("button", { name: /add expense/i }).closest("form"));
+
+  expect(screen.getByText("Note is required.")).toBeInTheDocument();
+  expect(onAdd).not.toHaveBeenCalled();
+});

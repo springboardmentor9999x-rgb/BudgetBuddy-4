@@ -48,6 +48,8 @@ def update_goal(db: Session, goal_id: int, user_id: int, goal_in: SavingGoalUpda
     goal.status = "completed" if goal.saved_amount >= goal.target_amount else "in_progress"
     db.commit()
     db.refresh(goal)
+    create_notification(db, user_id, f"Savings goal updated: {goal.goal_name}.", "goal_updated")
+    db.commit()
     return _progress(goal)
 
 
@@ -77,6 +79,7 @@ def contribute_to_goal(db: Session, goal_id: int, user_id: int, contribution: Co
         description="Amount moved to a savings goal",
     ))
     target = float(goal.target_amount)
+    create_notification(db, user_id, f"Added ₹{float(contribution.amount):,.2f} to {goal.goal_name}.", "goal_contribution")
     if previous_amount < target * 0.5 <= goal.saved_amount:
         create_notification(db, user_id, f"You're halfway to your {goal.goal_name} goal!", "goal_milestone")
     if previous_amount < target <= goal.saved_amount:

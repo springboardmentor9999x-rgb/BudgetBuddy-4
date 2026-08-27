@@ -21,12 +21,16 @@ def get_dashboard_summary(db: Session, user_id: int):
         Expense.user_id == user_id, Expense.date >= start, Expense.date < end
     ).scalar())
 
+    income_year = func.extract("year", Income.date)
+    income_month = func.extract("month", Income.date)
+    expense_year = func.extract("year", Expense.date)
+    expense_month = func.extract("month", Expense.date)
     monthly_income = db.query(
-        func.extract("month", Income.date).label("month"), func.sum(Income.amount).label("amount")
-    ).filter(Income.user_id == user_id).group_by(func.extract("month", Income.date)).order_by(func.extract("month", Income.date)).all()
+        income_year.label("year"), income_month.label("month"), func.sum(Income.amount).label("amount")
+    ).filter(Income.user_id == user_id).group_by(income_year, income_month).order_by(income_year, income_month).all()
     monthly_expense = db.query(
-        func.extract("month", Expense.date).label("month"), func.sum(Expense.amount).label("amount")
-    ).filter(Expense.user_id == user_id).group_by(func.extract("month", Expense.date)).order_by(func.extract("month", Expense.date)).all()
+        expense_year.label("year"), expense_month.label("month"), func.sum(Expense.amount).label("amount")
+    ).filter(Expense.user_id == user_id).group_by(expense_year, expense_month).order_by(expense_year, expense_month).all()
     categories = db.query(Expense.category, func.sum(Expense.amount).label("amount")).filter(
         Expense.user_id == user_id, Expense.date >= start, Expense.date < end
     ).group_by(Expense.category).order_by(func.sum(Expense.amount).desc()).limit(3).all()
@@ -44,8 +48,8 @@ def get_dashboard_summary(db: Session, user_id: int):
 
     return {
         "summary": {"total_income": total_income, "total_expense": total_expense, "balance": total_income - total_expense, "savings": total_income - total_expense},
-        "monthly_income": [{"month": int(item.month), "amount": float(item.amount)} for item in monthly_income],
-        "monthly_expense": [{"month": int(item.month), "amount": float(item.amount)} for item in monthly_expense],
+        "monthly_income": [{"period": f"{int(item.year)}-{int(item.month):02d}", "amount": float(item.amount)} for item in monthly_income],
+        "monthly_expense": [{"period": f"{int(item.year)}-{int(item.month):02d}", "amount": float(item.amount)} for item in monthly_expense],
         "expense_categories": [{"category": item.category, "amount": float(item.amount)} for item in categories],
         "recent_transactions": [{**item, "date": item["date"].strftime("%d-%m-%Y")} for item in transactions[:5]],
     }

@@ -7,6 +7,7 @@ function ForgotPassword() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -17,6 +18,7 @@ function ForgotPassword() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [codeRequested, setCodeRequested] = useState(false);
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
@@ -24,8 +26,22 @@ function ForgotPassword() {
     setError("");
     setMessage("");
 
-    if (!email || !newPassword || !confirmPassword) {
+    if (!email || (codeRequested && (!code || !newPassword || !confirmPassword))) {
       setError("Please fill in all fields.");
+      return;
+    }
+
+    if (!codeRequested) {
+      try {
+        setLoading(true);
+        const response = await api.post("/auth/forgot-password", { email: email.trim() });
+        setMessage(response.data.message);
+        setCodeRequested(true);
+      } catch (err) {
+        setError(err.response?.data?.detail || "Unable to request a reset code. Please try again.");
+      } finally {
+        setLoading(false);
+      }
       return;
     }
 
@@ -34,8 +50,8 @@ function ForgotPassword() {
       return;
     }
 
-    if (newPassword.length < 6) {
-      setError("Password must be at least 6 characters.");
+    if (newPassword.length < 8) {
+      setError("Password must be at least 8 characters.");
       return;
     }
 
@@ -46,6 +62,7 @@ function ForgotPassword() {
         "/auth/reset-password",
         {
           email: email.trim(),
+          code: code.trim().toUpperCase(),
           new_password: newPassword,
         }
       );
@@ -114,8 +131,7 @@ function ForgotPassword() {
             <h2>Forgot Password?</h2>
 
             <p className="forgot-subtitle">
-              Enter your registered email and create
-              a new password.
+              {codeRequested ? "Enter the code sent to your email and choose a new password." : "Enter your registered email to receive a password reset code."}
             </p>
 
             <form onSubmit={handleResetPassword}>
@@ -140,6 +156,12 @@ function ForgotPassword() {
                 />
 
               </div>
+
+              {codeRequested && <>
+                <div className="forgot-form-group">
+                  <label htmlFor="reset-code">Verification code</label>
+                  <input id="reset-code" type="text" placeholder="Enter 6-character code" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} maxLength="6" autoComplete="one-time-code" />
+                </div>
 
 
               {/* NEW PASSWORD */}
@@ -226,6 +248,7 @@ function ForgotPassword() {
                 </div>
 
               </div>
+              </>}
 
 
               {/* ERROR */}
@@ -254,8 +277,8 @@ function ForgotPassword() {
                 disabled={loading}
               >
                 {loading
-                  ? "Resetting Password..."
-                  : "Reset Password"}
+                  ? (codeRequested ? "Resetting Password..." : "Sending code...")
+                  : (codeRequested ? "Reset Password" : "Send reset code")}
               </button>
 
             </form>

@@ -23,7 +23,7 @@ def create_expense(db: Session, user_id: int, expense: ExpenseCreate):
     db.commit()
     db.refresh(new_expense)
 
-    create_notification(db, user_id, f"Expense added: {new_expense.category} (₹{float(new_expense.amount):,.2f}).", "transaction_added")
+    create_notification(db, user_id, f"Expense added: {new_expense.category} (₹{float(new_expense.amount):,.2f}).", "expense_added")
     db.commit()
     _create_budget_alert_if_crossed(db, user_id, new_expense)
 
@@ -106,6 +106,9 @@ def update_expense(
     db.commit()
     db.refresh(db_expense)
 
+    create_notification(db, user_id, f"Expense updated: {db_expense.category} (₹{float(db_expense.amount):,.2f}).", "expense_updated")
+    db.commit()
+
     return db_expense
 
 
@@ -129,7 +132,7 @@ def delete_expense(
     category = db_expense.category
     db.delete(db_expense)
     db.commit()
-    create_notification(db, user_id, f"Expense deleted: {category}.", "transaction_deleted")
+    create_notification(db, user_id, f"Expense deleted: {category}.", "expense_deleted")
     db.commit()
 
     return db_expense

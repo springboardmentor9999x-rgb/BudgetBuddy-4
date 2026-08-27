@@ -39,7 +39,9 @@ class IncomeUpdate(BaseModel):
     @field_validator("source")
     @classmethod
     def normalize_update_source(cls, value: str | None) -> str | None:
-        value = value.strip() if value is not None else value
+        if value is None:
+            raise ValueError("Source cannot be null")
+        value = value.strip()
         if value == "":
             raise ValueError("Source cannot be blank")
         return value

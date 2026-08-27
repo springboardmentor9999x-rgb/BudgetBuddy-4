@@ -31,7 +31,7 @@ def test_analytics_is_user_scoped_and_groups_spending(client, headers_a, headers
     created = client.post(
         "/expenses/",
         headers=headers_a,
-        json={"category": "Food", "amount": 125, "bank_account": "Test Bank 1234"},
+        json={"category": "Food", "amount": 125, "description": "Lunch", "bank_account": "Test Bank 1234"},
     )
     assert created.status_code == 200
 

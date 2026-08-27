@@ -11,63 +11,16 @@ import {
 
 import "../../styles/Charts.css";
 
-const monthNames = [
-  "",
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-
 function BarChartCard({ dashboard }) {
-
-  const chartData = [];
-
-  dashboard.monthly_income.forEach((income) => {
-
-    chartData.push({
-      month: monthNames[income.month],
-      income: income.amount,
-      expense: 0,
-    });
-
-  });
-
-  dashboard.monthly_expense.forEach((expense) => {
-
-    const existing = chartData.find(
-      (item) => item.month === monthNames[expense.month]
-    );
-
-    if (existing) {
-
-      existing.expense = expense.amount;
-
-    } else {
-
-      chartData.push({
-        month: monthNames[expense.month],
-        income: 0,
-        expense: expense.amount,
-      });
-
-    }
-
-  });
-
-  chartData.sort(
-    (a, b) =>
-      monthNames.indexOf(a.month) -
-      monthNames.indexOf(b.month)
-  );
+  const byPeriod = new Map();
+  for (const income of dashboard.monthly_income) {
+    byPeriod.set(income.period, { month: income.period, income: income.amount, expense: 0 });
+  }
+  for (const expense of dashboard.monthly_expense) {
+    const existing = byPeriod.get(expense.period);
+    byPeriod.set(expense.period, { month: expense.period, income: existing?.income || 0, expense: expense.amount });
+  }
+  const chartData = [...byPeriod.values()].sort((a, b) => a.month.localeCompare(b.month));
 
   return (
 

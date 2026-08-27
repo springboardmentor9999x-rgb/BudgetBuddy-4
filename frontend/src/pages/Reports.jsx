@@ -13,7 +13,10 @@ function Reports() {
   const now = new Date();
   const [period, setPeriod] = useState({ month: now.getMonth() + 1, year: now.getFullYear() });
   const [exporting, setExporting] = useState("");
-  useEffect(() => { getAnalytics().then(setAnalytics).catch(() => setError("We could not load your reports. Please refresh the page.")); }, []);
+  useEffect(() => {
+    setError("");
+    getAnalytics(period).then(setAnalytics).catch(() => setError("We could not load your reports. Please refresh the page."));
+  }, [period]);
   if (error) return <div className="reports-message error">{error}</div>;
   if (!analytics) return <div className="reports-message">Loading your reports…</div>;
 

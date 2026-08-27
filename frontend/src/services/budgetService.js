@@ -12,6 +12,11 @@ export const createBudget = async (budget) => {
   return response.data;
 };
 
+export const updateBudget = async (id, budget) => {
+  const response = await api.put(`${BASE}/${id}`, budget);
+  return response.data;
+};
+
 export const deleteBudget = async (id) => {
   const response = await api.delete(`${BASE}/${id}`);
   return response.data;

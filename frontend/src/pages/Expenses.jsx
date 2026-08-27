@@ -3,7 +3,7 @@ import { FaCheckCircle, FaPlus, FaTrashAlt } from "react-icons/fa";
 
 import ExpenseForm from "../components/ExpenseForm";
 import ExpenseList from "../components/ExpenseList";
-import { createExpense, deleteExpense, getExpenses } from "../services/expenseService";
+import { createExpense, deleteExpense, getExpenses, updateExpense } from "../services/expenseService";
 import { getBudgetSummary } from "../services/budgetService";
 import "./Expenses.css";
 
@@ -15,9 +15,17 @@ function Expenses() {
   const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const monthlyExpenses = useMemo(() => {
+    const now = new Date();
+    return expenses.filter((expense) => {
+      const date = new Date(expense.date);
+      return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth();
+    });
+  }, [expenses]);
+
   const totalExpense = useMemo(
-    () => expenses.reduce((total, expense) => total + Number(expense.amount || 0), 0),
-    [expenses]
+    () => monthlyExpenses.reduce((total, expense) => total + Number(expense.amount || 0), 0),
+    [monthlyExpenses]
   );
 
   const showToast = useCallback((type, message) => {
@@ -80,6 +88,17 @@ function Expenses() {
     }
   };
 
+  const handleUpdate = async (expense, changes) => {
+    try {
+      await updateExpense(expense.id, changes);
+      await loadExpenses();
+      showToast("success", "Expense updated successfully.");
+    } catch (error) {
+      showToast("error", error.response?.data?.detail || "Unable to update this expense.");
+      throw error;
+    }
+  };
+
   return (
     <div className="expenses-page">
       <header className="expenses-hero">
@@ -91,7 +110,7 @@ function Expenses() {
         <div className="expenses-total-card">
           <span>This month’s expenses</span>
           <strong>₹{totalExpense.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
-          <small>{expenses.length} transaction{expenses.length === 1 ? "" : "s"} recorded</small>
+          <small>{monthlyExpenses.length} transaction{monthlyExpenses.length === 1 ? "" : "s"} recorded this month</small>
         </div>
       </header>
 
@@ -115,7 +134,7 @@ function Expenses() {
           <span className="panel-icon danger"><FaTrashAlt /></span>
           <div><h2>Recent expenses</h2><p>Review, then remove records you no longer need.</p></div>
         </div>
-        <ExpenseList expenses={expenses} loading={loading} onDelete={handleDelete} />
+        <ExpenseList expenses={expenses} loading={loading} onDelete={handleDelete} onUpdate={handleUpdate} />
       </section>
     </div>
   );

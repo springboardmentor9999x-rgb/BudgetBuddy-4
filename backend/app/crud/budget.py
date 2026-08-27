@@ -2,6 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from app.crud.notification import create_notification
 from app.models.budget import Budget
@@ -12,7 +13,11 @@ from app.schemas.budget import BudgetCreate, BudgetUpdate
 def create_budget(db: Session, user_id: int, budget_in: BudgetCreate):
     budget = Budget(user_id=user_id, **budget_in.model_dump())
     db.add(budget)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        return None
     db.refresh(budget)
     create_notification(db, user_id, f"Budget added for {budget.category}: ₹{float(budget.amount):,.2f}.", "budget_added")
     db.commit()
@@ -34,10 +39,27 @@ def update_budget(db: Session, budget_id: int, user_id: int, budget_in: BudgetUp
     budget = get_budget(db, budget_id, user_id)
     if not budget:
         return None
-    for key, value in budget_in.model_dump(exclude_unset=True).items():
+    update_data = budget_in.model_dump(exclude_unset=True)
+    category = update_data.get("category", budget.category)
+    month = update_data.get("month", budget.month)
+    duplicate = db.query(Budget).filter(
+        Budget.user_id == user_id,
+        Budget.category == category,
+        Budget.month == month,
+        Budget.id != budget.id,
+    ).first()
+    if duplicate:
+        return "conflict"
+    for key, value in update_data.items():
         setattr(budget, key, value)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        return "conflict"
     db.refresh(budget)
+    create_notification(db, user_id, f"Budget updated for {budget.category}: ₹{float(budget.amount):,.2f}.", "budget_updated")
+    db.commit()
     return budget
 
 

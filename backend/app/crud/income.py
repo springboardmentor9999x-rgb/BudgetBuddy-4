@@ -20,7 +20,7 @@ def create_income(db: Session, user_id: int, income: IncomeCreate):
     db.add(db_income)
     db.commit()
     db.refresh(db_income)
-    create_notification(db, user_id, f"Income added: {db_income.source} (₹{float(db_income.amount):,.2f}).", "transaction_added")
+    create_notification(db, user_id, f"Income added: {db_income.source} (₹{float(db_income.amount):,.2f}).", "income_added")
     db.commit()
 
     return db_income
@@ -71,6 +71,9 @@ def update_income(
     db.commit()
     db.refresh(db_income)
 
+    create_notification(db, user_id, f"Income updated: {db_income.source} (₹{float(db_income.amount):,.2f}).", "income_updated")
+    db.commit()
+
     return db_income
 
 
@@ -86,7 +89,7 @@ def delete_income(db: Session, income_id: int, user_id: int):
     source = db_income.source
     db.delete(db_income)
     db.commit()
-    create_notification(db, user_id, f"Income deleted: {source}.", "transaction_deleted")
+    create_notification(db, user_id, f"Income deleted: {source}.", "income_deleted")
     db.commit()
 
     return db_income

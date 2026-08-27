@@ -21,6 +21,15 @@ class ExpenseBase(BaseModel):
 
 class ExpenseCreate(ExpenseBase):
     bank_account: str = Field(min_length=1, max_length=120)
+    description: str = Field(min_length=1, max_length=500)
+
+    @field_validator("description")
+    @classmethod
+    def require_description(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("Note cannot be blank")
+        return value
 
 
 class ExpenseUpdate(BaseModel):
@@ -32,7 +41,12 @@ class ExpenseUpdate(BaseModel):
     @field_validator("category")
     @classmethod
     def normalize_update_category(cls, value: str | None) -> str | None:
-        return value.strip() if value is not None else value
+        if value is None:
+            raise ValueError("Category cannot be null")
+        value = value.strip()
+        if not value:
+            raise ValueError("Category cannot be blank")
+        return value
 
 
 class ExpenseOut(ExpenseBase):

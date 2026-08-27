@@ -19,7 +19,12 @@ class Token(BaseModel):
 
 class ResetPassword(BaseModel):
     email: EmailStr
+    code: str = Field(min_length=6, max_length=6, pattern=r"^[A-Z0-9]{6}$")
     new_password: str = Field(min_length=8, max_length=72)
+
+
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
 
 
 class VerifyEmailCode(BaseModel):

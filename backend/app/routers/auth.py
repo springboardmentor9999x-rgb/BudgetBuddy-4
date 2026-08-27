@@ -10,6 +10,7 @@ from app.database import get_db
 from app.schemas.auth import (
     Signup,
     Login,
+    PasswordResetRequest,
     ResetPassword,
     VerifyEmailCode,
 )
@@ -26,8 +27,9 @@ from app.core.security import (
 
 from app.models.user import User
 from app.models.pending_user import PendingUser
+from app.models.password_reset import PasswordReset
 from app.models.profile import Profile
-from app.services.email import send_verification_email
+from app.services.email import send_password_reset_email, send_verification_email
 from app.core.deps import get_current_user
 
 router = APIRouter(
@@ -201,22 +203,65 @@ def read_current_user(current_user: User = Depends(get_current_user)):
 # RESET PASSWORD
 # =========================
 
+@router.post("/forgot-password")
+def request_password_reset(
+    data: PasswordResetRequest,
+    db: Session = Depends(get_db),
+):
+    """Issue a short-lived verification code without disclosing account existence."""
+    email = data.email.lower()
+    user = get_user_by_email(db, email)
+    if not user:
+        return {"message": "If that email is registered, a password reset code has been sent."}
+
+    code = generate_verification_code()
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
+    reset = db.query(PasswordReset).filter(PasswordReset.email == email).first()
+    if reset:
+        reset.verification_token = hash_password(code)
+        reset.expires_at = expires_at
+    else:
+        db.add(PasswordReset(
+            email=email,
+            verification_token=hash_password(code),
+            expires_at=expires_at,
+        ))
+    db.commit()
+
+    try:
+        send_password_reset_email(email, code)
+    except Exception:
+        raise HTTPException(status_code=503, detail="Unable to send the password reset email. Check the SMTP settings and try again.")
+
+    return {"message": "If that email is registered, a password reset code has been sent."}
+
+
 @router.post("/reset-password")
 def reset_password(
     data: ResetPassword,
     db: Session = Depends(get_db)
 ):
     validate_bcrypt_password(data.new_password)
-    user = get_user_by_email(db, data.email)
+    email = data.email.lower()
+    user = get_user_by_email(db, email)
 
     if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="Email is not registered"
-        )
+        raise HTTPException(status_code=400, detail="Invalid or expired password reset code")
+
+    reset = db.query(PasswordReset).filter(PasswordReset.email == email).first()
+    if not reset:
+        raise HTTPException(status_code=400, detail="Invalid or expired password reset code")
+    expires_at = reset.expires_at
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    if expires_at < datetime.now(timezone.utc) or not verify_password(data.code, reset.verification_token):
+        if expires_at < datetime.now(timezone.utc):
+            db.delete(reset)
+            db.commit()
+        raise HTTPException(status_code=400, detail="Invalid or expired password reset code")
 
     user.password = hash_password(data.new_password)
-
+    db.delete(reset)
     db.commit()
     db.refresh(user)
 

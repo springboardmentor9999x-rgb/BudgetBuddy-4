@@ -1,10 +1,16 @@
 import api from "../api/axios";
 
-export const getAnalytics = async () => {
-  const [summary, categories, trend, goals] = await Promise.all([
-    api.get("/analytics/summary"), api.get("/analytics/spending-by-category"), api.get("/analytics/monthly-trend"), api.get("/analytics/savings-progress"),
+export const getAnalytics = async ({ month, year }) => {
+  const [report, trend] = await Promise.all([
+    api.get("/reports/monthly", { params: { month, year } }),
+    api.get("/analytics/monthly-trend"),
   ]);
-  return { summary: summary.data, categories: categories.data, trend: trend.data, goals: goals.data };
+  return {
+    ...report.data,
+    categories: report.data.spending_by_category,
+    goals: report.data.savings_progress,
+    trend: trend.data,
+  };
 };
 
 export const downloadReport = async (format, { month, year }) => {

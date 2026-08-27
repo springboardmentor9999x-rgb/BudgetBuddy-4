@@ -2,7 +2,7 @@ def test_budget_crossing_creates_single_alert(client, headers_a):
     budget = client.post("/budgets/", headers=headers_a, json={"category": "Shopping", "amount": 5000, "month": "2026-08"})
     assert budget.status_code == 201
 
-    expense = client.post("/expenses/", headers=headers_a, json={"category": "Shopping", "amount": 6000, "bank_account": "Test Bank 1234"})
+    expense = client.post("/expenses/", headers=headers_a, json={"category": "Shopping", "amount": 6000, "description": "Laptop", "bank_account": "Test Bank 1234"})
     assert expense.status_code == 200
 
     alerts = [item for item in client.get("/notifications/", headers=headers_a).json() if item["type"] == "budget_alert"]

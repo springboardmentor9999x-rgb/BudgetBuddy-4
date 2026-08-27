@@ -26,6 +26,16 @@ class SavingGoalUpdate(BaseModel):
     target_amount: float | None = Field(default=None, gt=0)
     target_date: date | None = None
 
+    @field_validator("goal_name")
+    @classmethod
+    def normalize_name(cls, value: str | None) -> str | None:
+        if value is None:
+            raise ValueError("Goal name cannot be null")
+        value = value.strip()
+        if not value:
+            raise ValueError("Goal name cannot be blank")
+        return value
+
 
 class ContributionCreate(BaseModel):
     amount: float = Field(gt=0)
