@@ -13,6 +13,10 @@ export const getAnalytics = async ({ month, year }) => {
   };
 };
 
+export const getMonthlyReport = async ({ month, year }) => (
+  await api.get("/reports/monthly", { params: { month, year } })
+).data;
+
 export const downloadReport = async (format, { month, year }) => {
   const response = await api.get(`/reports/export/${format}`, {
     params: { month, year },

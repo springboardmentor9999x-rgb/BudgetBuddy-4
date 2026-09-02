@@ -18,6 +18,7 @@
     color:var(--text);
     margin:0;
 }
+.topbar-left{display:flex;align-items:center;gap:12px}.mobile-menu-btn{display:none;width:44px;height:44px;flex:0 0 44px;place-items:center;border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--text);font-size:18px;box-shadow:var(--soft-shadow);cursor:pointer}
 
 .topbar-left p{
     margin-top:8px;
@@ -173,6 +174,8 @@
 }
 
 @media(max-width:768px){
+
+    .mobile-menu-btn{display:grid}
 
     .topbar{
 

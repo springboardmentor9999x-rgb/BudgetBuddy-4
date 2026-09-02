@@ -26,3 +26,22 @@ def test_goal_contributions_complete_goal_and_create_milestones(client, headers_
     notifications = client.get("/notifications/", headers=headers_a).json()
     milestones = [item for item in notifications if item["type"] == "goal_milestone"]
     assert len(milestones) == 2
+
+
+def test_budget_and_goal_crud_are_owner_scoped(client, headers_a, headers_b):
+    budget = client.post("/budgets/", headers=headers_a, json={"category": "Food", "amount": 1000, "month": "2026-08"}).json()
+    goal = client.post("/goals/", headers=headers_a, json={"goal_name": "Laptop", "target_amount": 5000}).json()
+
+    for method, path, payload in [
+        (client.get, f"/budgets/{budget['id']}", None),
+        (client.put, f"/budgets/{budget['id']}", {"amount": 1}),
+        (client.delete, f"/budgets/{budget['id']}", None),
+        (client.get, f"/goals/{goal['id']}", None),
+        (client.put, f"/goals/{goal['id']}", {"target_amount": 1}),
+        (client.delete, f"/goals/{goal['id']}", None),
+    ]:
+        response = method(path, headers=headers_b, **({"json": payload} if payload else {}))
+        assert response.status_code == 404
+
+    assert len(client.get("/budgets/", headers=headers_a).json()) == 1
+    assert len(client.get("/goals/", headers=headers_a).json()) == 1

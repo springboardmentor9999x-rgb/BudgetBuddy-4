@@ -2,10 +2,6 @@ import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import text
-
-from app.database import engine
-
 # Routers
 from app.routers.auth import router as auth_router
 from app.routers import expenses
@@ -105,16 +101,5 @@ app.include_router(
 @app.get("/")
 def root():
     return {
-        "message": "BudgetBuddy Backend is Running 🚀"
+        "message": "BudgetBuddy API is running"
     }
-
-# -----------------------------
-# Database Test
-# -----------------------------
-@app.get("/test-db")
-def test_db():
-    with engine.connect() as conn:
-        result = conn.execute(text("SELECT NOW();"))
-        return {
-            "Database Time": str(result.scalar())
-        }

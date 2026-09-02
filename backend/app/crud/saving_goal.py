@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Session
 
 from app.crud.notification import create_notification
-from app.models.income import Income
 from app.models.saving_goal import SavingGoal
 from app.schemas.saving_goal import ContributionCreate, SavingGoalCreate, SavingGoalUpdate
 
@@ -71,13 +70,6 @@ def contribute_to_goal(db: Session, goal_id: int, user_id: int, contribution: Co
         return None
     previous_amount = float(goal.saved_amount or 0)
     goal.saved_amount = previous_amount + contribution.amount
-    # Preserve original income records while reflecting the amount moved to savings.
-    db.add(Income(
-        user_id=user_id,
-        source=f"Savings contribution — {goal.goal_name}",
-        amount=-float(contribution.amount),
-        description="Amount moved to a savings goal",
-    ))
     target = float(goal.target_amount)
     create_notification(db, user_id, f"Added ₹{float(contribution.amount):,.2f} to {goal.goal_name}.", "goal_contribution")
     if previous_amount < target * 0.5 <= goal.saved_amount:

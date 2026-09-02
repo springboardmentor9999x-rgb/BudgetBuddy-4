@@ -3,16 +3,19 @@ import {
   FaWallet,
   FaMoneyBillWave,
   FaChartBar,
+  FaChartPie,
   FaUniversity,
   FaPiggyBank,
   FaCog,
   FaSignOutAlt,
+  FaBullseye,
+  FaBell,
 } from "react-icons/fa";
 
 import { NavLink, useNavigate } from "react-router-dom";
 import "../styles/Sidebar.css";
 
-function Sidebar() {
+function Sidebar({ open = false, onClose = () => {} }) {
   const navigate = useNavigate();
   const menuItems = [
     { path: "/dashboard", icon: <FaHome />, label: "Dashboard" },
@@ -20,13 +23,15 @@ function Sidebar() {
     { path: "/expenses", icon: <FaMoneyBillWave />, label: "Expenses" },
     { path: "/accounts", icon: <FaUniversity />, label: "Accounts" },
     { path: "/goals", icon: <FaPiggyBank />, label: "Savings Goals" },
-    { path: "/budget", icon: "🎯", label: "Budget" },
+    { path: "/budget", icon: <FaBullseye />, label: "Budget" },
     { path: "/reports", icon: <FaChartBar />, label: "Reports" },
+    { path: "/analytics", icon: <FaChartPie />, label: "Analytics" },
+    { path: "/notifications", icon: <FaBell />, label: "Notifications" },
     { path: "/settings", icon: <FaCog />, label: "Settings" },
   ];
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${open ? "open" : ""}`} aria-label="Primary navigation">
       <div className="sidebar-header">
         <div className="logo-circle">
           <FaWallet />
@@ -43,6 +48,7 @@ function Sidebar() {
           <NavLink
             key={item.path}
             to={item.path}
+            onClick={onClose}
             className={({ isActive }) =>
               isActive ? "menu-item active" : "menu-item"
             }

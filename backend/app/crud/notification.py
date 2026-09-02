@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -41,7 +43,7 @@ def generate_monthly_report_notification(db: Session, user_id: int):
 
     start = datetime(now.year, now.month, 1)
     end = datetime(start.year + (start.month == 12), (start.month % 12) + 1, 1)
-    income = float(db.query(func.coalesce(func.sum(Income.amount), 0)).filter(Income.user_id == user_id, Income.date >= start, Income.date < end).scalar())
+    income = float(db.query(func.coalesce(func.sum(Income.amount), 0)).filter(Income.user_id == user_id, Income.amount > 0, Income.date >= start, Income.date < end).scalar())
     expenses = float(db.query(func.coalesce(func.sum(Expense.amount), 0)).filter(Expense.user_id == user_id, Expense.date >= start, Expense.date < end).scalar())
     notification = create_notification(
         db,

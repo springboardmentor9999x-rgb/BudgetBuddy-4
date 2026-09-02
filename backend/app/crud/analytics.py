@@ -30,7 +30,7 @@ def monthly_trend(db: Session, user_id: int, months: int = 6):
     result = []
     for start in reversed(month_starts):
         end = datetime(start.year + (start.month == 12), (start.month % 12) + 1, 1)
-        income = db.query(func.coalesce(func.sum(Income.amount), 0)).filter(Income.user_id == user_id, Income.date >= start, Income.date < end).scalar()
+        income = db.query(func.coalesce(func.sum(Income.amount), 0)).filter(Income.user_id == user_id, Income.amount > 0, Income.date >= start, Income.date < end).scalar()
         expenses = db.query(func.coalesce(func.sum(Expense.amount), 0)).filter(Expense.user_id == user_id, Expense.date >= start, Expense.date < end).scalar()
         result.append({"month": start.strftime("%b %Y"), "income": float(income), "expenses": float(expenses)})
     return result
@@ -46,7 +46,7 @@ def savings_progress(db: Session, user_id: int):
 
 
 def summary(db: Session, user_id: int):
-    income = float(db.query(func.coalesce(func.sum(Income.amount), 0)).filter(Income.user_id == user_id).scalar())
+    income = float(db.query(func.coalesce(func.sum(Income.amount), 0)).filter(Income.user_id == user_id, Income.amount > 0).scalar())
     expenses = float(db.query(func.coalesce(func.sum(Expense.amount), 0)).filter(Expense.user_id == user_id).scalar())
     balance = income - expenses
     return {"total_income": income, "total_expenses": expenses, "net_balance": balance, "savings_rate": round((balance / income) * 100, 2) if income else 0}

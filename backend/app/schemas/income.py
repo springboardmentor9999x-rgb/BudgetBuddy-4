@@ -48,9 +48,6 @@ class IncomeUpdate(BaseModel):
 
 
 class IncomeOut(IncomeBase):
-    # Savings-goal contributions are recorded as offsetting income entries.
-    # They must be readable even though manually created income is positive-only.
-    amount: float
     id: int
     user_id: int
     date: datetime

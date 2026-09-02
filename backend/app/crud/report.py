@@ -24,7 +24,7 @@ def monthly_report(db: Session, user_id: int, year: int, month: int) -> dict:
     )
     incomes = (
         db.query(Income)
-        .filter(Income.user_id == user_id, Income.date >= start, Income.date < end)
+        .filter(Income.user_id == user_id, Income.amount > 0, Income.date >= start, Income.date < end)
         .order_by(Income.date.desc(), Income.id.desc())
         .all()
     )
@@ -32,6 +32,13 @@ def monthly_report(db: Session, user_id: int, year: int, month: int) -> dict:
     total_income = sum(float(item.amount or 0) for item in incomes)
     total_expenses = sum(float(item.amount or 0) for item in expenses)
     net_balance = total_income - total_expenses
+    income_before = float(db.query(func.coalesce(func.sum(Income.amount), 0)).filter(
+        Income.user_id == user_id, Income.amount > 0, Income.date < start
+    ).scalar())
+    expenses_before = float(db.query(func.coalesce(func.sum(Expense.amount), 0)).filter(
+        Expense.user_id == user_id, Expense.date < start
+    ).scalar())
+    opening_balance = income_before - expenses_before
     categories = (
         db.query(Expense.category, func.sum(Expense.amount).label("total"))
         .filter(Expense.user_id == user_id, Expense.date >= start, Expense.date < end)
@@ -82,6 +89,8 @@ def monthly_report(db: Session, user_id: int, year: int, month: int) -> dict:
             "total_income": total_income,
             "total_expenses": total_expenses,
             "net_balance": net_balance,
+            "opening_balance": opening_balance,
+            "closing_balance": opening_balance + net_balance,
             "savings_rate": round((net_balance / total_income) * 100, 2) if total_income else 0,
             "income_count": len(incomes),
             "expense_count": len(expenses),

@@ -10,10 +10,12 @@ import Expenses from "./pages/Expenses";
 import Income from "./pages/Income";
 import Budget from "./pages/Budget";
 import Reports from "./pages/Reports";
+import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import Accounts from "./pages/Accounts";
 import Profile from "./pages/Profile";
 import Goals from "./pages/Goals";
+import Notifications from "./pages/Notifications";
 
 import DashboardLayout from "./layouts/DashboardLayout";
 import ProtectedRoute from "./routers/ProtectedRoute";
@@ -43,6 +45,8 @@ function App() {
         <Route path="/expenses" element={<Expenses />} />
         <Route path="/budget" element={<Budget />} />
         <Route path="/reports" element={<Reports />} />
+        <Route path="/analytics" element={<Analytics />} />
+        <Route path="/notifications" element={<Notifications />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/accounts" element={<Accounts />} />
         <Route path="/profile" element={<Profile />} />

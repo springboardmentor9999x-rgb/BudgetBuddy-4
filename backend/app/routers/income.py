@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.core.deps import get_current_user
 from app.models.user import User
+from app.models.income import Income
 
 from app.schemas.income import (
     IncomeCreate,
@@ -45,6 +47,17 @@ def read_income(
     current_user: User = Depends(get_current_user),
 ):
     return get_all_income(db, current_user.id)[skip:skip + limit]
+
+
+@router.get("/summary")
+def income_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    rows = db.query(Income.source, func.sum(Income.amount).label("amount")).filter(
+        Income.user_id == current_user.id
+    ).group_by(Income.source).order_by(func.sum(Income.amount).desc()).all()
+    return [{"source": row.source, "amount": float(row.amount)} for row in rows]
 
 
 # -----------------------------

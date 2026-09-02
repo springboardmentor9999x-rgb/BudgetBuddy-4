@@ -15,7 +15,7 @@ def get_dashboard_summary(db: Session, user_id: int):
     end = datetime(start.year + (start.month == 12), (start.month % 12) + 1, 1)
 
     total_income = float(db.query(func.coalesce(func.sum(Income.amount), 0)).filter(
-        Income.user_id == user_id, Income.date >= start, Income.date < end
+        Income.user_id == user_id, Income.amount > 0, Income.date >= start, Income.date < end
     ).scalar())
     total_expense = float(db.query(func.coalesce(func.sum(Expense.amount), 0)).filter(
         Expense.user_id == user_id, Expense.date >= start, Expense.date < end
@@ -27,7 +27,7 @@ def get_dashboard_summary(db: Session, user_id: int):
     expense_month = func.extract("month", Expense.date)
     monthly_income = db.query(
         income_year.label("year"), income_month.label("month"), func.sum(Income.amount).label("amount")
-    ).filter(Income.user_id == user_id).group_by(income_year, income_month).order_by(income_year, income_month).all()
+    ).filter(Income.user_id == user_id, Income.amount > 0).group_by(income_year, income_month).order_by(income_year, income_month).all()
     monthly_expense = db.query(
         expense_year.label("year"), expense_month.label("month"), func.sum(Expense.amount).label("amount")
     ).filter(Expense.user_id == user_id).group_by(expense_year, expense_month).order_by(expense_year, expense_month).all()
@@ -36,7 +36,7 @@ def get_dashboard_summary(db: Session, user_id: int):
     ).group_by(Expense.category).order_by(func.sum(Expense.amount).desc()).limit(3).all()
 
     expenses = db.query(Expense).filter(Expense.user_id == user_id).order_by(Expense.date.desc()).limit(5).all()
-    incomes = db.query(Income).filter(Income.user_id == user_id).order_by(Income.date.desc()).limit(5).all()
+    incomes = db.query(Income).filter(Income.user_id == user_id, Income.amount > 0).order_by(Income.date.desc()).limit(5).all()
     transactions = [
         {"category": item.category, "amount": float(item.amount), "date": item.date, "type": "expense"}
         for item in expenses

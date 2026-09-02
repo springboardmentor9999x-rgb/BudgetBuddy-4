@@ -32,7 +32,8 @@ def create_income(db: Session, user_id: int, income: IncomeCreate):
 def get_all_income(db: Session, user_id: int):
     return (
         db.query(Income)
-        .filter(Income.user_id == user_id)
+        .filter(Income.user_id == user_id, Income.amount > 0)
+        .order_by(Income.date.desc(), Income.id.desc())
         .all()
     )
 
@@ -45,7 +46,8 @@ def get_income_by_id(db: Session, income_id: int, user_id: int):
         db.query(Income)
         .filter(
             Income.id == income_id,
-            Income.user_id == user_id
+            Income.user_id == user_id,
+            Income.amount > 0,
         )
         .first()
     )

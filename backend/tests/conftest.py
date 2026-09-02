@@ -1,7 +1,10 @@
 """Shared isolated SQLite test database for BudgetBuddy API tests."""
 import os
+import tempfile
 
-os.environ["DATABASE_URL"] = "sqlite:///./budgetbuddy_test.db"
+test_db_file = tempfile.NamedTemporaryFile(prefix="budgetbuddy-tests-", suffix=".db", delete=False)
+test_db_file.close()
+os.environ["DATABASE_URL"] = f"sqlite:///{test_db_file.name.replace(os.sep, '/')}"
 os.environ["SECRET_KEY"] = "budgetbuddy-test-secret-not-for-production"
 
 import pytest
@@ -11,6 +14,12 @@ from app.core.security import hash_password
 from app.database import Base, SessionLocal, engine, get_db
 from app.main import app
 from app.models.user import User
+
+
+def pytest_sessionfinish(session, exitstatus):
+    engine.dispose()
+    if os.path.exists(test_db_file.name):
+        os.remove(test_db_file.name)
 
 
 def override_get_db():

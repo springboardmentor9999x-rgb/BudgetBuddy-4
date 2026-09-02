@@ -1,0 +1,1 @@
+.analytics-chart-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:18px;margin-top:18px}.analytics-lower{margin-top:18px}.analytics-goals{margin-top:0!important}.analytics-page .recharts-cartesian-axis-tick-value{fill:var(--muted);font-size:.75rem}@media(max-width:950px){.analytics-chart-grid{grid-template-columns:1fr}}
