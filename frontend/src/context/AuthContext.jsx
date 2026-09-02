@@ -63,6 +63,13 @@ export const AuthProvider = ({ children }) => {
         response.data
       );
 
+
+      // Keep localStorage synchronized
+      localStorage.setItem(
+        "user",
+        JSON.stringify(response.data)
+      );
+
     } catch (error) {
 
       console.error(
@@ -74,6 +81,11 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem(
         "token"
       );
+
+      localStorage.removeItem(
+        "user"
+      );
+
 
       setToken(null);
       setUser(null);
@@ -227,7 +239,79 @@ export const AuthProvider = ({ children }) => {
     );
 
 
+    // Save user information
+    localStorage.setItem(
+      "user",
+      JSON.stringify(me.data)
+    );
+
+
     return me.data;
+  };
+
+
+  // =========================================================
+  // Upgrade to Premium
+  // =========================================================
+
+  const upgradeToPremium = async () => {
+
+    try {
+
+      const response =
+        await api.post(
+          "/auth/upgrade-premium",
+          {},
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+
+      // -----------------------------------------------------
+      // Update user role
+      // -----------------------------------------------------
+
+      setUser((previousUser) => {
+
+        if (!previousUser) {
+          return previousUser;
+        }
+
+
+        const updatedUser = {
+          ...previousUser,
+          role: "premium",
+        };
+
+
+        // Keep localStorage synchronized
+        localStorage.setItem(
+          "user",
+          JSON.stringify(updatedUser)
+        );
+
+
+        return updatedUser;
+
+      });
+
+
+      return response.data;
+
+    } catch (error) {
+
+      console.error(
+        "Failed to upgrade to Premium:",
+        error
+      );
+
+
+      throw error;
+    }
   };
 
 
@@ -246,10 +330,9 @@ export const AuthProvider = ({ children }) => {
       }
 
 
-      return {
+      const updatedUser = {
         ...previousUser,
 
-        // Keep existing user information
         full_name:
           profileData.full_name ??
           previousUser.full_name,
@@ -260,12 +343,21 @@ export const AuthProvider = ({ children }) => {
         role:
           previousUser.role,
 
-        // Profile image
         profile_image:
           profileData.profile_image ??
           previousUser.profile_image ??
           null,
       };
+
+
+      // Update localStorage
+      localStorage.setItem(
+        "user",
+        JSON.stringify(updatedUser)
+      );
+
+
+      return updatedUser;
 
     });
 
@@ -301,6 +393,10 @@ export const AuthProvider = ({ children }) => {
       "token"
     );
 
+    localStorage.removeItem(
+      "user"
+    );
+
 
     setToken(null);
     setUser(null);
@@ -318,6 +414,10 @@ export const AuthProvider = ({ children }) => {
 
     localStorage.removeItem(
       "token"
+    );
+
+    localStorage.removeItem(
+      "user"
     );
 
 
@@ -354,8 +454,8 @@ export const AuthProvider = ({ children }) => {
 
         deleteAccount,
 
+        upgradeToPremium,
 
-        // New
         updateUserProfile,
 
       }}

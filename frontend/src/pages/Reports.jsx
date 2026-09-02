@@ -4,6 +4,7 @@ import {
   FaFileAlt,
   FaDownload,
   FaChartPie,
+  FaFileExcel,
 } from "react-icons/fa";
 
 import api from "../api/axios";
@@ -215,7 +216,6 @@ function Reports() {
       );
 
       setReport(response.data);
-
     } catch (error) {
       console.error(
         "Report Error:",
@@ -226,7 +226,6 @@ function Reports() {
         error.response?.data?.detail ||
         "Unable to load report."
       );
-
     } finally {
       setLoading(false);
     }
@@ -256,10 +255,8 @@ function Reports() {
       setDownloading(true);
       setError("");
 
-      // IMPORTANT:
-      // Backend endpoint is /reports/export/pdf
       const response = await api.get(
-        "/reports/export/pdf",
+        "/reports/pdf",
         {
           params: {
             month,
@@ -267,14 +264,9 @@ function Reports() {
             from_date: fromDate,
             to_date: toDate,
           },
-
           responseType: "blob",
         }
       );
-
-      // =====================================================
-      // Create PDF Blob
-      // =====================================================
 
       const blob = new Blob(
         [response.data],
@@ -283,18 +275,10 @@ function Reports() {
         }
       );
 
-      // =====================================================
-      // Create Download URL
-      // =====================================================
-
       const url =
         window.URL.createObjectURL(
           blob
         );
-
-      // =====================================================
-      // Create Download Link
-      // =====================================================
 
       const link =
         document.createElement("a");
@@ -308,11 +292,7 @@ function Reports() {
 
       link.click();
 
-      // =====================================================
-      // Cleanup
-      // =====================================================
-
-      document.body.removeChild(link);
+      link.remove();
 
       window.URL.revokeObjectURL(url);
 
@@ -328,7 +308,78 @@ function Reports() {
       );
 
     } finally {
+
       setDownloading(false);
+
+    }
+  };
+
+  // =========================================================
+  // Download Excel
+  // =========================================================
+
+  const downloadExcel = async () => {
+    try {
+      setDownloading(true);
+      setError("");
+
+      const response = await api.get(
+        "/reports/excel",
+        {
+          params: {
+            month,
+            year,
+            from_date: fromDate,
+            to_date: toDate,
+          },
+          responseType: "blob",
+        }
+      );
+
+      const blob = new Blob(
+        [response.data],
+        {
+          type:
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        }
+      );
+
+      const url =
+        window.URL.createObjectURL(
+          blob
+        );
+
+      const link =
+        document.createElement("a");
+
+      link.href = url;
+
+      link.download =
+        `BudgetBuddy_Report_${fromDate}_to_${toDate}.xlsx`;
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+
+      console.error(
+        "Excel Download Error:",
+        error
+      );
+
+      setError(
+        "Unable to download Excel report."
+      );
+
+    } finally {
+
+      setDownloading(false);
+
     }
   };
 
@@ -425,7 +476,9 @@ function Reports() {
 
             </div>
 
-            {/* Month / Year */}
+            {/* =================================================
+                Month / Year
+            ================================================= */}
 
             <div
               className="
@@ -535,7 +588,7 @@ function Reports() {
               className="
                 grid
                 grid-cols-1
-                md:grid-cols-3
+                md:grid-cols-4
                 gap-4
                 items-end
               "
@@ -655,6 +708,41 @@ function Reports() {
 
               </button>
 
+              {/* Download Excel */}
+
+              <button
+                type="button"
+                onClick={downloadExcel}
+                disabled={
+                  downloading ||
+                  loading
+                }
+                className="
+                  w-full
+                  bg-green-600
+                  hover:bg-green-700
+                  disabled:bg-gray-400
+                  disabled:cursor-not-allowed
+                  text-white
+                  font-semibold
+                  py-3
+                  rounded-xl
+                  flex
+                  items-center
+                  justify-center
+                  gap-2
+                  transition
+                "
+              >
+
+                <FaFileExcel />
+
+                {downloading
+                  ? "Downloading..."
+                  : "Download Excel"}
+
+              </button>
+
             </div>
 
           </div>
@@ -761,11 +849,9 @@ function Reports() {
                         text-gray-500
                       "
                     >
-                      {report.from_date ||
-                        fromDate}
+                      {report.from_date}
                       {" → "}
-                      {report.to_date ||
-                        toDate}
+                      {report.to_date}
                     </p>
 
                   </div>
@@ -1245,7 +1331,7 @@ function Reports() {
                         font-bold
                         text-green-600
                         mt-2
-                    "
+                      "
                     >
                       {formatCurrency(
                         report.net_savings

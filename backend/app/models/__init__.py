@@ -6,3 +6,4 @@ from app.models.budget import Budget
 from app.models.bank_account import BankAccount
 from app.models.savings_goal import SavingsGoal
 from app.models.notification import Notification
+from app.models.subscription_request import SubscriptionRequest

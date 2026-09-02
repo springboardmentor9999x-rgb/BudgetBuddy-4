@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 import {
   FaBell,
@@ -29,7 +29,7 @@ function Navbar({ user }) {
   // Load Notifications
   // =========================================================
 
-  const loadNotifications = async () => {
+  const loadNotifications = useCallback(async () => {
 
     try {
 
@@ -37,7 +37,9 @@ function Navbar({ user }) {
         await getNotifications();
 
       setNotifications(
-        data || []
+        Array.isArray(data)
+          ? data
+          : []
       );
 
     } catch (error) {
@@ -48,33 +50,92 @@ function Navbar({ user }) {
       );
 
     }
-  };
+
+  }, []);
 
 
   // =========================================================
-  // Load Notifications on Mount
+  // Notification Refresh
   // =========================================================
 
   useEffect(() => {
 
+    // Load immediately when Navbar appears
     loadNotifications();
 
+
+    // ---------------------------------------------------------
+    // Refresh every 5 seconds
+    // ---------------------------------------------------------
 
     const interval =
       setInterval(() => {
 
         loadNotifications();
 
-      }, 30000);
+      }, 5000);
 
+
+    // ---------------------------------------------------------
+    // Refresh immediately when user returns to tab
+    // ---------------------------------------------------------
+
+    const handleVisibilityChange = () => {
+
+      if (
+        document.visibilityState === "visible"
+      ) {
+
+        loadNotifications();
+
+      }
+
+    };
+
+
+    // ---------------------------------------------------------
+    // Refresh immediately when browser window gets focus
+    // ---------------------------------------------------------
+
+    const handleFocus = () => {
+
+      loadNotifications();
+
+    };
+
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange
+    );
+
+    window.addEventListener(
+      "focus",
+      handleFocus
+    );
+
+
+    // ---------------------------------------------------------
+    // Cleanup
+    // ---------------------------------------------------------
 
     return () => {
 
       clearInterval(interval);
 
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+      );
+
+      window.removeEventListener(
+        "focus",
+        handleFocus
+      );
+
     };
 
-  }, []);
+  }, [loadNotifications]);
 
 
   // =========================================================
@@ -106,11 +167,14 @@ function Navbar({ user }) {
     if (
       profileImage.startsWith("http")
     ) {
+
       return profileImage;
+
     }
 
 
     return `http://127.0.0.1:8000${profileImage}`;
+
   };
 
 

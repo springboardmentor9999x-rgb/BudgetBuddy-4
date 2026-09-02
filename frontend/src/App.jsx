@@ -22,6 +22,13 @@ import AnalyticsDashboard from "./pages/AnalyticsDashboard";
 import Reports from "./pages/Reports";
 import Notifications from "./pages/Notifications";
 import Settings from "./pages/Settings";
+import Admin from "./pages/Admin";
+
+// =========================================================
+// Premium
+// =========================================================
+
+import UpgradePremium from "./pages/UpgradePremium";
 
 // =========================================================
 // Protected Route
@@ -155,12 +162,15 @@ function App() {
 
       {/* =================================================
           ANALYTICS
+          Premium + Admin only
       ================================================= */}
 
       <Route
         path="/analytics"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute
+            allowedRoles={["premium", "admin"]}
+          >
             <AnalyticsDashboard />
           </ProtectedRoute>
         }
@@ -168,13 +178,30 @@ function App() {
 
 
       {/* =================================================
+          UPGRADE TO PREMIUM
+      ================================================= */}
+
+      <Route
+        path="/premium"
+        element={
+          <ProtectedRoute>
+            <UpgradePremium />
+          </ProtectedRoute>
+        }
+      />
+
+
+      {/* =================================================
           REPORTS
+          Premium + Admin only
       ================================================= */}
 
       <Route
         path="/reports"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute
+            allowedRoles={["premium", "admin"]}
+          >
             <Reports />
           </ProtectedRoute>
         }
@@ -204,6 +231,23 @@ function App() {
         element={
           <ProtectedRoute>
             <Settings />
+          </ProtectedRoute>
+        }
+      />
+
+
+      {/* =================================================
+          ADMIN
+          Admin only
+      ================================================= */}
+
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute
+            allowedRoles={["admin"]}
+          >
+            <Admin />
           </ProtectedRoute>
         }
       />

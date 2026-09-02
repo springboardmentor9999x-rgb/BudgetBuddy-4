@@ -8,6 +8,10 @@ from app.database import Base
 class User(Base):
     __tablename__ = "users"
 
+    # =========================================================
+    # Basic User Information
+    # =========================================================
+
     id = Column(
         Integer,
         primary_key=True,
@@ -26,19 +30,39 @@ class User(Base):
         nullable=False,
     )
 
+    # =========================================================
+    # User Role
+    # =========================================================
+    # New users:
+    # student
+    #
+    # After admin approval:
+    # premium
+    #
+    # Administrator:
+    # admin
+    # =========================================================
+
     role = Column(
         String,
         default="student",
+        nullable=False,
     )
+
+    # =========================================================
+    # Account Status
+    # =========================================================
 
     is_active = Column(
         Boolean,
         default=True,
+        nullable=False,
     )
 
-    # -------------------------
+    # =========================================================
     # Email Verification
-    # -------------------------
+    # =========================================================
+
     is_email_verified = Column(
         Boolean,
         default=False,
@@ -55,14 +79,19 @@ class User(Base):
         nullable=True,
     )
 
+    # =========================================================
+    # Account Creation
+    # =========================================================
+
     created_at = Column(
         DateTime,
         default=datetime.utcnow,
     )
 
-    # -------------------------
+    # =========================================================
     # One-to-One Relationship
-    # -------------------------
+    # =========================================================
+
     profile = relationship(
         "Profile",
         back_populates="owner",
@@ -70,14 +99,19 @@ class User(Base):
         cascade="all, delete-orphan",
     )
 
-    # -------------------------
-    # One-to-Many Relationships
-    # -------------------------
+    # =========================================================
+    # Income
+    # =========================================================
+
     incomes = relationship(
         "Income",
         back_populates="user",
         cascade="all, delete-orphan",
     )
+
+    # =========================================================
+    # Expenses
+    # =========================================================
 
     expenses = relationship(
         "Expense",
@@ -85,35 +119,62 @@ class User(Base):
         cascade="all, delete-orphan",
     )
 
+    # =========================================================
+    # Budgets
+    # =========================================================
+
     budgets = relationship(
         "Budget",
         back_populates="user",
         cascade="all, delete-orphan",
     )
 
-    # -------------------------
+    # =========================================================
     # Bank Accounts
-    # -------------------------
+    # =========================================================
+
     bank_accounts = relationship(
         "BankAccount",
         back_populates="user",
         cascade="all, delete-orphan",
     )
 
-    # -------------------------
+    # =========================================================
     # Savings Goals
-    # -------------------------
+    # =========================================================
+
     savings_goals = relationship(
         "SavingsGoal",
         back_populates="user",
         cascade="all, delete-orphan",
     )
 
-    # -------------------------
+    # =========================================================
     # Notifications
-    # -------------------------
+    # =========================================================
+
     notifications = relationship(
         "Notification",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    # =========================================================
+    # Subscription Requests
+    # =========================================================
+    #
+    # Student requests Premium
+    #          ↓
+    # SubscriptionRequest created
+    #          ↓
+    # Admin approves/rejects
+    #          ↓
+    # If approved → User.role = "premium"
+    #
+    # =========================================================
+
+    subscription_requests = relationship(
+        "SubscriptionRequest",
         back_populates="user",
         cascade="all, delete-orphan",
     )

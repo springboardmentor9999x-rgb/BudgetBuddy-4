@@ -18,9 +18,12 @@ import EmptyIncome from "../components/income/EmptyIncome";
 
 function Income() {
 
+  // =========================================================
+  // State
+  // =========================================================
+
   const [incomes, setIncomes] = useState([]);
 
-  // Currently editing income
   const [editingIncome, setEditingIncome] =
     useState(null);
 
@@ -29,45 +32,88 @@ function Income() {
   // Error Message Helper
   // =========================================================
 
-  const getErrorMessage = (error, fallback) => {
+  const getErrorMessage = (
+    error,
+    fallback
+  ) => {
 
-    console.error("Income error:", error);
+    console.error(
+      "Income error:",
+      error
+    );
 
     const responseData =
       error?.response?.data;
 
+    console.log(
+      "Backend response:",
+      responseData
+    );
+
+
+    // -------------------------------------------------------
     // FastAPI detail
+    // -------------------------------------------------------
+
     if (responseData?.detail) {
 
       const detail =
         responseData.detail;
 
+
       // Normal string
-      if (typeof detail === "string") {
+      if (
+        typeof detail === "string"
+      ) {
+
         return detail;
       }
 
-      // Validation error array
-      if (Array.isArray(detail)) {
+
+      // FastAPI validation errors
+      if (
+        Array.isArray(detail)
+      ) {
 
         return detail
           .map((item) => {
 
-            if (typeof item === "string") {
+            // String error
+            if (
+              typeof item === "string"
+            ) {
+
               return item;
             }
 
+
+            // Pydantic error
             if (item?.msg) {
-              return item.msg;
+
+              const location =
+                item?.loc
+                  ? item.loc.join(" → ")
+                  : "";
+
+              return location
+                ? `${location}: ${item.msg}`
+                : item.msg;
             }
 
-            return JSON.stringify(item);
+
+            return JSON.stringify(
+              item
+            );
+
           })
           .join("\n");
       }
 
-      // Object
-      if (typeof detail === "object") {
+
+      // Object error
+      if (
+        typeof detail === "object"
+      ) {
 
         return JSON.stringify(
           detail,
@@ -78,7 +124,10 @@ function Income() {
     }
 
 
-    // Backend returned another object
+    // -------------------------------------------------------
+    // Other backend response
+    // -------------------------------------------------------
+
     if (
       responseData &&
       typeof responseData === "object"
@@ -92,8 +141,12 @@ function Income() {
     }
 
 
-    // Normal Axios error
+    // -------------------------------------------------------
+    // Axios error
+    // -------------------------------------------------------
+
     if (error?.message) {
+
       return error.message;
     }
 
@@ -103,11 +156,13 @@ function Income() {
 
 
   // =========================================================
-  // Load Incomes
+  // Load Incomes on Page Load
   // =========================================================
 
   useEffect(() => {
+
     loadIncomes();
+
   }, []);
 
 
@@ -123,7 +178,9 @@ function Income() {
         await getIncomes();
 
       setIncomes(
-        data || []
+        Array.isArray(data)
+          ? data
+          : []
       );
 
     } catch (error) {
@@ -180,6 +237,11 @@ function Income() {
     income
   ) => {
 
+    console.log(
+      "Editing income:",
+      income
+    );
+
     setEditingIncome(
       income
     );
@@ -199,23 +261,129 @@ function Income() {
     formData
   ) => {
 
-    if (!editingIncome) {
+    // -------------------------------------------------------
+    // Make sure an income is selected
+    // -------------------------------------------------------
+
+    if (
+      !editingIncome ||
+      !editingIncome.id
+    ) {
+
+      alert(
+        "No income selected for editing."
+      );
+
       return;
     }
+
+
+    // -------------------------------------------------------
+    // Validate required values
+    // -------------------------------------------------------
+
+    if (
+      !formData.source ||
+      !formData.source.trim()
+    ) {
+
+      alert(
+        "Please enter an income source."
+      );
+
+      return;
+    }
+
+
+    if (
+      !formData.bank_account_id
+    ) {
+
+      alert(
+        "Please select a bank account."
+      );
+
+      return;
+    }
+
+
+    if (
+      !formData.amount ||
+      Number(formData.amount) <= 0
+    ) {
+
+      alert(
+        "Please enter a valid amount."
+      );
+
+      return;
+    }
+
+
+    if (
+      !formData.date
+    ) {
+
+      alert(
+        "Please select a date."
+      );
+
+      return;
+    }
+
+
+    // -------------------------------------------------------
+    // Create clean update payload
+    // -------------------------------------------------------
+
+    const updateData = {
+
+      source:
+        formData.source.trim(),
+
+      bank_account_id:
+        Number(
+          formData.bank_account_id
+        ),
+
+      amount:
+        Number(
+          formData.amount
+        ),
+
+      description:
+        formData.description?.trim()
+          ? formData.description.trim()
+          : null,
+
+      date:
+        formData.date,
+    };
+
+
+    console.log(
+      "FINAL UPDATE PAYLOAD:",
+      updateData
+    );
 
 
     try {
 
       await updateIncome(
         editingIncome.id,
-        formData
+        updateData
       );
 
+
+      // Reload list
       await loadIncomes();
 
+
+      // Exit edit mode
       setEditingIncome(
         null
       );
+
 
       alert(
         "Income updated successfully."
@@ -229,7 +397,9 @@ function Income() {
           "Failed to update income."
         );
 
-      alert(message);
+      alert(
+        `Unable to update income.\n\n${message}`
+      );
     }
   };
 
@@ -241,6 +411,12 @@ function Income() {
   const handleFormSubmit = async (
     formData
   ) => {
+
+    console.log(
+      "FORM SUBMITTED:",
+      formData
+    );
+
 
     if (editingIncome) {
 
@@ -284,6 +460,7 @@ function Income() {
 
 
     if (!confirmDelete) {
+
       return;
     }
 
@@ -294,10 +471,11 @@ function Income() {
         id
       );
 
+
       await loadIncomes();
 
 
-      // Clear edit mode if the
+      // Clear edit mode if
       // deleted income was being edited
       if (
         editingIncome?.id === id
@@ -377,9 +555,11 @@ function Income() {
             onSubmit={
               handleFormSubmit
             }
+
             editingIncome={
               editingIncome
             }
+
             onCancelEdit={
               handleCancelEdit
             }
@@ -401,10 +581,14 @@ function Income() {
           ) : (
 
             <IncomeTable
-              incomes={incomes}
+              incomes={
+                incomes
+              }
+
               onDelete={
                 handleDeleteIncome
               }
+
               onEdit={
                 handleEditIncome
               }

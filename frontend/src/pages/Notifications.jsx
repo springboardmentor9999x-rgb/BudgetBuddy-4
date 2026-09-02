@@ -1,4 +1,8 @@
-import { useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
 import {
   getNotifications,
@@ -9,71 +13,181 @@ import ProtectedLayout from "../components/ProtectedLayout";
 
 
 function Notifications() {
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
+
+  const [notifications, setNotifications] =
+    useState([]);
+
+  const [loading, setLoading] =
+    useState(true);
 
 
   // =========================================================
   // Load Notifications
   // =========================================================
 
-  const loadNotifications = async () => {
-    try {
-      setLoading(true);
+  const loadNotifications = useCallback(
+    async (showLoading = false) => {
 
-      const data = await getNotifications();
+      try {
 
-      setNotifications(data || []);
+        if (showLoading) {
+          setLoading(true);
+        }
 
-    } catch (error) {
-      console.error(
-        "Failed to load notifications:",
-        error
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+        const data =
+          await getNotifications();
+
+        setNotifications(
+          Array.isArray(data)
+            ? data
+            : []
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Failed to load notifications:",
+          error
+        );
+
+      } finally {
+
+        if (showLoading) {
+          setLoading(false);
+        }
+
+      }
+
+    },
+    []
+  );
 
 
   // =========================================================
-  // Initial Load
+  // Notification Refresh
   // =========================================================
 
   useEffect(() => {
-    loadNotifications();
-  }, []);
+
+    // Initial load
+    loadNotifications(true);
+
+
+    // ---------------------------------------------------------
+    // Refresh every 5 seconds
+    // ---------------------------------------------------------
+
+    const interval =
+      setInterval(() => {
+
+        loadNotifications(false);
+
+      }, 5000);
+
+
+    // ---------------------------------------------------------
+    // Refresh when browser tab becomes visible
+    // ---------------------------------------------------------
+
+    const handleVisibilityChange = () => {
+
+      if (
+        document.visibilityState ===
+        "visible"
+      ) {
+
+        loadNotifications(false);
+
+      }
+
+    };
+
+
+    // ---------------------------------------------------------
+    // Refresh when window gets focus
+    // ---------------------------------------------------------
+
+    const handleFocus = () => {
+
+      loadNotifications(false);
+
+    };
+
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange
+    );
+
+    window.addEventListener(
+      "focus",
+      handleFocus
+    );
+
+
+    // ---------------------------------------------------------
+    // Cleanup
+    // ---------------------------------------------------------
+
+    return () => {
+
+      clearInterval(interval);
+
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+      );
+
+      window.removeEventListener(
+        "focus",
+        handleFocus
+      );
+
+    };
+
+  }, [loadNotifications]);
 
 
   // =========================================================
   // Mark Notification as Read
   // =========================================================
 
-  const handleRead = async (notification) => {
+  const handleRead = async (
+    notification
+  ) => {
+
     if (notification.is_read) {
       return;
     }
 
+
     try {
+
       const updated =
         await markNotificationAsRead(
           notification.id
         );
 
-      setNotifications((previous) =>
-        previous.map((item) =>
-          item.id === updated.id
-            ? updated
-            : item
-        )
+
+      setNotifications(
+        (previous) =>
+          previous.map(
+            (item) =>
+              item.id === updated.id
+                ? updated
+                : item
+          )
       );
 
     } catch (error) {
+
       console.error(
         "Failed to mark notification as read:",
         error
       );
+
     }
+
   };
 
 
@@ -82,7 +196,9 @@ function Notifications() {
   // =========================================================
 
   if (loading) {
+
     return (
+
       <ProtectedLayout>
 
         <div style={styles.container}>
@@ -98,7 +214,9 @@ function Notifications() {
         </div>
 
       </ProtectedLayout>
+
     );
+
   }
 
 
@@ -107,6 +225,7 @@ function Notifications() {
   // =========================================================
 
   return (
+
     <ProtectedLayout>
 
       <div style={styles.container}>
@@ -130,11 +249,15 @@ function Notifications() {
           </div>
 
 
-          {/* Refresh */}
+          {/* =================================================
+              Refresh
+          ================================================= */}
 
           <button
             style={styles.refreshButton}
-            onClick={loadNotifications}
+            onClick={() =>
+              loadNotifications(false)
+            }
           >
             Refresh
           </button>
@@ -198,15 +321,15 @@ function Notifications() {
                   <div style={styles.icon}>
 
                     {notification.type ===
-                    "goal_milestone"
+                      "goal_milestone"
                       ? "🎯"
                       : notification.type ===
                         "budget_alert"
-                      ? "⚠️"
-                      : notification.type ===
-                        "monthly_report"
-                      ? "📊"
-                      : "🔔"}
+                        ? "⚠️"
+                        : notification.type ===
+                          "monthly_report"
+                          ? "📊"
+                          : "🔔"}
 
                   </div>
 
@@ -263,7 +386,9 @@ function Notifications() {
       </div>
 
     </ProtectedLayout>
+
   );
+
 }
 
 
@@ -420,6 +545,7 @@ const styles = {
     color: "#6b7280",
     marginTop: "8px",
   },
+
 };
 
 

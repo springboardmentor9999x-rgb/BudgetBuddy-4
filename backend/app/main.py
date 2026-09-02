@@ -5,11 +5,22 @@ from sqlalchemy import text
 
 from app.database import engine
 
-# Import all models so SQLAlchemy registers them
+
+# =========================================================
+# Import all models
+# =========================================================
+# This ensures SQLAlchemy registers all models
+
 import app.models
+
+
+# =========================================================
+# Import Routers
+# =========================================================
 
 from app.routers import (
     auth,
+    admin,
     expenses,
     incomes,
     budgets,
@@ -21,11 +32,16 @@ from app.routers import (
     analytics,
     reports,
     report_export,
+    subscription,
 )
 
 
+# =========================================================
+# FastAPI Application
+# =========================================================
+
 app = FastAPI(
-    title="BudgetBuddy API"
+    title="BudgetBuddy API",
 )
 
 
@@ -65,7 +81,16 @@ app.add_middleware(
 # =========================================================
 
 app.include_router(
-    auth.router
+    auth.router,
+)
+
+
+# =========================================================
+# Admin
+# =========================================================
+
+app.include_router(
+    admin.router,
 )
 
 
@@ -189,11 +214,34 @@ app.include_router(
 
 
 # =========================================================
+# Subscription
+# =========================================================
+#
+# Student:
+#   POST /subscription/request
+#
+# Student:
+#   GET /subscription/my-request
+#
+# This does NOT send an email.
+#
+# The request is stored in the database and
+# displayed in the Admin Dashboard.
+#
+# =========================================================
+
+app.include_router(
+    subscription.router
+)
+
+
+# =========================================================
 # Home
 # =========================================================
 
 @app.get("/")
 def home():
+
     return {
         "message": "BudgetBuddy API is running successfully!"
     }
@@ -209,6 +257,7 @@ def db_test():
     try:
 
         with engine.connect() as connection:
+
             connection.execute(
                 text("SELECT 1")
             )

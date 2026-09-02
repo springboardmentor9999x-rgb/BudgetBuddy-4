@@ -1,13 +1,15 @@
-from datetime import date
+from datetime import date as Date
 from typing import Optional
 
 from pydantic import BaseModel, Field, ConfigDict
 
 
-# -------------------------
+# =========================================================
 # Income Base
-# -------------------------
+# =========================================================
+
 class IncomeBase(BaseModel):
+
     source: str
 
     bank_account_id: int
@@ -19,20 +21,23 @@ class IncomeBase(BaseModel):
 
     description: Optional[str] = None
 
-    date: date
+    date: Date
 
 
-# -------------------------
+# =========================================================
 # Create Income
-# -------------------------
+# =========================================================
+
 class IncomeCreate(IncomeBase):
     pass
 
 
-# -------------------------
+# =========================================================
 # Update Income
-# -------------------------
+# =========================================================
+
 class IncomeUpdate(BaseModel):
+
     source: Optional[str] = None
 
     bank_account_id: Optional[int] = None
@@ -44,13 +49,15 @@ class IncomeUpdate(BaseModel):
 
     description: Optional[str] = None
 
-    date: Optional[date] = None
+    date: Optional[Date] = None
 
 
-# -------------------------
+# =========================================================
 # Income Response
-# -------------------------
+# =========================================================
+
 class IncomeOut(BaseModel):
+
     id: int
 
     user_id: int
@@ -65,7 +72,7 @@ class IncomeOut(BaseModel):
 
     description: Optional[str] = None
 
-    date: date
+    date: Date
 
     model_config = ConfigDict(
         from_attributes=True
