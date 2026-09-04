@@ -1,0 +1,8 @@
+.premium-dashboard-banner { display:flex; align-items:center; justify-content:space-between; gap:24px; margin-bottom:24px; padding:26px 30px; border-radius:18px; color:#fff; background:linear-gradient(120deg,#3b2379,#6c4df6 60%,#b073ff); box-shadow:0 18px 40px rgba(76,48,167,.22); }
+.premium-dashboard-banner span { display:flex; align-items:center; gap:8px; font-size:.72rem; font-weight:900; letter-spacing:.11em; }
+.premium-dashboard-banner h1 { margin:8px 0 5px; font-size:1.7rem; }
+.premium-dashboard-banner p { margin:0; color:#ebe6ff; max-width:650px; }
+.premium-dashboard-actions { display:flex; gap:10px; flex-wrap:wrap; }
+.premium-dashboard-actions a { display:flex; align-items:center; gap:8px; padding:11px 14px; border-radius:10px; color:#3b2379; background:#fff; text-decoration:none; font-weight:800; white-space:nowrap; }
+.premium-dashboard .dashboard-heading h1 { font-size:1.55rem; }
+@media(max-width:850px){.premium-dashboard-banner{align-items:flex-start;flex-direction:column}}

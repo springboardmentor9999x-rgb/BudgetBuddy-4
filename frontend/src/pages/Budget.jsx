@@ -2,14 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaCheckCircle, FaEdit, FaExclamationTriangle, FaPlus, FaTrashAlt, FaWallet } from "react-icons/fa";
 import { createBudget, deleteBudget, getBudgetSummary, updateBudget } from "../services/budgetService";
 import "./Budget.css";
+import { useMonth } from "../context/MonthContext";
 
 const categories = ["Food & dining", "Transport", "Shopping", "Bills & utilities", "Health", "Entertainment", "Education", "Other"];
-const currentMonth = () => new Date().toISOString().slice(0, 7);
 const currency = (value) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(value || 0);
 const normalizeError = (error, fallback) => String(error?.response?.data?.detail || fallback).trim();
 
 function Budget() {
-  const [month, setMonth] = useState(currentMonth());
+  const { selectedMonth: month } = useMonth();
   const [category, setCategory] = useState(categories[0]);
   const [amount, setAmount] = useState("");
   const [budgets, setBudgets] = useState([]);
@@ -52,7 +52,7 @@ function Budget() {
 
   return <div className="budget-page">
     {notice && <div className={`budget-notice ${notice.type}`} role="status"><FaCheckCircle /> {notice.message}</div>}
-    <header className="budget-header"><div><p className="budget-eyebrow">Spending plans</p><h1>Plan your month with confidence</h1><span>Set clear category limits and see exactly where your money is going.</span></div><label className="budget-month">Viewing month<input aria-label="Budget month" type="month" value={month} onChange={(event) => setMonth(event.target.value)} /></label></header>
+    <header className="budget-header"><div><p className="budget-eyebrow">Spending plans</p><h1>Plan your month with confidence</h1><span>Set clear category limits and see exactly where your money is going.</span></div><div className="budget-month">Viewing month<strong>{monthLabel}</strong></div></header>
     <section className="budget-overview"><div className="budget-overview-copy"><span><FaWallet /> {monthLabel}</span><strong>{currency(totals.limit - totals.spent)}</strong><p>{totals.limit ? "available to spend across all planned categories" : "Add a category budget to start planning"}</p></div><div className="budget-overview-meter"><div><span>Monthly plan</span><b>{currency(totals.spent)} of {currency(totals.limit)}</b></div><div className="budget-overview-track"><i style={{ width: `${Math.min(totals.limit ? (totals.spent / totals.limit) * 100 : 0, 100)}%` }} /></div></div></section>
     <section className="budget-stats"><div><span>Total planned</span><strong>{currency(totals.limit)}</strong></div><div><span>Spent this month</span><strong>{currency(totals.spent)}</strong></div><div><span>Remaining</span><strong className={totals.limit - totals.spent < 0 ? "over-budget" : ""}>{currency(totals.limit - totals.spent)}</strong></div></section>
     {!!atRisk.length && <div className="budget-risk" role="alert"><FaExclamationTriangle /><span><strong>{atRisk.length === 1 ? atRisk[0].category : `${atRisk.length} categories`} needs attention.</strong> {atRisk.some((budget) => budget.utilization > 100) ? "A category has exceeded its limit." : "Spending is close to a category limit."}</span></div>}

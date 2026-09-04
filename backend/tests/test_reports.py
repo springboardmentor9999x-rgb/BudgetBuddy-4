@@ -13,6 +13,17 @@ def test_empty_monthly_report_and_exports_are_valid(client, headers_a):
     assert report.json()["summary"]["total_income"] == 0.0
     assert report.json()["transactions"] == []
 
+    assert client.get("/reports/export/pdf", headers=headers_a).status_code == 403
+
+    from datetime import datetime, timedelta, timezone
+    from app.database import SessionLocal
+    from app.models.subscription import Subscription
+    db = SessionLocal()
+    user_id = client.get("/auth/me", headers=headers_a).json()["id"]
+    db.add(Subscription(user_id=user_id, plan="premium_monthly", status="active", starts_at=datetime.now(timezone.utc), expires_at=datetime.now(timezone.utc) + timedelta(days=30)))
+    db.commit()
+    db.close()
+
     pdf = client.get("/reports/export/pdf", headers=headers_a)
     assert pdf.status_code == 200
     assert pdf.headers["content-type"].startswith("application/pdf")

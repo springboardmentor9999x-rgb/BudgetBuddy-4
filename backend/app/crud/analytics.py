@@ -13,9 +13,13 @@ def _month_start(value: datetime) -> datetime:
     return datetime(value.year, value.month, 1)
 
 
-def spending_by_category(db: Session, user_id: int):
+def spending_by_category(db: Session, user_id: int, start: datetime | None = None, end: datetime | None = None):
+    if start is None:
+        start = _month_start(utcnow_naive())
+    if end is None:
+        end = datetime(start.year + (start.month == 12), (start.month % 12) + 1, 1)
     rows = db.query(Expense.category, func.sum(Expense.amount).label("total")).filter(
-        Expense.user_id == user_id
+        Expense.user_id == user_id, Expense.date >= start, Expense.date < end
     ).group_by(Expense.category).order_by(func.sum(Expense.amount).desc()).all()
     return [{"category": row.category, "total": float(row.total)} for row in rows]
 
@@ -45,8 +49,12 @@ def savings_progress(db: Session, user_id: int):
     } for goal in goals]
 
 
-def summary(db: Session, user_id: int):
-    income = float(db.query(func.coalesce(func.sum(Income.amount), 0)).filter(Income.user_id == user_id, Income.amount > 0).scalar())
-    expenses = float(db.query(func.coalesce(func.sum(Expense.amount), 0)).filter(Expense.user_id == user_id).scalar())
+def summary(db: Session, user_id: int, start: datetime | None = None, end: datetime | None = None):
+    if start is None:
+        start = _month_start(utcnow_naive())
+    if end is None:
+        end = datetime(start.year + (start.month == 12), (start.month % 12) + 1, 1)
+    income = float(db.query(func.coalesce(func.sum(Income.amount), 0)).filter(Income.user_id == user_id, Income.amount > 0, Income.date >= start, Income.date < end).scalar())
+    expenses = float(db.query(func.coalesce(func.sum(Expense.amount), 0)).filter(Expense.user_id == user_id, Expense.date >= start, Expense.date < end).scalar())
     balance = income - expenses
     return {"total_income": income, "total_expenses": expenses, "net_balance": balance, "savings_rate": round((balance / income) * 100, 2) if income else 0}

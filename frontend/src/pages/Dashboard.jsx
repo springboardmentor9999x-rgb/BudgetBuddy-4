@@ -6,13 +6,15 @@ import ProgressCards from "../components/ProgressCards";
 import RecentTransactions from "../components/RecentTransactions";
 import { getDashboard } from "../services/dashboardService";
 import "../styles/Dashboard.css";
+import { useMonth } from "../context/MonthContext";
 
 const money = (value) => `₹${Number(value || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 
 function Dashboard() {
+  const { selectedMonth } = useMonth();
   const [dashboard, setDashboard] = useState(null);
   const [error, setError] = useState("");
-  useEffect(() => { getDashboard().then(setDashboard).catch(() => setError("We could not load your financial summary. Please refresh the page.")); }, []);
+  useEffect(() => { setDashboard(null); setError(""); getDashboard(selectedMonth).then(setDashboard).catch(() => setError("We could not load your financial summary. Please refresh the page.")); }, [selectedMonth]);
   if (error) return <div className="dashboard-message error">{error}</div>;
   if (!dashboard) return <div className="dashboard-message">Loading your dashboard...</div>;
   const { summary } = dashboard;

@@ -12,7 +12,7 @@ from reportlab.lib.units import mm
 from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 from sqlalchemy.orm import Session
 
-from app.core.deps import get_current_user
+from app.core.deps import get_current_user, require_premium
 from app.core.time import utcnow_naive
 from app.crud.report import monthly_report
 from app.database import get_db
@@ -37,7 +37,7 @@ def get_monthly_report(period=Depends(_report_query), db: Session = Depends(get_
     return monthly_report(db, current_user.id, *period)
 
 @router.get("/export/pdf")
-def export_pdf(period=Depends(_report_query), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def export_pdf(period=Depends(_report_query), db: Session = Depends(get_db), current_user: User = Depends(require_premium)):
     year, month = period
     report = monthly_report(db, current_user.id, year, month)
     buffer = BytesIO()
@@ -64,7 +64,7 @@ def export_pdf(period=Depends(_report_query), db: Session = Depends(get_db), cur
     return StreamingResponse(buffer, media_type="application/pdf", headers={"Content-Disposition":f'attachment; filename="budgetbuddy-statement-{year}-{month:02d}.pdf"'})
 
 @router.get("/export/excel")
-def export_excel(period=Depends(_report_query), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def export_excel(period=Depends(_report_query), db: Session = Depends(get_db), current_user: User = Depends(require_premium)):
     year, month = period; report = monthly_report(db, current_user.id, year, month); wb=Workbook(); ws=wb.active; ws.title="Summary"; navy="111827"; purple="6C4DF6"; pale="F1F5F9"; white="FFFFFF"
     ws.merge_cells("A1:E2"); ws["A1"]="BudgetBuddy\nPERSONAL FINANCE STATEMENT"; ws["A1"].font=Font(color=white,bold=True,size=17); ws["A1"].fill=PatternFill("solid",fgColor=navy); ws["A1"].alignment=Alignment(vertical="center",wrap_text=True)
     ws.merge_cells("A3:E3"); ws["A3"]=f"Statement period: {report['period']['label']}   |   Reference: BB-{year}{month:02d}"; ws["A3"].font=Font(color=white,bold=True); ws["A3"].fill=PatternFill("solid",fgColor=navy)

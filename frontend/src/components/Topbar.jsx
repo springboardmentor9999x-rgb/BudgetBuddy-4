@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaBars, FaBell, FaSearch, FaSignOutAlt, FaUser, FaSun, FaMoon, FaCog } from "react-icons/fa";
 import { getNotifications, markNotificationRead } from "../services/notificationService";
 import { getProfile } from "../services/profileService";
+import { useMonth } from "../context/MonthContext";
 
 const notificationTitles = {
   budget_added: "Budget created", budget_updated: "Budget updated", budget_deleted: "Budget deleted", budget_alert: "Budget alert",
@@ -27,12 +28,14 @@ const quickLinks = [
 ];
 
 function Topbar({ onMenu = () => {} }) {
+  const { selectedMonth, setSelectedMonth } = useMonth();
   const location = useLocation();
   const navigate = useNavigate();
   const topbarActionsRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [notificationFilter, setNotificationFilter] = useState("all");
   const [profile, setProfile] = useState({ fullName: "", email: "" });
   const [search, setSearch] = useState("");
 
@@ -77,7 +80,11 @@ function Topbar({ onMenu = () => {} }) {
   const hour = today.getHours();
   const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
   const unreadCount = notifications.filter((notification) => !notification.is_read).length;
+  const isNew = (notification) => notification.created_at && Date.now() - new Date(notification.created_at).getTime() <= 24 * 60 * 60 * 1000;
+  const newCount = notifications.filter(isNew).length;
+  const visibleNotifications = notifications.filter((notification) => notificationFilter === "all" || (notificationFilter === "unread" && !notification.is_read) || (notificationFilter === "new" && isNew(notification)));
   const firstName = profile.fullName?.trim().split(/\s+/)[0] || "there";
+  const systemAdminPage = location.pathname === "/admin" || location.pathname.startsWith("/admin/");
   const submitSearch = (event) => {
     event.preventDefault();
     const query = search.trim().toLowerCase();
@@ -118,9 +125,10 @@ function Topbar({ onMenu = () => {} }) {
     <div className="topbar-left"><button className="mobile-menu-btn" onClick={onMenu} aria-label="Open navigation"><FaBars /></button><div><h2>{greeting}, {firstName}</h2><p>{date}</p></div></div>
     <div className="topbar-right" ref={topbarActionsRef}>
       <form className="search-box" role="search" onSubmit={submitSearch}><FaSearch /><input type="search" list="budgetbuddy-pages" aria-label="Go to a page" placeholder="Go to a page…" value={search} onChange={(event) => setSearch(event.target.value)} /><datalist id="budgetbuddy-pages">{quickLinks.map(([label]) => <option value={label} key={label} />)}</datalist></form>
+      {!systemAdminPage && <label className="global-month"><span>Viewing</span><input type="month" aria-label="Filter personal finance month" value={selectedMonth} onChange={(event) => setSelectedMonth(event.target.value)} /></label>}
       <div className="notification-menu">
         <button className="icon-btn" onClick={toggleNotifications} aria-label="Notifications" aria-expanded={notificationsOpen}><FaBell />{unreadCount > 0 && <span className="notification-count">{unreadCount > 9 ? "9+" : unreadCount}</span>}</button>
-        {notificationsOpen && <div className="notification-dropdown"><div className="notification-heading"><strong>Notifications</strong><span>{unreadCount ? `${unreadCount} unread` : "All caught up"}</span></div>{notifications.length ? <div className="notification-list">{notifications.map((notification) => {
+        {notificationsOpen && <div className="notification-dropdown"><div className="notification-heading"><strong>Notifications</strong><span>{unreadCount ? `${unreadCount} unread` : "All caught up"}</span></div><div className="notification-tabs" role="tablist" aria-label="Notification views">{[["all","All",notifications.length],["unread","Unread",unreadCount],["new","New",newCount]].map(([value,label,count])=><button key={value} type="button" role="tab" aria-selected={notificationFilter===value} className={notificationFilter===value?"active":""} onClick={()=>setNotificationFilter(value)}>{label}<b>{count}</b></button>)}</div>{visibleNotifications.length ? <div className="notification-list">{visibleNotifications.map((notification) => {
           const unread = !notification.is_read;
           return <button key={notification.id} className={`notification-item ${unread ? "unread" : ""}`} onClick={() => markRead(notification)} aria-label={`${unread ? "Unread" : "Read"} notification: ${notification.message}`}>
             <span className="notification-status" aria-hidden="true" />
@@ -129,7 +137,7 @@ function Topbar({ onMenu = () => {} }) {
               <span className="notification-message">{notification.message}</span>
             </span>
           </button>;
-        })}</div> : <p className="notification-empty">No notifications yet.</p>}</div>}
+        })}</div> : <p className="notification-empty">No {notificationFilter === "all" ? "notifications" : `${notificationFilter} messages`}.</p>}</div>}
       </div>
       <button className="icon-btn" onClick={toggleTheme} aria-label="Toggle theme">
         {theme === 'dark' ? <FaSun /> : <FaMoon />}

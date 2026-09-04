@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaCheckCircle, FaMoneyBillWave, FaSearch, FaUniversity, FaWallet } from "react-icons/fa";
 import IncomeForm from "../components/IncomeForm";
 import IncomeList from "../components/IncomeList";
 import { createIncome, deleteIncome, getIncome } from "../services/incomeService";
 import "../styles/Income.css";
+import { useMonth } from "../context/MonthContext";
 
 function Income() {
+  const { selectedMonth } = useMonth();
   const [income, setIncome] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [search, setSearch] = useState("");
@@ -17,14 +19,14 @@ function Income() {
     window.setTimeout(() => setToast(null), 3500);
   };
 
-  const loadIncome = async () => {
+  const loadIncome = useCallback(async () => {
     setLoading(true);
     try {
-      setIncome(await getIncome());
+      setIncome(await getIncome(selectedMonth));
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedMonth]);
 
   useEffect(() => {
     loadIncome().catch(() => notify("error", "Could not load income records."));
@@ -34,7 +36,7 @@ function Income() {
     } catch {
       setAccounts([]);
     }
-  }, []);
+  }, [loadIncome]);
 
   const handleAdd = async (item) => {
     await createIncome(item);

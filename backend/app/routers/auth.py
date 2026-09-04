@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import os
 import secrets
 import string
 
@@ -29,6 +30,7 @@ from app.models.user import User
 from app.models.pending_user import PendingUser
 from app.models.password_reset import PasswordReset
 from app.models.profile import Profile
+from app.models.subscription import Subscription
 from app.services.email import send_password_reset_email, send_verification_email
 from app.core.deps import get_current_user
 
@@ -136,6 +138,7 @@ def verify_email(
         email=pending_user.email,
         password=pending_user.password,
         is_verified=True,
+        role="admin" if pending_user.email == os.getenv("ADMIN_EMAIL", "").strip().lower() else "user",
     )
 
     db.add(new_user)
@@ -189,13 +192,27 @@ def login(
 
 
 @router.get("/me")
-def read_current_user(current_user: User = Depends(get_current_user)):
+def read_current_user(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """JWT round-trip endpoint and authenticated user identity for clients."""
+    if current_user.role == "premium":
+        now = datetime.now(timezone.utc)
+        active = db.query(Subscription).filter(
+            Subscription.user_id == current_user.id,
+            Subscription.status == "active",
+            Subscription.expires_at > now,
+        ).first()
+        if not active:
+            current_user.role = "user"
+            current_user.plan = "free"
+            db.commit()
     return {
         "id": current_user.id,
         "full_name": current_user.full_name,
         "email": current_user.email,
         "is_verified": current_user.is_verified,
+        "is_active": current_user.is_active,
+        "role": current_user.role,
+        "plan": current_user.plan,
     }
 
 

@@ -8,3 +8,5 @@ from .saving_goal import SavingGoal
 from .notification import Notification
 from .report import Report
 from .password_reset import PasswordReset
+from .subscription import Subscription
+from .payment import Payment

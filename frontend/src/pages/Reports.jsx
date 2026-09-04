@@ -2,12 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import { FaFileExcel, FaFilePdf } from "react-icons/fa6";
 import { downloadReport, getMonthlyReport } from "../services/analyticsService";
 import "./Reports.css";
+import { useMonth } from "../context/MonthContext";
 
 const money=v=>new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",minimumFractionDigits:2}).format(v||0);
 const date=v=>v?new Date(v).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}):"—";
 
 export default function Reports(){
- const now=new Date(),[period,setPeriod]=useState({month:now.getMonth()+1,year:now.getFullYear()}),[report,setReport]=useState(),[error,setError]=useState(""),[exporting,setExporting]=useState("");
+ const {selectedMonth,setSelectedMonth}=useMonth(),[year,month]=selectedMonth.split("-").map(Number),period=useMemo(()=>({month,year}),[month,year]);
+ const setPeriod=update=>{const next=update(period);setSelectedMonth(`${next.year}-${String(next.month).padStart(2,"0")}`);};
+ const [report,setReport]=useState(),[error,setError]=useState(""),[exporting,setExporting]=useState("");
  useEffect(()=>{setReport();setError("");getMonthlyReport(period).then(setReport).catch(()=>setError("We could not load your statement."));},[period]);
  const rows=useMemo(()=>{if(!report)return[];let balance=report.summary.opening_balance||0;return [...report.transactions].sort((a,b)=>new Date(a.date)-new Date(b.date)).map(x=>{balance+=x.type==="income"?x.amount:-x.amount;return{...x,balance};}).reverse();},[report]);
  const download=async format=>{try{setExporting(format);await downloadReport(format,period);}catch{setError("The statement could not be downloaded. Please try again.");}finally{setExporting("");}};

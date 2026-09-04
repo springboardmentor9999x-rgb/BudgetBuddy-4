@@ -8,7 +8,11 @@ class UserCreate(BaseModel):
 class UserOut(BaseModel):
     id: int
     email: EmailStr
+    full_name: str
     role: str
+    plan: str
+    is_verified: bool
+    is_active: bool
 
     class Config:
         from_attributes = True

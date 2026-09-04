@@ -1,5 +1,7 @@
 def test_budget_crossing_creates_single_alert(client, headers_a):
-    budget = client.post("/budgets/", headers=headers_a, json={"category": "Shopping", "amount": 5000, "month": "2026-08"})
+    from datetime import datetime
+    month = datetime.now().strftime("%Y-%m")
+    budget = client.post("/budgets/", headers=headers_a, json={"category": "Shopping", "amount": 5000, "month": month})
     assert budget.status_code == 201
 
     expense = client.post("/expenses/", headers=headers_a, json={"category": "Shopping", "amount": 6000, "description": "Laptop", "bank_account": "Test Bank 1234"})

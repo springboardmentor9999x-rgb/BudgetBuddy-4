@@ -6,6 +6,7 @@ from app.database import get_db
 from app.core.deps import get_current_user
 from app.models.user import User
 from app.models.expense import Expense
+from app.core.time import month_bounds
 
 from app.schemas.expense import (
     ExpenseCreate,
@@ -41,22 +42,30 @@ def add_expense(
 # -----------------------------
 @router.get("/", response_model=list[ExpenseOut])
 def read_expenses(
+    month: str | None = Query(default=None, pattern=r"^\d{4}-(0[1-9]|1[0-2])$"),
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=200),
     db: Session =Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return get_all_expenses(db, current_user.id)[skip:skip + limit]
+    rows = get_all_expenses(db, current_user.id)
+    if month:
+        start, end = month_bounds(month)
+        rows = [row for row in rows if row.date and start <= row.date.replace(tzinfo=None) < end]
+    return rows[skip:skip + limit]
 
 
 @router.get("/summary")
 def expense_summary(
+    month: str | None = Query(default=None, pattern=r"^\d{4}-(0[1-9]|1[0-2])$"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    rows = db.query(Expense.category, func.sum(Expense.amount).label("amount")).filter(
-        Expense.user_id == current_user.id
-    ).group_by(Expense.category).order_by(func.sum(Expense.amount).desc()).all()
+    query = db.query(Expense.category, func.sum(Expense.amount).label("amount")).filter(Expense.user_id == current_user.id)
+    if month:
+        start, end = month_bounds(month)
+        query = query.filter(Expense.date >= start, Expense.date < end)
+    rows = query.group_by(Expense.category).order_by(func.sum(Expense.amount).desc()).all()
     return [{"category": row.category, "amount": float(row.amount)} for row in rows]
 
 

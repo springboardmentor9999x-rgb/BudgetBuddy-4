@@ -70,6 +70,13 @@
   overflow-y: auto;
 }
 
+.workspace-switcher{display:grid;gap:6px;margin:-22px 0 18px;padding:10px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(255,255,255,.05)}
+.workspace-switcher>span{color:#94a3b8;font-size:.64rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.workspace-switcher select{width:100%;border:0;border-radius:7px;background:#1e293b;padding:8px 9px;color:#fff;font:inherit;font-size:.8rem;font-weight:800;cursor:pointer}
+.workspace-switcher.premium{border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.08)}
+.workspace-switcher.admin{border-color:rgba(168,85,247,.35);background:rgba(168,85,247,.1)}
+.workspace-switcher small{color:#fca5a5;font-size:.65rem;font-weight:700;line-height:1.3}
+
 .menu-item {
   display: flex;
   align-items: center;
@@ -114,6 +121,11 @@
 .sidebar-footer {
   margin-top: auto;
 }
+
+.account-plan { display:flex; align-items:center; gap:11px; margin-bottom:10px; padding:11px; border:1px solid rgba(255,255,255,.1); border-radius:11px; color:#cbd5e1; }
+.account-plan i{display:grid;width:34px;height:34px;flex:0 0 34px;place-items:center;border-radius:9px;background:rgba(255,255,255,.08);font-size:15px}.account-plan span{display:grid;gap:3px;min-width:0}.account-plan strong{color:#fff;font-size:.78rem}.account-plan small{color:#94a3b8;font-size:.67rem;font-weight:650}
+.account-plan.premium { border-color:rgba(251,191,36,.3); background:rgba(251,191,36,.1); color:#fbbf24; }.account-plan.premium i{background:rgba(251,191,36,.16)}.account-plan.premium small{color:#fde68a}
+.account-plan.admin { border-color:rgba(168,85,247,.35); background:rgba(168,85,247,.1); color:#d8b4fe; }.account-plan.admin i{background:rgba(168,85,247,.18)}.account-plan.admin small{color:#d8b4fe}
 
 .logout-btn {
   width: 100%;

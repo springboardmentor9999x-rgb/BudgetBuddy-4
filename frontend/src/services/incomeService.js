@@ -2,8 +2,8 @@ import api from "../api/axios";
 
 const BASE = "/income";
 
-export const getIncome = async () => {
-  const response = await api.get(`${BASE}/`);
+export const getIncome = async (month) => {
+  const response = await api.get(`${BASE}/`, { params: { month } });
   return response.data;
 };
 

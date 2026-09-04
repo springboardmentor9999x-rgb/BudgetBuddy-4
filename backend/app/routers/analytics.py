@@ -5,13 +5,15 @@ from app.core.deps import get_current_user
 from app.crud.analytics import monthly_trend, savings_progress, spending_by_category, summary
 from app.database import get_db
 from app.models.user import User
+from app.core.time import month_bounds
 
 router = APIRouter()
 
 
 @router.get("/spending-by-category")
-def category_spending(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return spending_by_category(db, current_user.id)
+def category_spending(month: str | None = Query(default=None, pattern=r"^\d{4}-(0[1-9]|1[0-2])$"), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    start, end = month_bounds(month)
+    return spending_by_category(db, current_user.id, start, end)
 
 
 @router.get("/monthly-trend")
@@ -25,5 +27,6 @@ def goals(db: Session = Depends(get_db), current_user: User = Depends(get_curren
 
 
 @router.get("/summary")
-def analytics_summary(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return summary(db, current_user.id)
+def analytics_summary(month: str | None = Query(default=None, pattern=r"^\d{4}-(0[1-9]|1[0-2])$"), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    start, end = month_bounds(month)
+    return summary(db, current_user.id, start, end)

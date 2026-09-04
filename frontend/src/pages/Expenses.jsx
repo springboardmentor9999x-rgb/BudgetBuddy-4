@@ -6,21 +6,19 @@ import ExpenseList from "../components/ExpenseList";
 import { createExpense, deleteExpense, getExpenses, updateExpense } from "../services/expenseService";
 import { getBudgetSummary } from "../services/budgetService";
 import "./Expenses.css";
+import { useMonth } from "../context/MonthContext";
 
 const BANK_STORAGE_KEY = "budgetbuddy-bank-details";
 
 function Expenses() {
+  const { selectedMonth } = useMonth();
   const [expenses, setExpenses] = useState([]);
   const [bankAccounts, setBankAccounts] = useState([]);
   const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const monthlyExpenses = useMemo(() => {
-    const now = new Date();
-    return expenses.filter((expense) => {
-      const date = new Date(expense.date);
-      return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth();
-    });
+    return expenses;
   }, [expenses]);
 
   const totalExpense = useMemo(
@@ -36,13 +34,13 @@ function Expenses() {
   const loadExpenses = useCallback(async () => {
     try {
       setLoading(true);
-      setExpenses(await getExpenses());
+      setExpenses(await getExpenses(selectedMonth));
     } catch {
       showToast("error", "Could not load your expenses. Please refresh the page.");
     } finally {
       setLoading(false);
     }
-  }, [showToast]);
+  }, [showToast, selectedMonth]);
 
   useEffect(() => {
     loadExpenses();
@@ -59,9 +57,7 @@ function Expenses() {
   const handleAdd = async (expense) => {
     let alert = null;
     try {
-      const today = new Date();
-      const month = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
-      const budgets = await getBudgetSummary(month);
+      const budgets = await getBudgetSummary(selectedMonth);
       const budget = budgets.find((item) => item.category === expense.category);
       if (budget) {
         const projectedSpent = Number(budget.spent) + Number(expense.amount);

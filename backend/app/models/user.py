@@ -17,6 +17,11 @@ class User(Base):
     password = Column(String, nullable=False)  # Store bcrypt hashed password
 
     is_verified = Column(Boolean, default=False, nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+
+    role = Column(String(20), default="user", nullable=False)
+
+    plan = Column(String(20), default="free", nullable=False)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -59,4 +64,6 @@ class User(Base):
     "Report",
     back_populates="user",
     cascade="all, delete-orphan"
-)
+    )
+    subscriptions = relationship("Subscription", back_populates="user", cascade="all, delete-orphan")
+    payments = relationship("Payment", back_populates="user", cascade="all, delete-orphan")

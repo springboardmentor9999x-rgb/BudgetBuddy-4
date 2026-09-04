@@ -13,6 +13,7 @@ from app.routers import notifications
 from app.routers import analytics
 from app.routers import profile
 from app.routers import reports
+from app.routers import admin, membership, premium
 
 app = FastAPI(
     title="BudgetBuddy API",
@@ -94,6 +95,10 @@ app.include_router(
     prefix="/reports",
     tags=["Reports"],
 )
+
+app.include_router(admin.router, prefix="/admin", tags=["Admin"])
+app.include_router(membership.router, prefix="/membership", tags=["Membership"])
+app.include_router(premium.router, prefix="/premium", tags=["Premium"])
 
 # -----------------------------
 # Root Endpoint

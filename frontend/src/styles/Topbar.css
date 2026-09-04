@@ -33,6 +33,7 @@
     align-items:center;
     gap:16px;
 }
+.global-month{display:grid;gap:2px;border:1px solid var(--border);border-radius:13px;background:var(--surface);padding:7px 11px;box-shadow:var(--soft-shadow)}.global-month span{color:var(--muted);font-size:.62rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.global-month input{border:0;background:transparent;color:var(--text);font:inherit;font-size:.82rem;font-weight:750;color-scheme:light dark;outline:none}
 
 /* Search */
 
@@ -200,6 +201,8 @@
 
 @media(max-width:480px){
 
+    .global-month{order:-1;width:100%;box-sizing:border-box}.global-month input{width:100%}
+
     .topbar-left h2{
 
         font-size:24px;
@@ -234,6 +237,10 @@
 .notification-dropdown{position:absolute;z-index:35;top:calc(100% + 10px);right:0;width:min(360px,calc(100vw - 32px));overflow:hidden;border:1px solid var(--border);border-radius:12px;background:var(--surface);box-shadow:var(--shadow)}
 .notification-heading{display:flex;justify-content:space-between;padding:14px 15px;border-bottom:1px solid rgba(0,0,0,0.04);color:var(--text)}
 .notification-heading span{color:var(--muted);font-size:.8rem}
+.notification-tabs{display:flex;gap:6px;padding:9px 11px;border-bottom:1px solid var(--border);background:var(--surface-muted)}
+.notification-tabs button{display:flex;align-items:center;gap:6px;border:0;border-radius:8px;background:transparent;padding:7px 9px;color:var(--muted);font:inherit;font-size:.75rem;font-weight:750;cursor:pointer}
+.notification-tabs button.active{background:var(--surface);color:var(--primary);box-shadow:0 1px 4px rgba(15,23,42,.08)}
+.notification-tabs b{display:grid;min-width:18px;height:18px;place-items:center;border-radius:999px;background:color-mix(in srgb,var(--primary) 12%,transparent);font-size:.64rem}
 .notification-list{max-height:330px;overflow:auto}
 .notification-item{position:relative;display:grid;grid-template-columns:8px 1fr;width:100%;gap:10px;align-items:start;border:0;border-left:3px solid transparent;border-bottom:1px solid rgba(0,0,0,0.04);background:var(--surface);padding:13px 15px 13px 12px;color:var(--muted-strong);text-align:left;cursor:pointer;transition:background .18s ease,border-color .18s ease}
 .notification-item:last-child{border-bottom:0}

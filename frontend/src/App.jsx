@@ -10,12 +10,20 @@ import Expenses from "./pages/Expenses";
 import Income from "./pages/Income";
 import Budget from "./pages/Budget";
 import Reports from "./pages/Reports";
-import Analytics from "./pages/Analytics";
+import BasicAnalytics from "./pages/BasicAnalytics";
 import Settings from "./pages/Settings";
 import Accounts from "./pages/Accounts";
 import Profile from "./pages/Profile";
 import Goals from "./pages/Goals";
 import Notifications from "./pages/Notifications";
+import Admin from "./pages/Admin";
+import Premium from "./pages/Premium";
+import AdvancedAnalytics from "./pages/AdvancedAnalytics";
+import AccessRoute from "./routers/AccessRoute";
+import SystemAnalytics from "./pages/SystemAnalytics";
+import SystemManagement from "./pages/SystemManagement";
+import UserManagement from "./pages/UserManagement";
+import PremiumDashboard from "./pages/PremiumDashboard";
 
 import DashboardLayout from "./layouts/DashboardLayout";
 import ProtectedRoute from "./routers/ProtectedRoute";
@@ -41,12 +49,19 @@ function App() {
         }
       >
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/premium-dashboard" element={<AccessRoute type="premium"><PremiumDashboard /></AccessRoute>} />
         <Route path="/income" element={<Income />} />
         <Route path="/expenses" element={<Expenses />} />
         <Route path="/budget" element={<Budget />} />
         <Route path="/reports" element={<Reports />} />
-        <Route path="/analytics" element={<Analytics />} />
+        <Route path="/analytics" element={<BasicAnalytics />} />
         <Route path="/notifications" element={<Notifications />} />
+        <Route path="/premium" element={<Premium />} />
+        <Route path="/admin" element={<AccessRoute type="admin"><Admin /></AccessRoute>} />
+        <Route path="/admin/users" element={<AccessRoute type="admin"><UserManagement /></AccessRoute>} />
+        <Route path="/advanced-analytics" element={<AccessRoute type="premium"><AdvancedAnalytics /></AccessRoute>} />
+        <Route path="/admin/system-analytics" element={<AccessRoute type="admin"><SystemAnalytics /></AccessRoute>} />
+        <Route path="/admin/system-management" element={<AccessRoute type="admin"><SystemManagement /></AccessRoute>} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/accounts" element={<Accounts />} />
         <Route path="/profile" element={<Profile />} />
