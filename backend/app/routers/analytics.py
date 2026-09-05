@@ -29,11 +29,6 @@ def spending_by_category(
     current_user: User = Depends(get_current_user),
 ):
 
-    # ---------------------------------------------------------
-    # Premium/Admin = custom date range
-    # Student = current month only
-    # ---------------------------------------------------------
-
     query = db.query(
         Expense.category,
         func.sum(
@@ -89,10 +84,6 @@ def spending_by_category(
         .all()
     )
 
-    # ---------------------------------------------------------
-    # Response
-    # ---------------------------------------------------------
-
     return [
         {
             "category": category,
@@ -115,7 +106,7 @@ def monthly_trend(
 ):
 
     # ---------------------------------------------------------
-    # Basic users cannot access historical analytics
+    # Premium/Admin only
     # ---------------------------------------------------------
 
     if current_user.role not in [
@@ -133,7 +124,16 @@ def monthly_trend(
         )
 
     # ---------------------------------------------------------
-    # Monthly Income
+    # Current Date
+    # ---------------------------------------------------------
+
+    now = datetime.utcnow()
+
+    current_year = now.year
+    current_month = now.month
+
+    # ---------------------------------------------------------
+    # Get Income Data
     # ---------------------------------------------------------
 
     income_results = (
@@ -170,7 +170,7 @@ def monthly_trend(
     )
 
     # ---------------------------------------------------------
-    # Monthly Expenses
+    # Get Expense Data
     # ---------------------------------------------------------
 
     expense_results = (
@@ -207,14 +207,10 @@ def monthly_trend(
     )
 
     # ---------------------------------------------------------
-    # Combine Income + Expenses
+    # Store Database Results
     # ---------------------------------------------------------
 
-    monthly_data = {}
-
-    # ---------------------------------------------------------
-    # Add Income
-    # ---------------------------------------------------------
+    income_data = {}
 
     for year, month, total in income_results:
 
@@ -223,23 +219,13 @@ def monthly_trend(
             int(month),
         )
 
-        monthly_data.setdefault(
-            key,
-            {
-                "year": int(year),
-                "month": int(month),
-                "income": 0.0,
-                "expenses": 0.0,
-            },
-        )
-
-        monthly_data[key]["income"] = float(
+        income_data[key] = float(
             total or 0
         )
 
     # ---------------------------------------------------------
-    # Add Expenses
-    # ---------------------------------------------------------
+
+    expense_data = {}
 
     for year, month, total in expense_results:
 
@@ -248,31 +234,59 @@ def monthly_trend(
             int(month),
         )
 
-        monthly_data.setdefault(
-            key,
-            {
-                "year": int(year),
-                "month": int(month),
-                "income": 0.0,
-                "expenses": 0.0,
-            },
-        )
-
-        monthly_data[key]["expenses"] = float(
+        expense_data[key] = float(
             total or 0
         )
 
     # ---------------------------------------------------------
-    # Return Sorted Data
+    # Generate Last 6 Months
     # ---------------------------------------------------------
 
-    return sorted(
-        monthly_data.values(),
-        key=lambda item: (
-            item["year"],
-            item["month"],
-        ),
-    )
+    monthly_data = []
+
+    for i in range(5, -1, -1):
+
+        # Calculate month/year
+        month = current_month - i
+        year = current_year
+
+        while month <= 0:
+
+            month += 12
+            year -= 1
+
+        key = (
+            year,
+            month,
+        )
+
+        # -----------------------------------------------------
+        # Add Month
+        # -----------------------------------------------------
+
+        monthly_data.append(
+            {
+                "year": year,
+
+                "month": month,
+
+                "income": income_data.get(
+                    key,
+                    0.0
+                ),
+
+                "expenses": expense_data.get(
+                    key,
+                    0.0
+                ),
+            }
+        )
+
+    # ---------------------------------------------------------
+    # Return Data
+    # ---------------------------------------------------------
+
+    return monthly_data
 
 
 # =========================================================
@@ -457,9 +471,6 @@ def analytics_summary(
 
     # ---------------------------------------------------------
     # Total Savings
-    #
-    # Informational only.
-    # Do NOT subtract this again.
     # ---------------------------------------------------------
 
     total_savings = (
@@ -486,9 +497,6 @@ def analytics_summary(
 
     # ---------------------------------------------------------
     # Available Balance
-    #
-    # Savings contributions are already
-    # included in expenses.
     # ---------------------------------------------------------
 
     available_balance = float(
