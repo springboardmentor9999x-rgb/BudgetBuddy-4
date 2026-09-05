@@ -18,7 +18,6 @@ import Expense from "./pages/Expense";
 import Budget from "./pages/Budget";
 import SavingsGoals from "./pages/SavingsGoals";
 import BankAccounts from "./pages/BankAccounts";
-import AnalyticsDashboard from "./pages/AnalyticsDashboard";
 import Reports from "./pages/Reports";
 import Notifications from "./pages/Notifications";
 import Settings from "./pages/Settings";
@@ -155,23 +154,6 @@ function App() {
         element={
           <ProtectedRoute>
             <BankAccounts />
-          </ProtectedRoute>
-        }
-      />
-
-
-      {/* =================================================
-          ANALYTICS
-          Premium + Admin only
-      ================================================= */}
-
-      <Route
-        path="/analytics"
-        element={
-          <ProtectedRoute
-            allowedRoles={["premium", "admin"]}
-          >
-            <AnalyticsDashboard />
           </ProtectedRoute>
         }
       />

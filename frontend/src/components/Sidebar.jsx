@@ -9,7 +9,6 @@ import {
   FaCog,
   FaSignOutAlt,
   FaUniversity,
-  FaBell,
   FaUserShield,
   FaCrown,
   FaCheckCircle,
@@ -87,12 +86,6 @@ function Sidebar({ onLogout }) {
     },
 
     {
-      icon: <FaBell />,
-      label: "Notifications",
-      path: "/notifications",
-    },
-
-    {
       icon: <FaCog />,
       label: "Settings",
       path: "/settings",
@@ -105,25 +98,18 @@ function Sidebar({ onLogout }) {
   // Premium Features
   // =========================================================
 
+  // Analytics is now inside Dashboard.
+  // Only Reports remains as a separate menu item.
+
   if (isPremium || isAdmin) {
 
-    menu.splice(
-      6,
-      0,
+    menu.push({
 
-      {
-        icon: <FaChartLine />,
-        label: "Analytics",
-        path: "/analytics",
-      },
+      icon: <FaChartLine />,
+      label: "Reports",
+      path: "/reports",
 
-      {
-        icon: <FaChartLine />,
-        label: "Reports",
-        path: "/reports",
-      }
-
-    );
+    });
 
   }
 
@@ -231,8 +217,6 @@ function Sidebar({ onLogout }) {
 
           <div className="mt-5 pt-5 border-t border-gray-200">
 
-            {/* Section Title */}
-
             <div className="px-2 mb-3">
 
               <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
@@ -241,8 +225,6 @@ function Sidebar({ onLogout }) {
 
             </div>
 
-
-            {/* Premium Button */}
 
             <button
               type="button"
@@ -256,8 +238,6 @@ function Sidebar({ onLogout }) {
             >
 
               <div className="flex items-center gap-3">
-
-                {/* Crown */}
 
                 <div
                   className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${location.pathname === "/premium"
@@ -275,8 +255,6 @@ function Sidebar({ onLogout }) {
 
                 </div>
 
-
-                {/* Text */}
 
                 <div className="flex-1 min-w-0">
 
@@ -299,8 +277,6 @@ function Sidebar({ onLogout }) {
 
                 </div>
 
-
-                {/* PRO Badge */}
 
                 <span className="bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-1 rounded-full">
                   PRO
@@ -342,16 +318,12 @@ function Sidebar({ onLogout }) {
 
               <div className="flex items-center gap-3">
 
-                {/* Crown */}
-
                 <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
 
                   <FaCrown className="text-yellow-500 text-lg" />
 
                 </div>
 
-
-                {/* Text */}
 
                 <div className="flex-1 min-w-0">
 
@@ -365,8 +337,6 @@ function Sidebar({ onLogout }) {
 
                 </div>
 
-
-                {/* Active Badge */}
 
                 <FaCheckCircle className="text-green-500" />
 
