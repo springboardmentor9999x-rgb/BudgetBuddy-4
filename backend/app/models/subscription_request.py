@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import (
     Column,
     Integer,
@@ -6,7 +8,6 @@ from sqlalchemy import (
     ForeignKey,
 )
 from sqlalchemy.orm import relationship
-from datetime import datetime
 
 from app.database import Base
 
@@ -47,12 +48,10 @@ class SubscriptionRequest(Base):
 
     # =========================================================
     # Request Status
-    # =========================================================
     #
-    # pending  -> waiting for admin
-    # approved -> admin accepted
-    # rejected -> admin rejected
-    #
+    # pending  = waiting for admin approval
+    # approved = approved by admin
+    # rejected = rejected by admin
     # =========================================================
 
     status = Column(
@@ -62,22 +61,24 @@ class SubscriptionRequest(Base):
     )
 
     # =========================================================
-    # Request Created Time
+    # Created At
     # =========================================================
 
     created_at = Column(
         DateTime,
         default=datetime.utcnow,
+        nullable=False,
     )
 
     # =========================================================
-    # Request Updated Time
+    # Updated At
     # =========================================================
 
     updated_at = Column(
         DateTime,
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
+        nullable=False,
     )
 
     # =========================================================
