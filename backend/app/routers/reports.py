@@ -1,6 +1,6 @@
 from io import BytesIO
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
@@ -17,8 +17,36 @@ from app.core.time import utcnow_naive
 from app.crud.report import monthly_report
 from app.database import get_db
 from app.models.user import User
+from app.models.report import Report
 
 router = APIRouter()
+
+FREE_EXPORT_LIMIT = 2
+
+
+def export_allowance(db, user):
+    try:
+        require_premium(db=db, current_user=user)
+        return {"limit": None, "remaining": None}
+    except HTTPException as exc:
+        if exc.status_code != 403:
+            raise
+    used = db.query(Report).filter(
+        Report.user_id == user.id, Report.report_type.in_(["free_pdf", "free_excel"])
+    ).count()
+    return {"limit": FREE_EXPORT_LIMIT, "remaining": max(0, FREE_EXPORT_LIMIT - used)}
+
+
+def record_export(db, user, format):
+    # Serialize quota checks for this account, including simultaneous downloads.
+    db.query(User).filter(User.id == user.id).update({User.id: User.id}, synchronize_session=False)
+    allowance = export_allowance(db, user)
+    if allowance["remaining"] == 0:
+        db.rollback()
+        raise HTTPException(status_code=403, detail="You have used your 2 free report exports. Upgrade to Premium for unlimited exports.")
+    if allowance["limit"] is not None:
+        db.add(Report(user_id=user.id, report_type=f"free_{format}"))
+    db.commit()
 
 def _report_query(month: int | None = Query(None, ge=1, le=12), year: int | None = Query(None, ge=2000, le=2100)):
     now = utcnow_naive()
@@ -34,10 +62,10 @@ def _rows(report):
 
 @router.get("/monthly")
 def get_monthly_report(period=Depends(_report_query), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return monthly_report(db, current_user.id, *period)
+    return {**monthly_report(db, current_user.id, *period), "export_allowance": export_allowance(db, current_user)}
 
 @router.get("/export/pdf")
-def export_pdf(period=Depends(_report_query), db: Session = Depends(get_db), current_user: User = Depends(require_premium)):
+def export_pdf(period=Depends(_report_query), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     year, month = period
     report = monthly_report(db, current_user.id, year, month)
     buffer = BytesIO()
@@ -61,10 +89,11 @@ def export_pdf(period=Depends(_report_query), db: Session = Depends(get_db), cur
         canvas.saveState(); canvas.setFont("Helvetica",7); canvas.setFillColor(colors.HexColor("#64748b")); canvas.drawString(15*mm,8*mm,"Generated from your BudgetBuddy records."); canvas.drawRightString(282*mm,8*mm,f"Page {document.page}"); canvas.restoreState()
     doc.build(story, onFirstPage=footer, onLaterPages=footer)
     buffer.seek(0)
+    record_export(db, current_user, "pdf")
     return StreamingResponse(buffer, media_type="application/pdf", headers={"Content-Disposition":f'attachment; filename="budgetbuddy-statement-{year}-{month:02d}.pdf"'})
 
 @router.get("/export/excel")
-def export_excel(period=Depends(_report_query), db: Session = Depends(get_db), current_user: User = Depends(require_premium)):
+def export_excel(period=Depends(_report_query), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     year, month = period; report = monthly_report(db, current_user.id, year, month); wb=Workbook(); ws=wb.active; ws.title="Summary"; navy="111827"; purple="6C4DF6"; pale="F1F5F9"; white="FFFFFF"
     ws.merge_cells("A1:E2"); ws["A1"]="BudgetBuddy\nPERSONAL FINANCE STATEMENT"; ws["A1"].font=Font(color=white,bold=True,size=17); ws["A1"].fill=PatternFill("solid",fgColor=navy); ws["A1"].alignment=Alignment(vertical="center",wrap_text=True)
     ws.merge_cells("A3:E3"); ws["A3"]=f"Statement period: {report['period']['label']}   |   Reference: BB-{year}{month:02d}"; ws["A3"].font=Font(color=white,bold=True); ws["A3"].fill=PatternFill("solid",fgColor=navy)
@@ -86,4 +115,5 @@ def export_excel(period=Depends(_report_query), db: Session = Depends(get_db), c
     tx.freeze_panes="A2"; tx.auto_filter.ref=f"A1:E{max(tx.max_row,1)}"
     for i,width in enumerate(widths,1): tx.column_dimensions[chr(64+i)].width=width
     buffer=BytesIO(); wb.save(buffer); buffer.seek(0)
+    record_export(db, current_user, "excel")
     return StreamingResponse(buffer,media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",headers={"Content-Disposition":f'attachment; filename="budgetbuddy-statement-{year}-{month:02d}.xlsx"'})

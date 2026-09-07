@@ -13,7 +13,7 @@ def test_empty_monthly_report_and_exports_are_valid(client, headers_a):
     assert report.json()["summary"]["total_income"] == 0.0
     assert report.json()["transactions"] == []
 
-    assert client.get("/reports/export/pdf", headers=headers_a).status_code == 403
+    assert client.get("/reports/export/pdf", headers=headers_a).status_code == 200
 
     from datetime import datetime, timedelta, timezone
     from app.database import SessionLocal
@@ -35,6 +35,8 @@ def test_empty_monthly_report_and_exports_are_valid(client, headers_a):
     workbook = load_workbook(BytesIO(excel.content), read_only=True)
     assert workbook.sheetnames == ["Summary", "Transactions"]
     assert "Reference" not in [cell.value for cell in next(workbook["Transactions"].iter_rows())]
+    assert client.get("/reports/export/pdf", headers=headers_a).status_code == 200
+    assert client.get("/reports/monthly", headers=headers_a).json()["export_allowance"]["limit"] is None
 
 
 def test_monthly_report_contains_only_current_users_transactions(client, headers_a, headers_b):
@@ -86,3 +88,43 @@ def test_statement_uses_prior_cash_flow_as_opening_balance_and_ignores_legacy_ne
     assert report["summary"]["total_income"] == 0.0
     assert report["summary"]["closing_balance"] == 800.0
     assert report["transactions"] == []
+
+
+def test_free_exports_share_lifetime_limit(client, headers_a, headers_b):
+    assert client.get("/reports/monthly", headers=headers_a).json()["export_allowance"] == {"limit": 2, "remaining": 2}
+    assert client.get("/reports/export/pdf", headers=headers_a).status_code == 200
+    assert client.get("/reports/export/excel?month=1&year=2025", headers=headers_a).status_code == 200
+    for format in ("pdf", "excel"):
+        response = client.get(f"/reports/export/{format}", headers=headers_a)
+        assert response.status_code == 403
+        assert "2 free report exports" in response.json()["detail"]
+    assert client.get("/reports/monthly", headers=headers_a).json()["export_allowance"]["remaining"] == 0
+    assert client.get("/reports/export/pdf", headers=headers_b).status_code == 200
+
+
+def test_invalid_export_does_not_consume_allowance(client, headers_a):
+    assert client.get("/reports/export/pdf?month=13", headers=headers_a).status_code == 422
+    assert client.get("/reports/monthly", headers=headers_a).json()["export_allowance"]["remaining"] == 2
+
+
+def test_admin_exports_are_unlimited(client, headers_a, user_a):
+    from app.models.user import User
+    with SessionLocal() as db:
+        db.query(User).filter(User.id == user_a.id).update({"role": "admin"})
+        db.commit()
+    for _ in range(3):
+        assert client.get("/reports/export/pdf", headers=headers_a).status_code == 200
+    assert client.get("/reports/monthly", headers=headers_a).json()["export_allowance"]["limit"] is None
+
+
+def test_failed_generation_does_not_consume_allowance(client, headers_a, monkeypatch):
+    import pytest
+    from app.routers import reports
+
+    def fail_build(*args, **kwargs):
+        raise RuntimeError("Generation failed")
+
+    monkeypatch.setattr(reports.SimpleDocTemplate, "build", fail_build)
+    with pytest.raises(RuntimeError, match="Generation failed"):
+        client.get("/reports/export/pdf", headers=headers_a)
+    assert client.get("/reports/monthly", headers=headers_a).json()["export_allowance"]["remaining"] == 2

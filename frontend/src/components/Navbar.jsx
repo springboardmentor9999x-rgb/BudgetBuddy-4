@@ -5,7 +5,7 @@ function Navbar() {
     <div className="navbar">
 
       <div className="navbar-title">
-        <h2>Dashboard</h2>
+        <h2>Overview</h2>
       </div>
 
       <div className="navbar-user">

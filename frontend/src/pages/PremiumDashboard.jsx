@@ -12,7 +12,7 @@ export default function PremiumDashboard() {
         <p>Track today's position, then use deeper analytics and export-ready reports to plan what comes next.</p>
       </div>
       <div className="premium-dashboard-actions">
-        <Link to="/advanced-analytics"><FaChartLine /> Full analytics</Link>
+        <Link to="/analytics"><FaChartLine /> Full analytics</Link>
         <Link to="/reports"><FaFileExport /> Reports & exports</Link>
       </div>
     </section>

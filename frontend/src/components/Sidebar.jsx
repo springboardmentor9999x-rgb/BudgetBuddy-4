@@ -12,7 +12,6 @@ import {
   FaBullseye,
   FaCrown,
   FaUserShield,
-  FaUsers,
   FaUser,
 } from "react-icons/fa";
 
@@ -25,39 +24,56 @@ function Sidebar({ open = false, onClose = () => {} }) {
   const [account,setAccount]=useState(null);
   useEffect(()=>{const load=()=>api.get("/auth/me").then(response=>setAccount(response.data)).catch(()=>undefined);load();window.addEventListener("budgetbuddy:membership-updated",load);return()=>window.removeEventListener("budgetbuddy:membership-updated",load);},[]);
   const userMenuItems = [
-    { path: "/dashboard", icon: <FaHome />, label: "Dashboard" },
+    { path: "/dashboard", icon: <FaHome />, label: "Overview" },
     { path: "/income", icon: <FaWallet />, label: "Income" },
     { path: "/expenses", icon: <FaMoneyBillWave />, label: "Expenses" },
     { path: "/accounts", icon: <FaUniversity />, label: "Accounts" },
+    { path: "/budget", icon: <FaBullseye />, label: "Budgets" },
     { path: "/goals", icon: <FaPiggyBank />, label: "Savings Goals" },
-    { path: "/budget", icon: <FaBullseye />, label: "Budget" },
     { path: "/analytics", icon: <FaChartPie />, label: "Analytics" },
-    { path: "/premium", icon: <FaCrown />, label: "Upgrade to Premium" },
-    { path: "/settings", icon: <FaCog />, label: "Settings" },
-  ];
-  const adminMenuItems = [
-    { path: "/admin", icon: <FaUserShield />, label: "Admin Dashboard", end: true },
-    { path: "/admin/users", icon: <FaUsers />, label: "User Management" },
-    { path: "/admin/system-analytics", icon: <FaChartBar />, label: "System Analytics" },
-    { path: "/admin/system-management", icon: <FaCog />, label: "System Management" },
-    { path: "/settings", icon: <FaCog />, label: "Settings" },
+    { path: "/reports", icon: <FaChartBar />, label: "Reports / Export" },
+    { path: "/settings", icon: <FaCog />, label: "Profile & Settings" },
   ];
   const premiumMenuItems = [
-    { path: "/premium-dashboard", icon: <FaHome />, label: "Dashboard" },
+    { path: "/dashboard", icon: <FaHome />, label: "Overview" },
     { path: "/income", icon: <FaWallet />, label: "Income" },
     { path: "/expenses", icon: <FaMoneyBillWave />, label: "Expenses" },
     { path: "/accounts", icon: <FaUniversity />, label: "Accounts" },
+    { path: "/budget", icon: <FaBullseye />, label: "Budgets" },
     { path: "/goals", icon: <FaPiggyBank />, label: "Savings Goals" },
-    { path: "/budget", icon: <FaBullseye />, label: "Budget" },
-    { path: "/advanced-analytics", icon: <FaChartPie />, label: "Analytics" },
+    { path: "/analytics", icon: <FaChartPie />, label: "Analytics" },
     { path: "/reports", icon: <FaChartBar />, label: "Reports / Export" },
-    { path: "/settings", icon: <FaCog />, label: "Settings" },
+    { path: "/settings", icon: <FaCog />, label: "Profile & Settings" },
   ];
   const role = account?.role === "admin" ? "admin" : account?.role === "premium" ? "premium" : "user";
   const RoleIcon = role === "admin" ? FaUserShield : role === "premium" ? FaCrown : FaUser;
   const roleName = role === "admin" ? "Admin" : role === "premium" ? "Premium User" : "Free User";
   const rolePlan = role === "admin" ? "Administrator" : role === "premium" ? "Premium Plan" : "Free Plan";
-  const menuItems = role === "admin" ? adminMenuItems : role === "premium" ? premiumMenuItems : userMenuItems;
+  const adminMenuSections = [
+    {
+      label: "User Features",
+      items: [
+        { path: "/dashboard", icon: <FaHome />, label: "Overview" },
+        { path: "/income", icon: <FaWallet />, label: "Income" },
+        { path: "/expenses", icon: <FaMoneyBillWave />, label: "Expenses" },
+        { path: "/accounts", icon: <FaUniversity />, label: "Accounts" },
+        { path: "/budget", icon: <FaBullseye />, label: "Budgets" },
+        { path: "/goals", icon: <FaPiggyBank />, label: "Savings Goals" },
+        { path: "/analytics", icon: <FaChartPie />, label: "Analytics" },
+        { path: "/reports", icon: <FaChartBar />, label: "Reports / Export" },
+        { path: "/settings", icon: <FaCog />, label: "Profile & Settings" },
+      ],
+    },
+    {
+      label: "Admin Features",
+      items: [
+        { path: "/admin", icon: <FaUserShield />, label: "Admin", end: true },
+      ],
+    },
+  ];
+  const menuSections = role === "admin"
+    ? adminMenuSections
+    : [{ label: null, items: role === "premium" ? premiumMenuItems : userMenuItems }];
 
   return (
     <aside className={`sidebar ${open ? "open" : ""}`} aria-label="Primary navigation">
@@ -73,19 +89,24 @@ function Sidebar({ open = false, onClose = () => {} }) {
       </div>
 
       <nav className="sidebar-menu">
-        {menuItems.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            end={item.end}
-            onClick={onClose}
-            className={({ isActive }) =>
-              isActive ? "menu-item active" : "menu-item"
-            }
-          >
-            <span className="menu-icon">{item.icon}</span>
-            <span>{item.label}</span>
-          </NavLink>
+        {menuSections.map((section) => (
+          <div className="sidebar-menu-section" key={section.label || "navigation"}>
+            {section.label && <p className="sidebar-menu-label">{section.label}</p>}
+            {section.items.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.end}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  isActive ? "menu-item active" : "menu-item"
+                }
+              >
+                <span className="menu-icon">{item.icon}</span>
+                <span>{item.label}</span>
+              </NavLink>
+            ))}
+          </div>
         ))}
       </nav>
 

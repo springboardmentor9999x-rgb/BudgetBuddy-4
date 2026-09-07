@@ -16,7 +16,7 @@ test("renders dashboard summary with mocked API data", async () => {
   });
 
   render(<Dashboard />);
-  await waitFor(() => expect(screen.getByText("Dashboard")).toBeInTheDocument());
+  await waitFor(() => expect(screen.getByText("Overview")).toBeInTheDocument());
   expect(screen.getByText(/Total income/i)).toBeInTheDocument();
   expect(screen.getByText(/Total expenses/i)).toBeInTheDocument();
 });

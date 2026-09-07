@@ -16,11 +16,11 @@ function Dashboard() {
   const [error, setError] = useState("");
   useEffect(() => { setDashboard(null); setError(""); getDashboard(selectedMonth).then(setDashboard).catch(() => setError("We could not load your financial summary. Please refresh the page.")); }, [selectedMonth]);
   if (error) return <div className="dashboard-message error">{error}</div>;
-  if (!dashboard) return <div className="dashboard-message">Loading your dashboard...</div>;
+  if (!dashboard) return <div className="dashboard-message">Loading your overview...</div>;
   const { summary } = dashboard;
 
   return <div className="dashboard">
-    <header className="dashboard-heading"><div><h1>Dashboard</h1><p>Here is a simple overview of your finances.</p></div><div className="dashboard-balance-simple"><span>Current balance</span><strong>{money(summary.balance)}</strong></div></header>
+    <header className="dashboard-heading"><div><h1>Overview</h1><p>Here is a quick summary of your finances.</p></div><div className="dashboard-balance-simple"><span>Current balance</span><strong>{money(summary.balance)}</strong></div></header>
     <section className="cards"><DashboardCard title="Total income" amount={money(summary.total_income)} color="green" /><DashboardCard title="Total expenses" amount={money(summary.total_expense)} color="red" /><DashboardCard title="Balance" amount={money(summary.balance)} color="blue" /><DashboardCard title="Savings" amount={money(summary.savings)} color="orange" /></section>
     <section className="charts-grid"><BarChartCard dashboard={dashboard} /><PieChartCard dashboard={dashboard} /></section>
     <section className="dashboard-lower"><ProgressCards /><RecentTransactions dashboard={dashboard} /></section>

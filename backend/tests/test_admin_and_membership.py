@@ -75,3 +75,32 @@ def test_admin_can_read_user_summary_and_activity(client, headers_a, user_a, use
     assert summary.status_code == 200
     assert summary.json()["balance"] == 0
     assert client.get("/admin/activity", headers=headers_a).status_code == 200
+
+
+def test_admin_can_use_personal_finance_features_without_mixing_user_data(client, headers_a, headers_b, user_a):
+    from app.database import SessionLocal
+    from app.models.user import User
+
+    db = SessionLocal()
+    db.query(User).filter(User.id == user_a.id).update({"role": "admin"})
+    db.commit()
+    db.close()
+
+    income = client.post("/income/", headers=headers_a, json={
+        "source": "Admin salary", "amount": 2500, "description": "Personal income", "bank_account": "Admin Bank 1234",
+    })
+    expense = client.post("/expenses/", headers=headers_a, json={
+        "category": "Food", "amount": 125, "description": "Personal lunch", "bank_account": "Admin Bank 1234",
+    })
+    budget = client.post("/budgets/", headers=headers_a, json={"category": "Food", "amount": 500, "month": "2026-09"})
+    goal = client.post("/goals/", headers=headers_a, json={"goal_name": "Admin emergency fund", "target_amount": 5000})
+
+    assert all(response.status_code in (200, 201) for response in (income, expense, budget, goal))
+    assert client.get("/dashboard/", headers=headers_a).status_code == 200
+    assert client.get("/analytics/summary", headers=headers_a).status_code == 200
+    assert client.get("/premium/insights", headers=headers_a).status_code == 200
+
+    assert client.get("/income/", headers=headers_b).json() == []
+    assert client.get("/expenses/", headers=headers_b).json() == []
+    assert client.get("/budgets/", headers=headers_b).json() == []
+    assert client.get("/goals/", headers=headers_b).json() == []

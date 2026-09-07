@@ -22,7 +22,7 @@ const getNotificationTitle = (notification) => {
 };
 
 const quickLinks = [
-  ["Dashboard", "/dashboard"], ["Income", "/income"], ["Expenses", "/expenses"],
+  ["Overview", "/dashboard"], ["Income", "/income"], ["Expenses", "/expenses"],
   ["Accounts", "/accounts"], ["Savings goals", "/goals"], ["Budget", "/budget"],
   ["Reports", "/reports"], ["Analytics", "/analytics"], ["Profile", "/profile"], ["Settings", "/settings"],
 ];

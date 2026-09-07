@@ -69,7 +69,7 @@ function Settings() {
           <label>Currency<select value={settings.currency} onChange={(e) => update("currency", e.target.value)}><option value="INR">Indian rupee (INR)</option><option value="USD">US dollar (USD)</option><option value="EUR">Euro (EUR)</option></select></label>
           <label>Appearance<select value={settings.theme} onChange={(e) => update("theme", e.target.value)}><option value="system">Use device setting</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
           <label className="settings-toggle"><input type="checkbox" checked={settings.compact} onChange={(e) => update("compact", e.target.checked)} /><span><strong>Compact transaction tables</strong><small>Show more records in less space.</small></span></label>
-          <label className="settings-toggle"><input type="checkbox" checked={settings.showBalances} onChange={(e) => update("showBalances", e.target.checked)} /><span><strong>Show balances on dashboard</strong><small>Keep summary totals visible after sign in.</small></span></label>
+          <label className="settings-toggle"><input type="checkbox" checked={settings.showBalances} onChange={(e) => update("showBalances", e.target.checked)} /><span><strong>Show balances on Overview</strong><small>Keep summary totals visible after sign in.</small></span></label>
         </div>
       </section>
 

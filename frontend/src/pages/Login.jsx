@@ -40,8 +40,8 @@ function Login() {
 
       localStorage.setItem("token", token);
 
-      const account = await api.get("/auth/me");
-      navigate(account.data?.role === "admin" ? "/admin" : "/dashboard");
+      await api.get("/auth/me");
+      navigate("/dashboard");
     } catch (err) {
       setError(
         err.response?.data?.detail ||
