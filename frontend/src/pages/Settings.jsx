@@ -149,7 +149,7 @@ function Settings() {
 
 
     // Local FastAPI backend
-    return `http://127.0.0.1:8000${profile.profile_image}`;
+    return `${import.meta.env.VITE_API_URL}${profile.profile_image}`;
   };
 
 
