@@ -1,0 +1,1 @@
+# BudgetBuddy application package
