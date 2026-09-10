@@ -32,10 +32,6 @@ function Settings() {
 
     const { user } = useAuth();
 
-    /* =========================================================
-       SETTINGS STATE
-    ========================================================= */
-
     const defaultSettings = {
         language: "English",
         currency: "INR",
@@ -47,36 +43,20 @@ function Settings() {
     };
 
     const [settings, setSettings] = useState(defaultSettings);
-
     const [saved, setSaved] = useState(false);
     const [saving, setSaving] = useState(false);
 
 
-    /* =========================================================
-       LOAD SAVED SETTINGS
-    ========================================================= */
-
     useEffect(() => {
 
         try {
-
             setSettings(getAppSettings());
-
         } catch (error) {
-
-            console.error(
-                "Unable to load settings:",
-                error
-            );
-
+            console.error("Unable to load settings:", error);
         }
 
     }, []);
 
-
-    /* =========================================================
-       UPDATE SETTING
-    ========================================================= */
 
     const updateSetting = (key, value) => {
 
@@ -90,10 +70,6 @@ function Settings() {
     };
 
 
-    /* =========================================================
-       SAVE
-    ========================================================= */
-
     const handleSave = async (event) => {
 
         event.preventDefault();
@@ -103,21 +79,37 @@ function Settings() {
         try {
 
             saveAppSettings(settings);
-            document.body.classList.toggle("dark-mode", Boolean(settings.darkMode));
 
-            // Persist security-sensitive preferences server-side as well.
+            document.body.classList.toggle(
+                "dark-mode",
+                Boolean(settings.darkMode)
+            );
+
             try {
+
                 await Promise.all([
                     updateNotificationPreferences({
                         email_notifications_enabled: settings.notifications,
                         app_notifications_enabled: settings.notifications,
                     }),
-                    updateTheme(settings.darkMode ? "dark" : "light"),
+                    updateTheme(
+                        settings.darkMode ? "dark" : "light"
+                    ),
                 ]);
+
                 toast.success("Settings saved and synced.");
+
             } catch (syncError) {
-                console.error("Settings server sync failed:", syncError);
-                toast.warning("Local settings saved. Server sync will retry next time.");
+
+                console.error(
+                    "Settings server sync failed:",
+                    syncError
+                );
+
+                toast.warning(
+                    "Local settings saved. Server sync will retry next time."
+                );
+
             }
 
             setSaved(true);
@@ -142,10 +134,6 @@ function Settings() {
     };
 
 
-    /* =========================================================
-       RESET
-    ========================================================= */
-
     const handleReset = () => {
 
         setSettings(defaultSettings);
@@ -153,11 +141,14 @@ function Settings() {
         setSaved(false);
 
         saveAppSettings(DEFAULT_SETTINGS);
+
         updateTheme("light").catch(() => {});
+
         updateNotificationPreferences({
             email_notifications_enabled: true,
             app_notifications_enabled: true,
         }).catch(() => {});
+
         toast.info("Settings restored to defaults.");
 
     };
@@ -167,32 +158,13 @@ function Settings() {
 
         <div className="bb-settings-layout">
 
-            {/* =================================================
-                SIDEBAR
-            ================================================= */}
-
             <Sidebar />
-
-
-            {/* =================================================
-                MAIN AREA
-            ================================================= */}
 
             <div className="bb-settings-main">
 
                 <Navbar />
 
-
-                {/* =================================================
-                    PAGE
-                ================================================= */}
-
                 <main className="bb-settings-page">
-
-
-                    {/* =================================================
-                        HERO
-                    ================================================= */}
 
                     <section className="settings-hero">
 
@@ -238,10 +210,6 @@ function Settings() {
                     </section>
 
 
-                    {/* =================================================
-                        SUCCESS MESSAGE
-                    ================================================= */}
-
                     {saved && (
 
                         <div className="settings-success">
@@ -257,19 +225,10 @@ function Settings() {
                     )}
 
 
-                    {/* =================================================
-                        SETTINGS FORM
-                    ================================================= */}
-
                     <form
                         className="settings-form"
                         onSubmit={handleSave}
                     >
-
-
-                        {/* =================================================
-                            REGIONAL
-                        ================================================= */}
 
                         <section className="settings-card">
 
@@ -299,14 +258,9 @@ function Settings() {
 
                             </div>
 
-
                             <div className="settings-divider" />
 
-
                             <div className="settings-options-grid">
-
-
-                                {/* LANGUAGE */}
 
                                 <div className="settings-field">
 
@@ -341,8 +295,6 @@ function Settings() {
 
                                 </div>
 
-
-                                {/* CURRENCY */}
 
                                 <div className="settings-field">
 
@@ -382,8 +334,6 @@ function Settings() {
                                 </div>
 
 
-                                {/* DATE */}
-
                                 <div className="settings-field">
 
                                     <label>
@@ -422,10 +372,6 @@ function Settings() {
                         </section>
 
 
-                        {/* =================================================
-                            DASHBOARD
-                        ================================================= */}
-
                         <section className="settings-card">
 
                             <div className="settings-card-heading">
@@ -454,11 +400,8 @@ function Settings() {
 
                             </div>
 
-
                             <div className="settings-divider" />
 
-
-                            {/* SHOW BALANCES */}
 
                             <div className="settings-toggle-row">
 
@@ -494,15 +437,11 @@ function Settings() {
                                     }
                                     aria-label="Toggle account balances"
                                 >
-
                                     <span />
-
                                 </button>
 
                             </div>
 
-
-                            {/* AUTOMATIC LOGOUT */}
 
                             <div className="settings-toggle-row">
 
@@ -538,29 +477,50 @@ function Settings() {
                                     }
                                     aria-label="Toggle automatic logout"
                                 >
-
                                     <span />
-
                                 </button>
 
                             </div>
 
 
-                            {/* DARK MODE */}
-
                             <div className="settings-toggle-row">
-                                <div className="settings-toggle-icon"><FaPalette /></div>
-                                <div className="settings-toggle-text">
-                                    <strong>Dark mode</strong>
-                                    <span>Use a low-light interface across BudgetBuddy.</span>
+
+                                <div className="settings-toggle-icon">
+                                    <FaPalette />
                                 </div>
-                                <button type="button" className={`settings-switch ${settings.darkMode ? "active" : ""}`}
-                                    onClick={() => updateSetting("darkMode", !settings.darkMode)}
-                                    aria-label="Toggle dark mode"><span /></button>
+
+                                <div className="settings-toggle-text">
+
+                                    <strong>
+                                        Dark mode
+                                    </strong>
+
+                                    <span>
+                                        Use a low-light interface across BudgetBuddy.
+                                    </span>
+
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className={`settings-switch ${
+                                        settings.darkMode
+                                            ? "active"
+                                            : ""
+                                    }`}
+                                    onClick={() =>
+                                        updateSetting(
+                                            "darkMode",
+                                            !settings.darkMode
+                                        )
+                                    }
+                                    aria-label="Toggle dark mode"
+                                >
+                                    <span />
+                                </button>
+
                             </div>
 
-
-                            {/* NOTIFICATIONS */}
 
                             <div className="settings-toggle-row">
 
@@ -596,19 +556,13 @@ function Settings() {
                                     }
                                     aria-label="Toggle notifications"
                                 >
-
                                     <span />
-
                                 </button>
 
                             </div>
 
                         </section>
 
-
-                        {/* =================================================
-                            ACCOUNT
-                        ================================================= */}
 
                         <section className="settings-card">
 
@@ -637,9 +591,7 @@ function Settings() {
 
                             </div>
 
-
                             <div className="settings-divider" />
-
 
                             <div className="settings-account-grid">
 
@@ -686,10 +638,6 @@ function Settings() {
                         </section>
 
 
-                        {/* =================================================
-                            ACTIONS
-                        ================================================= */}
-
                         <div className="settings-actions">
 
                             <button
@@ -698,7 +646,6 @@ function Settings() {
                                 onClick={handleReset}
                             >
                                 <FaUndo />
-
                                 <span>
                                     Reset
                                 </span>
@@ -715,7 +662,6 @@ function Settings() {
 
                                     <>
                                         <span className="settings-spinner" />
-
                                         Saving...
                                     </>
 
@@ -723,7 +669,6 @@ function Settings() {
 
                                     <>
                                         <FaSave />
-
                                         Save Changes
                                     </>
 
@@ -734,12 +679,6 @@ function Settings() {
                         </div>
 
                     </form>
-
-
-                    {/* =================================================
-                        FOOTER
-                        ONLY ONE FOOTER
-                    ================================================= */}
 
                     <Footer />
 
