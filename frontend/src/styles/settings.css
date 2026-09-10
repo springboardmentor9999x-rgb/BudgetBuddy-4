@@ -1,2579 +1,1405 @@
 /* =========================================================
-
    BUDGETBUDDY SETTINGS
-
-   FINAL CSS
-
+   FINAL CLEAN CSS
    ========================================================= */
-
-
-
 
 
 /* =========================================================
-
-   PAGE ROOT
-
+   GLOBAL BOX SIZING
    ========================================================= */
 
+.bb-settings-layout,
+.bb-settings-layout *,
+.bb-settings-layout *::before,
+.bb-settings-layout *::after {
+    box-sizing: border-box;
+}
 
+
+/* =========================================================
+   PAGE ROOT
+   ========================================================= */
 
 .bb-settings-layout {
-
     position: relative;
 
-
-
     width: 100%;
-
     min-height: 100vh;
 
-
-
     background: #f5f7fb;
-
-
 
     overflow-x: hidden;
-
 }
 
 
-
-
-
 /* =========================================================
-
-   MAIN CONTENT
-
-   IMPORTANT:
-
-   Sidebar is already fixed/positioned by Sidebar.css.
-
-   Do NOT hard-code 240px here.
-
+   MAIN APPLICATION AREA
+   SIDEBAR SAFE
    ========================================================= */
 
-
-
 .bb-settings-main {
-
     position: relative;
 
-
-
-    width: calc(100% - var(--bb-sidebar-width));
-
-
+    width: calc(100% - var(--bb-sidebar-width, 260px));
 
     min-height: 100vh;
-
     min-width: 0;
 
-
-
-    margin-left: var(--bb-sidebar-width);
-
-
+    margin-left: var(--bb-sidebar-width, 260px);
 
     background: #f5f7fb;
 
-
-
     overflow: visible;
-
 }
 
 
-
-
-
 /* =========================================================
-
    SETTINGS PAGE
-
    ========================================================= */
 
-
-
 .bb-settings-page {
-
     position: relative;
 
-
-
     width: 100%;
-
+    max-width: 100%;
     min-width: 0;
 
-
-
-    padding: 92px 38px 60px;
-
-
+    padding: 20px 32px 60px;
 
     box-sizing: border-box;
 
-
-
     overflow-x: hidden;
-
     overflow-y: visible;
-
 }
 
 
+/* =========================================================
+   SETTINGS CONTAINER
+   THIS IS THE MAIN CONTENT CONTAINER
+   ========================================================= */
 
+.bb-settings-container {
+    position: relative;
+
+    width: 100%;
+    max-width: 1240px;
+
+    margin: 0 auto;
+
+    box-sizing: border-box;
+}
+
+
+/* Every direct section stays inside container */
+
+.bb-settings-container > * {
+    width: 100%;
+    max-width: 100%;
+
+    box-sizing: border-box;
+}
 
 
 /* =========================================================
-
    HERO
-
    ========================================================= */
 
-
-
 .settings-hero {
-
     position: relative;
 
-
-
     width: 100%;
-
     min-height: 205px;
-
-
 
     padding: 34px 42px;
 
-
-
     display: flex;
-
-
-
     align-items: center;
-
     justify-content: space-between;
-
-
 
     gap: 30px;
 
-
-
     overflow: hidden;
-
-
 
     border-radius: 24px;
 
-
-
     background:
-
         linear-gradient(
-
             135deg,
-
             #eef2ff 0%,
-
             #f8f9ff 55%,
-
             #eef4ff 100%
-
         );
-
-
 
     border: 1px solid #e4e7ff;
 
-
-
     box-shadow:
-
         0 12px 32px rgba(15, 23, 42, 0.06);
 
-
-
     animation:
-
         settingsSlideUp 0.6s ease both;
-
 }
 
 
-
-
-
 /* =========================================================
-
    HERO DECORATIVE CIRCLES
-
    ========================================================= */
 
-
-
 .settings-hero::before {
-
     content: "";
-
-
 
     position: absolute;
 
-
-
     width: 240px;
-
     height: 240px;
 
-
-
     right: 90px;
-
     top: -130px;
 
-
-
     border-radius: 50%;
-
-
 
     background: rgba(99, 91, 255, 0.08);
 
-
-
     animation:
-
         settingsOrb 6s ease-in-out infinite;
-
 }
-
-
-
 
 
 .settings-hero::after {
-
     content: "";
-
-
 
     position: absolute;
 
-
-
     width: 130px;
-
     height: 130px;
 
-
-
     right: 15px;
-
     bottom: -80px;
 
-
-
     border-radius: 50%;
-
-
 
     background: rgba(37, 99, 235, 0.08);
 
-
-
     animation:
-
         settingsOrb 5s ease-in-out infinite reverse;
-
 }
 
 
-
-
-
 /* =========================================================
-
    HERO CONTENT
-
    ========================================================= */
 
-
-
 .settings-hero-content {
-
     position: relative;
-
-
 
     z-index: 2;
 
-
-
     min-width: 0;
-
 }
-
-
-
 
 
 .settings-eyebrow {
-
     display: flex;
-
-
 
     align-items: center;
 
-
-
     gap: 8px;
-
-
 
     margin-bottom: 10px;
 
-
-
     color: #635bff;
-
-
 
     font-size: 11px;
 
-
-
     font-weight: 800;
 
-
-
     letter-spacing: 1.6px;
-
 }
-
-
-
 
 
 .settings-eyebrow svg {
-
     font-size: 13px;
 
-
-
     animation:
-
         settingsRotate 4s linear infinite;
-
 }
-
-
-
 
 
 .settings-hero h1 {
-
     margin: 0;
 
-
-
     color: #101828;
-
-
 
     font-size: clamp(30px, 3vw, 42px);
 
-
-
     line-height: 1.1;
 
-
-
     font-weight: 800;
-
 }
-
-
-
 
 
 .settings-hero p {
-
     margin: 10px 0 0;
 
-
-
     color: #667085;
-
-
 
     font-size: 15px;
 
-
-
     line-height: 1.6;
-
 }
-
-
-
 
 
 /* =========================================================
-
    HERO ART
-
    ========================================================= */
 
-
-
 .settings-hero-art {
-
     position: relative;
 
-
-
     width: 190px;
-
     height: 150px;
 
-
-
     flex-shrink: 0;
-
 }
-
-
-
 
 
 .settings-main-icon {
-
     position: absolute;
 
-
-
     left: 50%;
-
     top: 50%;
 
-
-
     width: 86px;
-
     height: 86px;
 
-
-
     transform:
-
         translate(-50%, -50%);
-
-
 
     display: flex;
 
-
-
     align-items: center;
-
     justify-content: center;
-
-
 
     border-radius: 24px;
 
-
-
     background: #ffffff;
 
-
-
     color: #635bff;
-
-
 
     font-size: 35px;
 
-
-
     box-shadow:
-
         0 15px 35px rgba(99, 91, 255, 0.18);
 
-
-
     animation:
-
         settingsMainFloat 3.5s ease-in-out infinite;
 
-
-
     z-index: 3;
-
 }
-
-
-
 
 
 .settings-main-icon svg {
-
     animation:
-
         settingsRotate 7s linear infinite;
-
 }
 
 
-
-
-
 /* =========================================================
-
    FLOATING ICONS
-
    ========================================================= */
 
-
-
 .settings-floating-icon {
-
     position: absolute;
 
-
-
     width: 42px;
-
     height: 42px;
-
-
 
     display: flex;
 
-
-
     align-items: center;
-
     justify-content: center;
-
-
 
     border-radius: 13px;
 
-
-
     background: #ffffff;
-
-
 
     color: #635bff;
 
-
-
     box-shadow:
-
         0 8px 20px rgba(15, 23, 42, 0.08);
-
-
 
     z-index: 4;
 
-
-
     animation:
-
         settingsFloat 3s ease-in-out infinite;
-
 }
-
-
-
 
 
 .settings-floating-icon svg {
-
     font-size: 17px;
-
 }
-
-
-
 
 
 .settings-floating-icon.icon-one {
-
     top: 8px;
-
-
-
     right: 25px;
 
-
-
     animation-delay: 0.2s;
-
 }
-
-
-
 
 
 .settings-floating-icon.icon-two {
-
     bottom: 10px;
-
-
-
     left: 10px;
-
-
 
     color: #039855;
 
-
-
     animation-delay: 0.8s;
-
 }
-
-
-
 
 
 .settings-floating-icon.icon-three {
-
     top: 15px;
-
-
-
     left: 15px;
-
-
 
     color: #2563eb;
 
-
-
     animation-delay: 1.3s;
-
 }
 
 
-
-
-
 /* =========================================================
-
    SUCCESS MESSAGE
-
    ========================================================= */
 
-
-
 .settings-success {
-
     width: 100%;
-
-
 
     margin-top: 20px;
 
-
-
     padding: 13px 18px;
-
-
 
     display: flex;
 
-
-
     align-items: center;
-
-
 
     gap: 10px;
 
-
-
     border-radius: 12px;
-
-
 
     background: #ecfdf3;
 
-
-
     border: 1px solid #abefc6;
-
-
 
     color: #027a48;
 
-
-
     font-size: 13px;
-
-
 
     font-weight: 700;
 
-
-
     animation:
-
         settingsSlideUp 0.35s ease both;
-
 }
-
-
-
 
 
 .settings-success svg {
-
     font-size: 18px;
-
 }
 
 
-
-
-
 /* =========================================================
-
-   FORM
-
-   ========================================================= */
-
-
-
-.settings-form {
-
-    width: 100%;
-
-
-
-    margin-top: 25px;
-
-}
-
-
-
-
-
-/* =========================================================
-
    SETTINGS CARD
-
    ========================================================= */
-
-
 
 .settings-card {
-
     position: relative;
-
-
 
     width: 100%;
 
-
-
-    margin-bottom: 22px;
-
-
+    margin-top: 22px;
+    margin-bottom: 0;
 
     padding: 27px;
 
-
-
     background: #ffffff;
-
-
 
     border: 1px solid #eaecf0;
 
-
-
     border-radius: 20px;
 
-
-
     box-shadow:
-
         0 8px 25px rgba(15, 23, 42, 0.045);
 
-
-
     animation:
-
         settingsSlideUp 0.65s ease both;
 
-
-
     transition:
-
         box-shadow 0.25s ease,
-
         transform 0.25s ease;
-
-
-
-    box-sizing: border-box;
-
 }
-
-
-
 
 
 .settings-card:hover {
-
     transform:
-
         translateY(-2px);
 
-
-
     box-shadow:
-
         0 14px 34px rgba(15, 23, 42, 0.07);
-
 }
 
 
-
-
-
 /* =========================================================
-
-   CARD HEADING
-
+   CARD HEADER
+   MATCHES JSX
    ========================================================= */
 
-
-
-.settings-card-heading {
+.settings-card-header {
+    width: 100%;
 
     display: flex;
-
-
 
     align-items: flex-start;
 
+    gap: 15px;
 
-
-    gap: 16px;
-
+    margin-bottom: 24px;
 }
 
 
+/* =========================================================
+   CARD ICON
+   MATCHES JSX
+   ========================================================= */
 
-
-
-.settings-heading-icon {
-
+.settings-card-icon {
     width: 48px;
-
     height: 48px;
-
-
 
     flex-shrink: 0;
 
-
-
     display: flex;
 
-
-
     align-items: center;
-
     justify-content: center;
-
-
 
     border-radius: 14px;
 
-
-
     background: #f0efff;
 
-
-
     color: #635bff;
 
+    font-size: 19px;
 
-
-    font-size: 20px;
-
+    box-shadow:
+        0 5px 15px rgba(99, 91, 255, 0.08);
 }
 
 
-
-
-
-.settings-heading-icon.purple {
-
-    background: #f4f0ff;
-
-
-
-    color: #7f56d9;
-
+.settings-card-icon svg {
+    font-size: 19px;
 }
 
 
+/* =========================================================
+   CARD HEADER TEXT
+   ========================================================= */
 
-
-
-.settings-heading-icon.blue {
-
-    background: #eff8ff;
-
-
-
-    color: #1570ef;
-
+.settings-card-header > div:last-child {
+    min-width: 0;
 }
 
 
-
-
-
-.settings-card-heading span {
-
-    display: block;
-
-
-
-    margin-bottom: 5px;
-
-
-
-    color: #635bff;
-
-
-
-    font-size: 10px;
-
-
-
-    font-weight: 800;
-
-
-
-    letter-spacing: 1.4px;
-
-}
-
-
-
-
-
-.settings-card-heading h2 {
-
+.settings-card-header h2 {
     margin: 0;
 
-
-
     color: #101828;
-
-
 
     font-size: 21px;
 
-
+    line-height: 1.3;
 
     font-weight: 800;
-
 }
 
 
-
-
-
-.settings-card-heading p {
-
+.settings-card-header p {
     margin: 5px 0 0;
-
-
 
     color: #667085;
 
-
-
     font-size: 13px;
 
-
-
     line-height: 1.5;
-
 }
 
 
-
-
-
 /* =========================================================
-
-   DIVIDER
-
+   REGIONAL OPTIONS GRID
    ========================================================= */
-
-
-
-.settings-divider {
-
-    width: 100%;
-
-
-
-    height: 1px;
-
-
-
-    margin: 24px 0;
-
-
-
-    background: #eaecf0;
-
-}
-
-
-
-
-
-/* =========================================================
-
-   REGIONAL OPTIONS
-
-   ========================================================= */
-
-
 
 .settings-options-grid {
-
     width: 100%;
-
-
 
     display: grid;
 
-
-
     grid-template-columns:
-
         repeat(3, minmax(0, 1fr));
 
-
-
     gap: 20px;
-
 }
-
-
-
-
-
-.settings-field {
-
-    min-width: 0;
-
-}
-
-
-
-
-
-.settings-field label {
-
-    display: flex;
-
-
-
-    align-items: center;
-
-
-
-    gap: 7px;
-
-
-
-    margin-bottom: 8px;
-
-
-
-    color: #344054;
-
-
-
-    font-size: 13px;
-
-
-
-    font-weight: 700;
-
-}
-
-
-
-
-
-.settings-field label svg {
-
-    color: #635bff;
-
-
-
-    font-size: 13px;
-
-}
-
-
-
-
-
-.settings-field select {
-
-    width: 100%;
-
-
-
-    height: 46px;
-
-
-
-    padding: 0 13px;
-
-
-
-    border: 1px solid #d0d5dd;
-
-
-
-    border-radius: 11px;
-
-
-
-    background: #ffffff;
-
-
-
-    color: #101828;
-
-
-
-    font-size: 13px;
-
-
-
-    font-weight: 600;
-
-
-
-    outline: none;
-
-
-
-    cursor: pointer;
-
-
-
-    transition:
-
-        border-color 0.2s ease,
-
-        box-shadow 0.2s ease;
-
-}
-
-
-
-
-
-.settings-field select:hover {
-
-    border-color: #a9a4ff;
-
-}
-
-
-
-
-
-.settings-field select:focus {
-
-    border-color: #635bff;
-
-
-
-    box-shadow:
-
-        0 0 0 3px rgba(99, 91, 255, 0.1);
-
-}
-
-
-
 
 
 /* =========================================================
-
-   TOGGLE ROW
-
+   SETTINGS OPTION
+   MATCHES JSX
    ========================================================= */
 
-
-
-.settings-toggle-row {
-
-    width: 100%;
-
-
-
-    min-height: 72px;
-
-
-
-    display: flex;
-
-
-
-    align-items: center;
-
-
-
-    gap: 15px;
-
-
-
-    padding: 15px 0;
-
-
-
-    border-bottom: 1px solid #f0f2f5;
-
-}
-
-
-
-
-
-.settings-toggle-row:last-child {
-
-    border-bottom: none;
-
-}
-
-
-
-
-
-.settings-toggle-icon {
-
-    width: 42px;
-
-    height: 42px;
-
-
-
-    flex-shrink: 0;
-
-
-
-    display: flex;
-
-
-
-    align-items: center;
-
-    justify-content: center;
-
-
-
-    border-radius: 12px;
-
-
-
-    background: #f8f9fc;
-
-
-
-    color: #635bff;
-
-
-
-    font-size: 16px;
-
-
-
-    transition:
-
-        transform 0.25s ease,
-
-        background 0.25s ease;
-
-}
-
-
-
-
-
-.settings-toggle-row:hover
-
-.settings-toggle-icon {
-
-    transform:
-
-        scale(1.08)
-
-        rotate(-5deg);
-
-
-
-    background: #f0efff;
-
-}
-
-
-
-
-
-.settings-toggle-text {
-
+.settings-option {
     min-width: 0;
 
-
-
-    flex: 1;
-
-
-
     display: flex;
-
-
 
     flex-direction: column;
 
-
-
-    gap: 4px;
-
+    gap: 8px;
 }
-
-
-
-
-
-.settings-toggle-text strong {
-
-    color: #101828;
-
-
-
-    font-size: 14px;
-
-
-
-    font-weight: 750;
-
-}
-
-
-
-
-
-.settings-toggle-text span {
-
-    color: #667085;
-
-
-
-    font-size: 12px;
-
-
-
-    line-height: 1.5;
-
-}
-
-
-
 
 
 /* =========================================================
-
-   SWITCH
-
+   OPTION LABEL
+   MATCHES JSX
    ========================================================= */
 
-
-
-.settings-switch {
-
-    position: relative;
-
-
-
-    width: 52px;
-
-    height: 29px;
-
-
-
-    flex-shrink: 0;
-
-
-
-    padding: 0;
-
-
-
-    border: none;
-
-
-
-    border-radius: 999px;
-
-
-
-    background: #d0d5dd;
-
-
-
-    cursor: pointer;
-
-
-
-    transition:
-
-        background 0.25s ease,
-
-        box-shadow 0.25s ease;
-
-}
-
-
-
-
-
-.settings-switch span {
-
-    position: absolute;
-
-
-
-    top: 4px;
-
-    left: 4px;
-
-
-
-    width: 21px;
-
-    height: 21px;
-
-
-
-    border-radius: 50%;
-
-
-
-    background: #ffffff;
-
-
-
-    box-shadow:
-
-        0 2px 5px rgba(0, 0, 0, 0.15);
-
-
-
-    transition:
-
-        transform 0.25s cubic-bezier(.4,0,.2,1);
-
-}
-
-
-
-
-
-.settings-switch.active {
-
-    background: #635bff;
-
-
-
-    box-shadow:
-
-        0 5px 14px rgba(99, 91, 255, 0.25);
-
-}
-
-
-
-
-
-.settings-switch.active span {
-
-    transform:
-
-        translateX(23px);
-
-}
-
-
-
-
-
-/* =========================================================
-
-   ACCOUNT
-
-   ========================================================= */
-
-
-
-.settings-account-grid {
-
-    display: grid;
-
-
-
-    grid-template-columns:
-
-        repeat(3, minmax(0, 1fr));
-
-
-
-    gap: 18px;
-
-}
-
-
-
-
-
-.settings-account-item {
-
-    min-width: 0;
-
-
-
-    padding: 18px;
-
-
-
-    border-radius: 14px;
-
-
-
-    background: #f8f9fc;
-
-
-
-    border: 1px solid #edf0f6;
-
-}
-
-
-
-
-
-.settings-account-item span {
-
-    display: block;
-
-
-
-    margin-bottom: 7px;
-
-
-
-    color: #98a2b3;
-
-
-
-    font-size: 9px;
-
-
-
-    font-weight: 800;
-
-
-
-    letter-spacing: 1.2px;
-
-}
-
-
-
-
-
-.settings-account-item strong {
-
-    display: block;
-
-
-
-    color: #101828;
-
-
-
-    font-size: 14px;
-
-
-
-    font-weight: 750;
-
-
-
-    overflow: hidden;
-
-
-
-    text-overflow: ellipsis;
-
-
-
-    white-space: nowrap;
-
-}
-
-
-
-
-
-.settings-account-item .account-active {
-
-    color: #039855;
-
-}
-
-
-
-
-
-/* =========================================================
-
-   ACTIONS
-
-   ========================================================= */
-
-
-
-.settings-actions {
-
-    width: 100%;
-
-
-
+.settings-option-label {
     display: flex;
-
-
 
     align-items: center;
 
+    gap: 7px;
 
+    color: #344054;
 
-    justify-content: flex-end;
+    font-size: 13px;
 
-
-
-    gap: 14px;
-
-
-
-    margin: 28px 0 35px;
-
-
-
-    padding: 22px 0 0;
-
-
-
-    border-top: 1px solid #eaecf0;
-
+    font-weight: 700;
 }
 
 
+.settings-option-label svg {
+    color: #635bff;
+
+    font-size: 13px;
+
+    flex-shrink: 0;
+}
 
 
+/* =========================================================
+   SELECT
+   ========================================================= */
 
-.settings-actions button {
-
-    min-width: 135px;
-
-
+.settings-option select {
+    width: 100%;
 
     height: 46px;
 
+    padding: 0 13px;
 
+    border: 1px solid #d0d5dd;
+
+    border-radius: 11px;
+
+    background: #ffffff;
+
+    color: #101828;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    outline: none;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.settings-option select:hover {
+    border-color: #a9a4ff;
+
+    background: #fcfcff;
+}
+
+
+.settings-option select:focus {
+    border-color: #635bff;
+
+    box-shadow:
+        0 0 0 3px rgba(99, 91, 255, 0.1);
+}
+
+
+/* =========================================================
+   TOGGLE ROW
+   ========================================================= */
+
+.settings-toggle-row {
+    width: 100%;
+
+    min-height: 72px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 15px 0;
+
+    border-top: 1px solid #f0f2f5;
+}
+
+
+.settings-toggle-row:last-child {
+    border-bottom: none;
+}
+
+
+/* =========================================================
+   TOGGLE ICON
+   ========================================================= */
+
+.settings-toggle-icon {
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: #f8f9fc;
+
+    color: #635bff;
+
+    font-size: 16px;
+
+    transition:
+        transform 0.25s ease,
+        background 0.25s ease;
+}
+
+
+.settings-toggle-row:hover .settings-toggle-icon {
+    transform:
+        scale(1.08)
+        rotate(-5deg);
+
+    background: #f0efff;
+}
+
+
+/* =========================================================
+   TOGGLE TEXT
+   ========================================================= */
+
+.settings-toggle-text {
+    min-width: 0;
+
+    flex: 1;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+
+.settings-toggle-text strong {
+    color: #101828;
+
+    font-size: 14px;
+
+    font-weight: 750;
+}
+
+
+.settings-toggle-text span {
+    color: #667085;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   SWITCH
+   ========================================================= */
+
+.settings-switch {
+    position: relative;
+
+    width: 52px;
+    height: 29px;
+
+    flex-shrink: 0;
+
+    padding: 0;
+
+    border: none;
+
+    border-radius: 999px;
+
+    background: #d0d5dd;
+
+    cursor: pointer;
+
+    transition:
+        background 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+.settings-switch span {
+    position: absolute;
+
+    top: 4px;
+    left: 4px;
+
+    width: 21px;
+    height: 21px;
+
+    border-radius: 50%;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.15);
+
+    transition:
+        transform 0.25s cubic-bezier(.4, 0, .2, 1);
+}
+
+
+.settings-switch.active {
+    background: #635bff;
+
+    box-shadow:
+        0 5px 14px rgba(99, 91, 255, 0.25);
+}
+
+
+.settings-switch.active span {
+    transform:
+        translateX(23px);
+}
+
+
+.settings-switch:focus-visible {
+    outline: 3px solid rgba(99, 91, 255, 0.2);
+
+    outline-offset: 2px;
+}
+
+
+/* =========================================================
+   ACCOUNT GRID
+   ========================================================= */
+
+.settings-account-grid {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 18px;
+}
+
+
+/* =========================================================
+   ACCOUNT ITEM
+   ========================================================= */
+
+.settings-account-item {
+    min-width: 0;
+
+    padding: 18px;
+
+    border-radius: 14px;
+
+    background: #f8f9fc;
+
+    border: 1px solid #edf0f6;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.settings-account-item:hover {
+    background: #f5f6fb;
+
+    border-color: #e1e4ee;
+
+    transform:
+        translateY(-1px);
+}
+
+
+.settings-account-item span {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #98a2b3;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.2px;
+}
+
+
+.settings-account-item strong {
+    display: block;
+
+    color: #101828;
+
+    font-size: 14px;
+
+    font-weight: 750;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+.settings-account-item .account-active {
+    color: #039855;
+}
+
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.settings-actions {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    gap: 14px;
+
+    margin: 28px 0 35px;
+
+    padding: 22px 0 0;
+
+    border-top: 1px solid #eaecf0;
+}
+
+
+.settings-actions button {
+    min-width: 135px;
+
+    height: 46px;
 
     padding: 0 20px;
 
-
-
     display: inline-flex;
-
-
 
     align-items: center;
 
     justify-content: center;
 
-
-
     gap: 8px;
-
-
 
     border-radius: 11px;
 
-
+    font-family: inherit;
 
     font-size: 13px;
 
-
-
     font-weight: 750;
-
-
 
     cursor: pointer;
 
-
-
     transition:
-
         transform 0.2s ease,
-
         box-shadow 0.2s ease,
-
         background 0.2s ease;
-
 }
 
 
-
-
-
-/* RESET */
-
-
+/* =========================================================
+   RESET BUTTON
+   ========================================================= */
 
 .settings-reset-btn {
-
     border: 1px solid #d0d5dd;
-
-
 
     background: #ffffff;
 
-
-
     color: #344054;
-
 }
-
-
-
 
 
 .settings-reset-btn:hover {
-
     background: #f9fafb;
 
-
-
     transform:
-
         translateY(-2px);
 
-
-
     box-shadow:
-
         0 5px 15px rgba(15, 23, 42, 0.08);
-
 }
 
 
-
-
-
-/* SAVE */
-
-
+/* =========================================================
+   SAVE BUTTON
+   ========================================================= */
 
 .settings-save-btn {
-
     border: 1px solid #635bff;
-
-
 
     background: #635bff;
 
-
-
     color: #ffffff;
 
-
-
     box-shadow:
-
         0 8px 18px rgba(99, 91, 255, 0.2);
-
 }
-
-
-
 
 
 .settings-save-btn:hover {
-
     background: #5148e5;
 
-
-
     transform:
-
         translateY(-2px);
 
-
-
     box-shadow:
-
         0 12px 25px rgba(99, 91, 255, 0.28);
-
 }
-
-
-
 
 
 .settings-save-btn:disabled {
-
     opacity: 0.65;
-
-
 
     cursor: not-allowed;
 
-
-
     transform: none;
 
-
-
     box-shadow: none;
-
 }
 
 
-
-
-
 /* =========================================================
-
    SPINNER
-
    ========================================================= */
 
-
-
 .settings-spinner {
-
     width: 15px;
-
     height: 15px;
-
-
 
     border: 2px solid rgba(255, 255, 255, 0.4);
 
-
-
     border-top-color: #ffffff;
-
-
 
     border-radius: 50%;
 
-
-
     animation:
-
         settingsSpin 0.7s linear infinite;
-
 }
 
 
-
-
-
 /* =========================================================
-
    NAVBAR STACKING
-
-   IMPORTANT FOR NOTIFICATION
-
    ========================================================= */
 
-
-
 .bb-settings-layout .navbar,
-
 .bb-settings-layout .bb-navbar {
-
     position: relative;
-
-
 
     z-index: 10000;
 
-
-
     overflow: visible !important;
-
 }
-
-
-
-
-
-/*
-
-   Make sure the navbar's notification area
-
-   appears above Settings content.
-
-*/
-
-
-
-.bb-settings-layout .notification,
-
-.bb-settings-layout .notifications,
-
-.bb-settings-layout .notification-wrapper,
-
-.bb-settings-layout .notification-container,
-
-.bb-settings-layout .navbar-notification,
-
-.bb-settings-layout .notification-dropdown {
-
-    position: relative;
-
-
-
-    z-index: 100000 !important;
-
-
-
-    overflow: visible !important;
-
-}
-
-
-
-
-
-/*
-
-   Dropdown itself must be above everything.
-
-*/
-
-
-
-.bb-settings-layout .notification-dropdown {
-
-    z-index: 999999 !important;
-
-
-
-    overflow: visible !important;
-
-}
-
-
-
 
 
 /* =========================================================
-
-   ANIMATIONS
-
+   NOTIFICATION AREA
    ========================================================= */
 
+.bb-settings-layout .notification,
+.bb-settings-layout .notifications,
+.bb-settings-layout .notification-wrapper,
+.bb-settings-layout .notification-container,
+.bb-settings-layout .navbar-notification,
+.bb-settings-layout .notification-dropdown {
+    position: relative;
 
+    z-index: 100000 !important;
 
-@keyframes settingsSlideUp {
-
-
-
-    from {
-
-        opacity: 0;
-
-
-
-        transform:
-
-            translateY(18px);
-
-    }
-
-
-
-    to {
-
-        opacity: 1;
-
-
-
-        transform:
-
-            translateY(0);
-
-    }
-
+    overflow: visible !important;
 }
 
 
+.bb-settings-layout .notification-dropdown {
+    z-index: 999999 !important;
 
+    overflow: visible !important;
+}
+
+
+/* =========================================================
+   NAVBAR INSIDE MAIN
+   PREVENT DOUBLE SIDEBAR OFFSET
+   ========================================================= */
+
+.bb-settings-main > .bb-navbar {
+    margin-left: 0 !important;
+
+    width: 100% !important;
+
+    left: 0 !important;
+}
+
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes settingsSlideUp {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(18px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0);
+    }
+}
 
 
 @keyframes settingsFloat {
 
-
-
     0%,
-
     100% {
-
         transform:
-
             translateY(0);
-
     }
-
-
 
     50% {
-
         transform:
-
             translateY(-8px);
-
     }
-
 }
-
-
-
 
 
 @keyframes settingsMainFloat {
 
-
-
     0%,
-
     100% {
-
         transform:
-
             translate(-50%, -50%)
-
             rotate(0deg);
-
     }
-
-
 
     50% {
-
         transform:
-
             translate(
-
                 -50%,
-
                 calc(-50% - 7px)
-
             )
-
             rotate(3deg);
-
     }
-
 }
-
-
-
 
 
 @keyframes settingsOrb {
 
-
-
     0%,
-
     100% {
-
         transform:
-
             translate(0, 0);
-
     }
-
-
 
     50% {
-
         transform:
-
             translate(-20px, 15px);
-
     }
-
 }
-
-
-
 
 
 @keyframes settingsRotate {
 
-
-
     from {
-
         transform:
-
             rotate(0deg);
-
     }
-
-
 
     to {
-
         transform:
-
             rotate(360deg);
-
     }
-
 }
-
-
-
 
 
 @keyframes settingsSpin {
 
-
-
     from {
-
         transform:
-
             rotate(0deg);
-
     }
-
-
 
     to {
-
         transform:
-
             rotate(360deg);
-
     }
-
 }
 
 
-
-
-
 /* =========================================================
-
    LARGE DESKTOP
-
    ========================================================= */
-
-
 
 @media (min-width: 1400px) {
 
-
-
-    .bb-settings-main {
-
-        margin-left: var(--bb-sidebar-width);
-
-
-
-        width:
-
-            calc(100% - 280px);
-
-    }
-
-
-
     .bb-settings-page {
-
-        padding:
-
-            92px 42px 65px;
-
+        padding-left: 40px;
+        padding-right: 40px;
     }
 
-
+    .bb-settings-container {
+        max-width: 1240px;
+    }
 
 }
 
 
-
-
-
 /* =========================================================
-
    LAPTOP
-
    ========================================================= */
-
-
 
 @media (max-width: 1200px) {
 
-
-
-    .bb-settings-main {
-
-        margin-left: var(--bb-sidebar-width);
-
-
-
-        width:
-
-            calc(100% - 280px);
-
-    }
-
-
-
     .bb-settings-page {
-
-        padding:
-
-            90px 28px 55px;
-
+        padding-left: 24px;
+        padding-right: 24px;
     }
 
-
+    .bb-settings-container {
+        max-width: 100%;
+    }
 
     .settings-options-grid {
-
         grid-template-columns:
-
             repeat(2, minmax(0, 1fr));
-
     }
 
-
-
     .settings-account-grid {
-
         grid-template-columns:
-
             repeat(2, minmax(0, 1fr));
-
     }
 
 }
 
 
-
-
-
 /* =========================================================
-
    TABLET
-
    ========================================================= */
-
-
 
 @media (max-width: 900px) {
 
-
-
     .bb-settings-main {
-
         margin-left: 0 !important;
 
-
-
         width: 100% !important;
-
     }
-
-
 
     .bb-settings-page {
-
         padding:
-
-            88px 22px 50px;
-
-    }
-
-
-
-    .settings-hero {
-
-        padding: 28px;
-
-    }
-
-
-
-    .settings-hero-art {
-
-        display: none;
-
-    }
-
-
-
-    .settings-options-grid {
-
-        grid-template-columns: 1fr;
-
-    }
-
-
-
-    .settings-account-grid {
-
-        grid-template-columns: 1fr;
-
-    }
-
-}
-
-
-
-
-
-/* =========================================================
-
-   MOBILE
-
-   ========================================================= */
-
-
-
-@media (max-width: 600px) {
-
-
-
-    .bb-settings-page {
-
-        padding:
-
-            82px 16px 40px;
-
-    }
-
-
-
-    .settings-card {
-
-        padding: 20px;
-
-
-
-        border-radius: 17px;
-
-    }
-
-
-
-    .settings-hero {
-
-        min-height: 180px;
-
-
-
-        padding: 24px;
-
-
-
-        border-radius: 19px;
-
-    }
-
-
-
-    .settings-hero h1 {
-
-        font-size: 30px;
-
-    }
-
-
-
-    .settings-toggle-row {
-
-        align-items: flex-start;
-
-    }
-
-
-
-    .settings-toggle-icon {
-
-        width: 38px;
-
-        height: 38px;
-
-    }
-
-
-
-    .settings-actions {
-
-        flex-direction: column-reverse;
-
-
-
-        align-items: stretch;
-
-    }
-
-
-
-    .settings-actions button {
-
-        width: 100%;
-
-    }
-
-
-
-    /*
-
-       Notification dropdown on small screens.
-
-    */
-
-
-
-    .bb-settings-layout .notification-dropdown {
-
-        position: fixed !important;
-
-
-
-        top: 70px !important;
-
-
-
-        right: 12px !important;
-
-
-
-        left: auto !important;
-
-
-
-        width:
-
-            min(360px, calc(100vw - 24px)) !important;
-
-
-
-        min-width: 0 !important;
-
-
-
-        max-width:
-
-            calc(100vw - 24px) !important;
-
-
-
-        z-index: 999999 !important;
-
-    }
-
-}
-
-
-
-
-
-/* =========================================================
-
-   GLOBAL BOX SIZING
-
-   ========================================================= */
-
-
-
-.bb-settings-layout *,
-
-.bb-settings-page,
-
-.settings-card,
-
-.settings-hero,
-
-.settings-options-grid,
-
-.settings-account-grid,
-
-.settings-actions {
-
-    box-sizing: border-box;
-
-}
-
-/* Keep the settings page's Navbar inside its already-offset content shell.
-   The shared Navbar must not apply the sidebar offset a second time. */
-.bb-settings-main > .bb-navbar {
-    margin-left: 0 !important;
-    width: 100% !important;
-    left: 0 !important;
-}
-
-@media (max-width: 900px) {
-    .bb-settings-main {
-        width: 100%;
-        margin-left: 0;
+            88px 18px 50px;
     }
 
     .bb-settings-main > .bb-navbar {
         width: 100% !important;
+
         margin-left: 0 !important;
     }
+
+    .settings-hero {
+        padding: 28px;
+    }
+
+    .settings-hero-art {
+        display: none;
+    }
+
+    .settings-options-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-account-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .bb-settings-page {
+        padding:
+            82px 12px 40px;
+    }
+
+    .bb-settings-container {
+        max-width: 100%;
+    }
+
+    .settings-card {
+        padding: 20px;
+
+        border-radius: 17px;
+    }
+
+    .settings-card-header {
+        gap: 12px;
+
+        margin-bottom: 20px;
+    }
+
+    .settings-card-icon {
+        width: 42px;
+        height: 42px;
+
+        border-radius: 12px;
+
+        font-size: 17px;
+    }
+
+    .settings-card-header h2 {
+        font-size: 19px;
+    }
+
+    .settings-card-header p {
+        font-size: 12px;
+    }
+
+    .settings-hero {
+        min-height: 180px;
+
+        padding: 24px;
+
+        border-radius: 19px;
+    }
+
+    .settings-hero h1 {
+        font-size: 30px;
+    }
+
+    .settings-hero p {
+        font-size: 13px;
+    }
+
+    .settings-toggle-row {
+        align-items: flex-start;
+    }
+
+    .settings-toggle-icon {
+        width: 38px;
+        height: 38px;
+    }
+
+    .settings-toggle-text strong {
+        font-size: 13px;
+    }
+
+    .settings-toggle-text span {
+        font-size: 11px;
+    }
+
+    .settings-switch {
+        width: 48px;
+        height: 27px;
+    }
+
+    .settings-switch span {
+        width: 19px;
+        height: 19px;
+
+        top: 4px;
+        left: 4px;
+    }
+
+    .settings-switch.active span {
+        transform:
+            translateX(21px);
+    }
+
+    .settings-actions {
+        flex-direction: column-reverse;
+
+        align-items: stretch;
+    }
+
+    .settings-actions button {
+        width: 100%;
+    }
+
+    /* Notification dropdown */
+
+    .bb-settings-layout .notification-dropdown {
+        position: fixed !important;
+
+        top: 70px !important;
+
+        right: 12px !important;
+
+        left: auto !important;
+
+        width:
+            min(360px, calc(100vw - 24px)) !important;
+
+        min-width: 0 !important;
+
+        max-width:
+            calc(100vw - 24px) !important;
+
+        z-index: 999999 !important;
+    }
+
 }
