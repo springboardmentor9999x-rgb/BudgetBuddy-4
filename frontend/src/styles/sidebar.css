@@ -1,0 +1,352 @@
+/* =========================================================
+   BUDGETBUDDY SIDEBAR
+   FIXED 240px
+   ========================================================= */
+
+.sidebar {
+    position: fixed;
+
+    left: 0;
+    top: 0;
+
+    width: var(--bb-sidebar-width);
+    height: 100vh;
+
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 24px 14px;
+
+    background: #0f172a;
+
+    color: #ffffff;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    z-index: 1000;
+
+    scrollbar-width: thin;
+}
+
+
+/* =========================================================
+   BRAND
+   ========================================================= */
+
+.sidebar-brand {
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    padding: 4px 8px 25px;
+
+    border-bottom: 1px solid rgba(255,255,255,.08);
+
+    margin-bottom: 20px;
+}
+
+
+.sidebar-brand-icon {
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: #2563eb;
+
+    color: #ffffff;
+
+    font-size: 20px;
+    font-weight: 800;
+
+    box-shadow:
+        0 8px 20px rgba(37,99,235,.25);
+}
+
+
+.sidebar-brand-text {
+    min-width: 0;
+}
+
+
+.sidebar-logo {
+    color: #ffffff;
+
+    font-size: 17px;
+
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+
+.sidebar-subtitle {
+    margin-top: 2px;
+
+    color: #94a3b8;
+
+    font-size: 9px;
+
+    letter-spacing: .5px;
+}
+
+
+/* =========================================================
+   SECTION TITLE
+   ========================================================= */
+
+.sidebar-section-title {
+    padding: 0 10px;
+
+    margin: 0 0 9px;
+
+    color: #64748b;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.3px;
+}
+
+
+.sidebar-section-title.admin-title {
+    margin-top: 17px;
+
+    color: #60a5fa;
+}
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+.sidebar-navigation {
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.sidebar-link {
+    width: 100%;
+
+    min-width: 0;
+
+    box-sizing: border-box;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    padding: 10px 11px;
+
+    margin-bottom: 4px;
+
+    border-radius: 10px;
+
+    color: #cbd5e1;
+
+    text-decoration: none;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    transition:
+        background .2s ease,
+        color .2s ease,
+        transform .2s ease;
+}
+
+
+.sidebar-link:hover {
+    background: #1e293b;
+
+    color: #ffffff;
+
+    transform: translateX(3px);
+}
+
+
+.sidebar-link.active {
+    background: #2563eb;
+
+    color: #ffffff;
+
+    box-shadow:
+        0 6px 16px rgba(37,99,235,.22);
+}
+
+
+.sidebar-link-icon {
+    width: 22px;
+
+    flex: 0 0 22px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-size: 14px;
+}
+
+
+.sidebar-link-text {
+    min-width: 0;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   DIVIDER
+   ========================================================= */
+
+.sidebar-divider {
+    height: 1px;
+
+    margin: 12px 8px;
+
+    background: rgba(255,255,255,.08);
+}
+
+
+/* =========================================================
+   BOTTOM
+   ========================================================= */
+
+.sidebar-bottom {
+    margin-top: auto;
+
+    padding-top: 14px;
+
+    border-top: 1px solid rgba(255,255,255,.08);
+}
+
+
+.sidebar-logout {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    padding: 10px 11px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #dc2626;
+
+    color: #ffffff;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background .2s ease,
+        transform .2s ease;
+}
+
+
+.sidebar-logout:hover {
+    background: #b91c1c;
+
+    transform: translateX(3px);
+}
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #334155;
+
+    border-radius: 10px;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+/* =========================================================
+   MOBILE NAVIGATION DRAWER
+   ========================================================= */
+/* Below 900px the sidebar is NOT removed from display - it becomes
+   an off-canvas drawer (see final.css's translateX(-100%) / .sidebar-open
+   rules) toggled by the hamburger button below. It previously used
+   `display:none` here, which permanently hid the drawer and made the
+   hamburger toggle a no-op on every phone/tablet width. */
+.mobile-menu-toggle {
+    display: none;
+}
+
+.sidebar-backdrop {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .mobile-menu-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        border: 1px solid rgba(15, 23, 42, .12);
+        border-radius: 10px;
+        background: #ffffff;
+        color: #0f172a;
+        font-size: 20px;
+        cursor: pointer;
+        flex: 0 0 auto;
+    }
+
+    .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        border: 0;
+        background: rgba(15, 23, 42, .45);
+        z-index: 1999;
+        cursor: pointer;
+    }
+
+    .sidebar.sidebar-open {
+        transform: translateX(0) !important;
+    }
+}

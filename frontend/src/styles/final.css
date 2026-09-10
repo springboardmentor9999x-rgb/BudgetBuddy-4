@@ -1,0 +1,266 @@
+ /* =========================================================
+    BUDGETBUDDY GLOBAL / FINAL CSS
+    Keep this file GLOBAL ONLY.
+    Sidebar + Dashboard layout are handled separately.
+    ========================================================= */
+
+
+/* =========================================================
+   DASHBOARD CARDS
+   ========================================================= */
+
+.dashboard-card {
+    border: none;
+
+    border-radius: 18px;
+
+    transition: .3s;
+
+    box-shadow:
+        0 6px 15px rgba(0, 0, 0, .08);
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+
+/* =========================================================
+   QUICK ACTIONS
+   ========================================================= */
+
+.quick-btn {
+    min-width: 150px;
+}
+
+
+/* =========================================================
+   PROGRESS
+   ========================================================= */
+
+.progress {
+    height: 28px;
+
+    border-radius: 20px;
+}
+
+.progress-bar {
+    font-weight: bold;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+footer {
+    margin-top: 60px;
+}
+
+
+/* =========================================================
+   NAVBAR — ONLY GENERIC NAVBAR STYLE
+   ========================================================= */
+
+.navbar {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.navbar button {
+    border-radius: 10px;
+}
+
+
+/* =========================================================
+   RESPONSIVE GLOBAL
+   ========================================================= */
+
+@media (max-width: 992px) {
+
+    .main-content {
+        margin-left: 0 !important;
+    }
+
+}
+
+/* =========================================================
+   BUDGETBUDDY - NAVBAR SAFE AREA
+   ========================================================= */
+/* --bb-sidebar-width is defined once, in global.css. This file
+   (loaded on every page via the Sidebar component) must only
+   read that variable - redeclaring it here with different
+   values than global.css/sidebar.css previously caused the
+   sidebar's actual rendered width to drift out of sync with
+   the width other pages assumed it had. */
+
+.navbar,
+.app-navbar,
+.top-navbar,
+.dashboard-navbar {
+  margin-left: var(--bb-sidebar-width);
+  width: calc(100% - var(--bb-sidebar-width));
+  box-sizing: border-box;
+}
+
+/* If navbar is fixed */
+.navbar,
+.app-navbar,
+.top-navbar,
+.dashboard-navbar {
+  left: var(--bb-sidebar-width);
+  right: 0;
+}
+
+/* Tablet */
+@media (max-width: 1100px) {
+  .navbar,
+  .app-navbar,
+  .top-navbar,
+  .dashboard-navbar {
+    margin-left: var(--bb-sidebar-width);
+    width: calc(100% - var(--bb-sidebar-width));
+    left: var(--bb-sidebar-width);
+  }
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+  .navbar,
+  .app-navbar,
+  .top-navbar,
+  .dashboard-navbar {
+    margin-left: 0;
+    width: 100%;
+    left: 0;
+  }
+}
+/* BudgetBuddy final global shell: one fixed sidebar and one content offset.
+   --bb-sidebar-width comes solely from global.css / the JS collapse toggle. */
+
+.sidebar {
+  position: fixed !important;
+  left: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: var(--bb-sidebar-width) !important;
+  height: 100vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  z-index: 2000 !important;
+}
+
+.bb-navbar, .navbar, .app-navbar, .top-navbar, .dashboard-navbar {
+  margin-left: var(--bb-sidebar-width) !important;
+  width: calc(100% - var(--bb-sidebar-width)) !important;
+  left: 0 !important;
+}
+
+.profile-page, .bb-admin-page, .bb-analytics-page {
+  margin-left: var(--bb-sidebar-width) !important;
+  width: calc(100% - var(--bb-sidebar-width)) !important;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 270px !important;
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+  }
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+  .bb-navbar, .navbar, .app-navbar, .top-navbar, .dashboard-navbar,
+  .profile-page, .bb-admin-page, .bb-analytics-page {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* ---------------------------------------------------------
+   SIDEBAR COLLAPSE (icon rail) - additive only, driven by the
+   --bb-sidebar-width variable already used everywhere above.
+   Nothing here changes on pages that never toggle collapse.
+--------------------------------------------------------- */
+.sidebar-collapse-toggle {
+  position: absolute;
+  top: 14px;
+  right: -14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #d8deea;
+  background: #fff;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2100;
+  box-shadow: 0 2px 6px rgba(16, 24, 40, 0.12);
+  font-size: 12px;
+}
+.sidebar-collapse-toggle:hover { background: #f5f7fb; }
+
+/* Desktop/laptop only - mobile keeps the existing full-width drawer
+   behavior untouched, so nothing changes there. */
+@media (min-width: 901px) {
+  .sidebar.sidebar-collapsed {
+    width: 76px !important;
+    overflow: visible;
+  }
+  .sidebar.sidebar-collapsed .sidebar-brand-text,
+  .sidebar.sidebar-collapsed .sidebar-account-card > div:not(.sidebar-account-top),
+  .sidebar.sidebar-collapsed .sidebar-account-status,
+  .sidebar.sidebar-collapsed .sidebar-account-top > div,
+  .sidebar.sidebar-collapsed .sidebar-section-title,
+  .sidebar.sidebar-collapsed .sidebar-link-text {
+    display: none !important;
+  }
+  .sidebar.sidebar-collapsed .sidebar-brand,
+  .sidebar.sidebar-collapsed .sidebar-link,
+  .sidebar.sidebar-collapsed .sidebar-logout,
+  .sidebar.sidebar-collapsed .sidebar-account-top {
+    justify-content: center;
+  }
+  .sidebar.sidebar-collapsed .sidebar-link,
+  .sidebar.sidebar-collapsed .sidebar-logout {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+
+/* =========================================================
+   CONSISTENT PAGE CONTAINERS
+   Every fixed-sidebar page uses the same remaining viewport width.
+   This prevents 240px/280px/100vw drift and accidental horizontal
+   gaps when the sidebar is collapsed.
+   ========================================================= */
+
+.bb-bank-page,
+.budget-page,
+.bb-savings-page,
+.reports-page,
+.transactions-page,
+.profile-page,
+.bb-admin-page,
+.bb-analytics-page {
+  margin-left: var(--bb-sidebar-width) !important;
+  width: calc(100% - var(--bb-sidebar-width)) !important;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .bb-bank-page,
+  .budget-page,
+  .bb-savings-page,
+  .reports-page,
+  .transactions-page,
+  .profile-page,
+  .bb-admin-page,
+  .bb-analytics-page {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+}

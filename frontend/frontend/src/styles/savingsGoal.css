@@ -1,0 +1,1324 @@
+/* =========================================================
+   SAVINGS GOALS PAGE
+   IMPORTANT:
+   Sidebar is already fixed on the left.
+   This page must occupy the remaining viewport directly.
+   ========================================================= */
+
+main.bb-savings-page {
+    position: relative !important;
+
+    /* DO NOT add another large left offset */
+    margin: 0 !important;
+
+    padding: 28px 48px 60px !important;
+
+    width: calc(100vw - var(--bb-sidebar-width)) !important;
+    max-width: none !important;
+
+    min-height: calc(100vh - 90px);
+
+    box-sizing: border-box !important;
+
+    background: #f5f7ff;
+
+    left: var(--bb-sidebar-width) !important;
+}
+
+
+/* =========================================================
+   CRITICAL SECTION RESET
+   This is the actual fix for your 400–500px gap.
+   ========================================================= */
+
+main.bb-savings-page > section {
+    position: relative !important;
+
+    left: 0 !important;
+    right: auto !important;
+
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+
+    width: 100% !important;
+    max-width: none !important;
+
+    transform: none !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.bb-savings-header {
+    min-height: 185px;
+
+    padding: 36px 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-radius: 28px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f0efff 0%,
+            #f7f5ff 55%,
+            #eeeeff 100%
+        );
+
+    border: 1px solid rgba(105, 91, 255, 0.16);
+
+    box-shadow:
+        0 15px 40px rgba(79, 70, 229, 0.08);
+
+    margin-bottom: 28px !important;
+
+    animation: savingsFadeDown 0.55s ease;
+
+    box-sizing: border-box;
+}
+
+
+.bb-savings-eyebrow {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #635bff;
+
+    font-size: 14px;
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+}
+
+
+.bb-savings-header h1 {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: clamp(34px, 3vw, 48px);
+
+    font-weight: 800;
+
+    line-height: 1.1;
+}
+
+
+.bb-savings-header p {
+    margin: 10px 0 0;
+
+    color: #667085;
+
+    font-size: 17px;
+
+    line-height: 1.5;
+}
+
+
+.bb-savings-header-icon {
+    width: 92px;
+    height: 92px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 26px;
+
+    background: white;
+
+    font-size: 48px;
+
+    box-shadow:
+        0 15px 35px rgba(79, 70, 229, 0.12);
+
+    animation: targetFloat 3s ease-in-out infinite;
+}
+
+
+/* =========================================================
+   CREATE GOAL CARD
+   ========================================================= */
+
+.bb-goal-create-card {
+    padding: 32px 36px;
+
+    background: #ffffff;
+
+    border-radius: 26px;
+
+    box-shadow:
+        0 12px 35px rgba(15, 23, 42, 0.07);
+
+    margin-bottom: 38px !important;
+
+    animation: savingsFadeUp 0.6s ease;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   CREATE HEADING
+   ========================================================= */
+
+.bb-create-heading {
+    display: flex;
+    align-items: center;
+
+    gap: 18px;
+
+    margin-bottom: 26px;
+}
+
+
+.bb-create-icon {
+    width: 56px;
+    height: 56px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #635bff,
+            #7c4dff
+        );
+
+    color: white;
+
+    font-size: 32px;
+    font-weight: 300;
+
+    box-shadow:
+        0 10px 25px rgba(99, 91, 255, 0.25);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+.bb-create-icon:hover {
+    transform: scale(1.08) rotate(4deg);
+
+    box-shadow:
+        0 14px 30px rgba(99, 91, 255, 0.35);
+}
+
+
+.bb-create-heading h3 {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: 24px;
+
+    font-weight: 800;
+}
+
+
+.bb-create-heading p {
+    margin: 4px 0 0;
+
+    color: #667085;
+
+    font-size: 15px;
+}
+
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.bb-goal-form {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(220px, 1.5fr)
+        minmax(180px, 1fr)
+        minmax(180px, 1fr)
+        minmax(170px, auto);
+
+    gap: 18px;
+
+    align-items: end;
+
+    box-sizing: border-box;
+}
+
+
+.bb-field {
+    min-width: 0;
+}
+
+
+.bb-field label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #344054;
+
+    font-size: 14px;
+
+    font-weight: 700;
+}
+
+
+.bb-field input {
+    width: 100%;
+    height: 60px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #d9deea;
+
+    border-radius: 15px;
+
+    background: #fbfcff;
+
+    padding: 0 18px;
+
+    color: #101828;
+
+    font-size: 16px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.bb-field input::placeholder {
+    color: #98a2b3;
+}
+
+
+.bb-field input:focus {
+    border-color: #635bff;
+
+    background: white;
+
+    box-shadow:
+        0 0 0 4px rgba(99, 91, 255, 0.10);
+}
+
+
+/* =========================================================
+   MONEY INPUT
+   ========================================================= */
+
+.bb-input-money {
+    position: relative;
+
+    width: 100%;
+}
+
+
+.bb-input-money > span {
+    position: absolute;
+
+    left: 18px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    color: #635bff;
+
+    font-size: 18px;
+
+    font-weight: 800;
+
+    z-index: 2;
+
+    pointer-events: none;
+}
+
+
+.bb-input-money input {
+    padding-left: 44px;
+}
+
+
+/* =========================================================
+   CREATE BUTTON
+   ========================================================= */
+
+.bb-create-goal-btn {
+    height: 60px;
+
+    border: none;
+
+    border-radius: 15px;
+
+    padding: 0 24px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #635bff,
+            #7c4dff
+        );
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    box-shadow:
+        0 10px 24px rgba(99, 91, 255, 0.25);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.bb-create-goal-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 15px 30px rgba(99, 91, 255, 0.35);
+}
+
+
+.bb-create-goal-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+
+.bb-create-goal-btn:disabled {
+    opacity: 0.7;
+
+    cursor: not-allowed;
+}
+
+
+.bb-create-goal-btn span {
+    margin-left: 8px;
+
+    font-size: 19px;
+}
+
+
+/* =========================================================
+   BUTTON SPINNER
+   ========================================================= */
+
+.bb-button-spinner {
+    width: 16px;
+    height: 16px;
+
+    display: inline-block;
+
+    margin-right: 8px;
+
+    border: 2px solid rgba(255,255,255,0.4);
+
+    border-top-color: white;
+
+    border-radius: 50%;
+
+    animation: savingsSpin 0.7s linear infinite;
+
+    vertical-align: middle;
+}
+
+
+/* =========================================================
+   GOALS SECTION
+   ========================================================= */
+
+.bb-goals-section {
+    animation: savingsFadeUp 0.7s ease;
+}
+
+
+.bb-section-heading {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 20px;
+}
+
+
+.bb-section-heading span {
+    display: block;
+
+    color: #635bff;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+
+    margin-bottom: 5px;
+}
+
+
+.bb-section-heading h2 {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: 30px;
+
+    font-weight: 800;
+}
+
+
+.bb-goal-count {
+    padding: 10px 18px;
+
+    border-radius: 999px;
+
+    background: #efedff;
+
+    color: #635bff;
+
+    font-size: 14px;
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   GOAL GRID
+   ========================================================= */
+
+.bb-goals-grid {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(300px, 1fr));
+
+    gap: 22px;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   GOAL CARD
+   ========================================================= */
+
+.bb-goal-card {
+    position: relative;
+
+    overflow: hidden;
+
+    padding: 26px;
+
+    background: white;
+
+    border-radius: 24px;
+
+    border: 1px solid #edf0f6;
+
+    box-shadow:
+        0 10px 28px rgba(15, 23, 42, 0.06);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+
+    animation: goalCardIn 0.5s ease both;
+
+    box-sizing: border-box;
+}
+
+
+.bb-goal-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+    right: 0;
+
+    height: 4px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #635bff,
+            #8b5cf6
+        );
+}
+
+
+.bb-goal-card:hover {
+    transform: translateY(-5px);
+
+    box-shadow:
+        0 18px 40px rgba(15, 23, 42, 0.10);
+}
+
+
+.bb-goal-card.completed::before {
+    background:
+        linear-gradient(
+            90deg,
+            #12b76a,
+            #32d583
+        );
+}
+
+
+/* =========================================================
+   GOAL TOP
+   ========================================================= */
+
+.bb-goal-top {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-start;
+
+    gap: 15px;
+
+    margin-bottom: 25px;
+}
+
+
+.bb-goal-title-wrap {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    min-width: 0;
+}
+
+
+.bb-goal-icon {
+    width: 48px;
+    height: 48px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 15px;
+
+    background: #f0efff;
+
+    font-size: 25px;
+}
+
+
+.bb-goal-card.completed .bb-goal-icon {
+    background: #ecfdf3;
+
+    color: #12b76a;
+}
+
+
+.bb-goal-title-wrap h3 {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: 19px;
+
+    font-weight: 800;
+
+    word-break: break-word;
+}
+
+
+.bb-goal-title-wrap span {
+    display: block;
+
+    margin-top: 3px;
+
+    color: #98a2b3;
+
+    font-size: 13px;
+}
+
+
+.bb-completed-badge {
+    padding: 6px 10px;
+
+    border-radius: 999px;
+
+    background: #ecfdf3;
+
+    color: #039855;
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   AMOUNTS
+   ========================================================= */
+
+.bb-goal-amounts {
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 24px;
+}
+
+
+.bb-amount-label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #98a2b3;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+
+.bb-goal-amounts strong {
+    color: #101828;
+
+    font-size: 22px;
+
+    font-weight: 800;
+}
+
+
+.bb-saved-amount {
+    color: #635bff !important;
+}
+
+
+.bb-target-amount {
+    text-align: right;
+}
+
+
+/* =========================================================
+   PROGRESS
+   ========================================================= */
+
+.bb-progress-area {
+    margin-bottom: 14px;
+}
+
+
+.bb-progress-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 8px;
+
+    color: #667085;
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+
+.bb-progress-header strong {
+    color: #635bff;
+
+    font-size: 14px;
+}
+
+
+.bb-progress-track {
+    width: 100%;
+
+    height: 11px;
+
+    overflow: hidden;
+
+    border-radius: 999px;
+
+    background: #eaecf0;
+}
+
+
+.bb-progress-fill {
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            #635bff,
+            #8b5cf6
+        );
+
+    transition:
+        width 0.7s cubic-bezier(.22,1,.36,1);
+}
+
+
+.bb-goal-card.completed .bb-progress-fill {
+    background:
+        linear-gradient(
+            90deg,
+            #12b76a,
+            #32d583
+        );
+}
+
+
+/* =========================================================
+   REMAINING
+   ========================================================= */
+
+.bb-remaining {
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-top: 12px;
+
+    color: #667085;
+
+    font-size: 13px;
+}
+
+
+.bb-remaining span:last-child {
+    color: #635bff;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   COMPLETE MESSAGE
+   ========================================================= */
+
+.bb-complete-message {
+    margin-top: 12px;
+
+    padding: 11px 13px;
+
+    border-radius: 12px;
+
+    background: #ecfdf3;
+
+    color: #027a48;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    animation: congratulationsPop 0.45s ease;
+}
+
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.bb-goal-actions {
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 22px;
+}
+
+
+.bb-add-progress-btn,
+.bb-delete-goal-btn {
+    flex: 1;
+
+    height: 42px;
+
+    border-radius: 11px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.bb-add-progress-btn {
+    border: 1px solid #635bff;
+
+    background: #f7f5ff;
+
+    color: #635bff;
+}
+
+
+.bb-add-progress-btn:hover:not(:disabled) {
+    background: #635bff;
+
+    color: white;
+
+    transform: translateY(-1px);
+}
+
+
+.bb-add-progress-btn:disabled {
+    opacity: 0.5;
+
+    cursor: not-allowed;
+}
+
+
+.bb-delete-goal-btn {
+    border: 1px solid #fecdca;
+
+    background: #fff5f4;
+
+    color: #d92d20;
+}
+
+
+.bb-delete-goal-btn:hover {
+    background: #fee4e2;
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.bb-empty-goals {
+    padding: 55px 30px;
+
+    text-align: center;
+
+    background: white;
+
+    border-radius: 24px;
+
+    box-shadow:
+        0 10px 30px rgba(15, 23, 42, 0.05);
+
+    animation: savingsFadeUp 0.5s ease;
+
+    box-sizing: border-box;
+}
+
+
+.bb-empty-icon {
+    font-size: 48px;
+
+    margin-bottom: 10px;
+
+    animation: targetFloat 3s ease-in-out infinite;
+}
+
+
+.bb-empty-goals h3 {
+    margin: 0 0 7px;
+
+    color: #101828;
+
+    font-size: 22px;
+}
+
+
+.bb-empty-goals p {
+    margin: 0;
+
+    color: #667085;
+}
+
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.bb-savings-loading {
+    width: 100%;
+
+    min-height: 150px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes savingsFadeDown {
+
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+@keyframes savingsFadeUp {
+
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+@keyframes goalCardIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+@keyframes targetFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+
+@keyframes congratulationsPop {
+
+    0% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    70% {
+        transform: scale(1.02);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+@keyframes savingsSpin {
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+    main.bb-savings-page {
+        left: 280px !important;
+
+        width: calc(100vw - 280px) !important;
+
+        padding: 25px 30px 50px !important;
+    }
+
+
+    .bb-goal-form {
+        grid-template-columns:
+            1.5fr
+            1fr
+            1fr;
+    }
+
+
+    .bb-create-goal-btn {
+        grid-column: 1 / -1;
+    }
+}
+
+
+@media (max-width: 900px) {
+
+    main.bb-savings-page {
+        left: 0 !important;
+
+        width: 100% !important;
+
+        padding: 25px !important;
+    }
+
+
+    .bb-goal-form {
+        grid-template-columns: 1fr;
+    }
+
+
+    .bb-create-goal-btn {
+        grid-column: auto;
+    }
+
+
+    .bb-savings-header {
+        padding: 28px;
+
+        min-height: auto;
+    }
+
+
+    .bb-savings-header-icon {
+        width: 70px;
+        height: 70px;
+
+        font-size: 36px;
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    main.bb-savings-page {
+        padding: 18px !important;
+    }
+
+
+    .bb-savings-header {
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 20px;
+
+        padding: 25px;
+    }
+
+
+    .bb-savings-header-icon {
+        align-self: flex-end;
+    }
+
+
+    .bb-goal-create-card {
+        padding: 24px 20px;
+    }
+
+
+    .bb-create-heading h3 {
+        font-size: 20px;
+    }
+
+
+    .bb-section-heading h2 {
+        font-size: 25px;
+    }
+
+
+    .bb-goals-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* =========================================================
+   ABSOLUTE FINAL OVERRIDE
+   ========================================================= */
+
+/*
+   If another global stylesheet contains something like:
+
+       section {
+           margin-left: ...;
+       }
+
+   or:
+
+       section {
+           transform: ...;
+       }
+
+   this block wins for Savings Goals.
+*/
+
+main.bb-savings-page,
+main.bb-savings-page > section,
+main.bb-savings-page > section.bb-savings-header,
+main.bb-savings-page > section.bb-goal-create-card,
+main.bb-savings-page > section.bb-goals-section,
+main.bb-savings-page > section.bb-empty-goals {
+
+    left: 0 !important;
+
+    right: auto !important;
+
+    margin-left: 0 !important;
+
+    margin-right: 0 !important;
+
+    transform: none !important;
+
+    max-width: none !important;
+}
+
+
+main.bb-savings-page > section.bb-savings-header,
+main.bb-savings-page > section.bb-goal-create-card,
+main.bb-savings-page > section.bb-goals-section,
+main.bb-savings-page > section.bb-empty-goals {
+
+    width: 100% !important;
+
+    box-sizing: border-box !important;
+}
+
+/* =========================================================
+   FINAL SIDEBAR / CONTENT LAYOUT FIX
+   ========================================================= */
+
+main.bb-savings-page {
+    position: relative !important;
+
+    /* Reserve the sidebar space instead of shifting underneath it */
+    margin-left: var(--bb-sidebar-width) !important;
+
+    left: auto !important;
+    right: auto !important;
+
+    width: calc(100% - var(--bb-sidebar-width)) !important;
+    max-width: none !important;
+
+    min-height: 100vh;
+
+    box-sizing: border-box !important;
+
+    /* Keep content below the fixed navbar */
+    padding: 100px 48px 60px !important;
+
+    overflow-x: hidden;
+}
+
+
+/* Keep every section inside the available content width */
+main.bb-savings-page > section {
+    position: relative !important;
+
+    left: auto !important;
+    right: auto !important;
+
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+
+    width: 100% !important;
+    max-width: none !important;
+
+    transform: none !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    main.bb-savings-page {
+        margin-left: 0 !important;
+        left: auto !important;
+
+        width: 100% !important;
+
+        padding: 90px 25px 50px !important;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    main.bb-savings-page {
+        margin-left: 0 !important;
+
+        width: 100% !important;
+
+        padding: 85px 18px 40px !important;
+    }
+
+}

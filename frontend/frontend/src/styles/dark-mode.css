@@ -1,0 +1,476 @@
+
+/* =========================================================
+   BUDGETBUDDY — COMPLETE DARK MODE OVERRIDES
+   Loaded last so legacy component styles cannot paint white
+   containers over the dark application surface.
+   ========================================================= */
+
+body.dark-mode {
+    --bb-bg: #090f1d;
+    --bb-surface: #111827;
+    --bb-surface-soft: #172033;
+    --bb-text: #f8fafc;
+    --bb-text-light: #cbd5e1;
+    --bb-muted: #94a3b8;
+    --bb-border: #293548;
+
+    background: #090f1d !important;
+    color: #e5e7eb !important;
+}
+
+body.dark-mode,
+body.dark-mode #root,
+body.dark-mode .app-shell,
+body.dark-mode .app-main {
+    background-color: #090f1d !important;
+}
+
+body.dark-mode .page-content,
+body.dark-mode .dashboard-page,
+body.dark-mode .income-page,
+body.dark-mode .expense-page,
+body.dark-mode .budget-page,
+body.dark-mode .bb-bank-page,
+body.dark-mode .bb-savings-page,
+body.dark-mode .reports-page,
+body.dark-mode .bb-analytics-page,
+body.dark-mode .transactions-page,
+body.dark-mode .profile-page,
+body.dark-mode .bb-admin-page,
+body.dark-mode .bb-settings-page,
+body.dark-mode .transaction-history-page {
+    background: #090f1d !important;
+    color: #e5e7eb;
+}
+
+/* Shared surfaces */
+body.dark-mode .card,
+body.dark-mode .bb-card,
+body.dark-mode .bb-stat-card,
+body.dark-mode .dashboard-card,
+body.dark-mode .profile-card,
+body.dark-mode .profile-subscription,
+body.dark-mode .settings-card,
+body.dark-mode .reports-toolbar,
+body.dark-mode .reports-panel,
+body.dark-mode .reports-kpi-strip div,
+body.dark-mode .transaction-toolbar,
+body.dark-mode .transaction-table-card,
+body.dark-mode .tx-kpi,
+body.dark-mode .expense-create-card,
+body.dark-mode .expense-list-card,
+body.dark-mode .income-create-card,
+body.dark-mode .income-list-card,
+body.dark-mode .bb-bank-card,
+body.dark-mode .bb-bank-form-card,
+body.dark-mode .bb-goal-card,
+body.dark-mode .bb-savings-form-card,
+body.dark-mode .budget-card,
+body.dark-mode .budget-overview-card,
+body.dark-mode .budget-form-card,
+body.dark-mode .budget-list-card {
+    background: #111827 !important;
+    color: #e5e7eb !important;
+    border-color: #293548 !important;
+}
+
+/* Do not darken intentionally coloured hero/stat cards. */
+body.dark-mode .dashboard-hero,
+body.dark-mode .reports-hero,
+body.dark-mode .transactions-hero,
+body.dark-mode .bb-admin-hero,
+body.dark-mode .income-page-header,
+body.dark-mode .expense-page-header {
+    color: #fff !important;
+}
+
+/* Typography */
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6,
+body.dark-mode strong,
+body.dark-mode .bb-page-title,
+body.dark-mode .bb-navbar-welcome strong,
+body.dark-mode .bb-user-name,
+body.dark-mode .profile-card h2,
+body.dark-mode .profile-title,
+body.dark-mode .settings-card-heading h2,
+body.dark-mode .panel-head h2,
+body.dark-mode .reports-loading h2,
+body.dark-mode .transaction-table-head h2,
+body.dark-mode .tx-main strong,
+body.dark-mode .tx-kpi strong,
+body.dark-mode .bb-admin-stat strong,
+body.dark-mode .bb-admin-finance-grid strong {
+    color: #f8fafc !important;
+}
+
+body.dark-mode p,
+body.dark-mode small,
+body.dark-mode .bb-page-subtitle,
+body.dark-mode .profile-card p,
+body.dark-mode .settings-card-heading p,
+body.dark-mode .settings-toggle-text span,
+body.dark-mode .panel-head span,
+body.dark-mode .panel-note,
+body.dark-mode .transaction-table-wrap td,
+body.dark-mode .transaction-table-wrap td small,
+body.dark-mode .tx-main small,
+body.dark-mode .reports-category-list div,
+body.dark-mode .reports-insight-grid p,
+body.dark-mode .bb-admin-stat small,
+body.dark-mode .bb-admin-finance-grid p {
+    color: #94a3b8 !important;
+}
+
+/* Forms */
+body.dark-mode input:not([type="checkbox"]):not([type="radio"]),
+body.dark-mode select,
+body.dark-mode textarea,
+body.dark-mode .form-control,
+body.dark-mode .form-select,
+body.dark-mode .tx-search,
+body.dark-mode .tx-filter,
+body.dark-mode .income-input-with-symbol,
+body.dark-mode .expense-input-with-symbol,
+body.dark-mode .bb-money-input,
+body.dark-mode .bb-input-money,
+body.dark-mode .budget-input-wrap,
+body.dark-mode .custom-month-input > div {
+    background: #0f172a !important;
+    color: #e5e7eb !important;
+    border-color: #334155 !important;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+    color: #64748b !important;
+}
+
+body.dark-mode input:read-only {
+    background: #172033 !important;
+}
+
+body.dark-mode option {
+    background: #111827;
+    color: #f8fafc;
+}
+
+body.dark-mode label,
+body.dark-mode .settings-field label,
+body.dark-mode .bb-bank-field label,
+body.dark-mode .income-field label,
+body.dark-mode .expense-field label,
+body.dark-mode .bb-field label,
+body.dark-mode .budget-input-group label {
+    color: #e2e8f0 !important;
+}
+
+/* Tables */
+body.dark-mode table,
+body.dark-mode .table {
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .table > :not(caption) > * > *,
+body.dark-mode .bb-table th,
+body.dark-mode .bb-table td {
+    border-color: #293548 !important;
+}
+
+body.dark-mode .table thead th,
+body.dark-mode .bb-table thead th,
+body.dark-mode .transaction-table-wrap th,
+body.dark-mode .report-table-wrap th {
+    background: #172033 !important;
+    color: #94a3b8 !important;
+}
+
+body.dark-mode .table tbody tr,
+body.dark-mode .bb-table tbody tr,
+body.dark-mode .report-table-wrap tr {
+    background: #111827 !important;
+}
+
+body.dark-mode .table tbody td,
+body.dark-mode .report-table-wrap td {
+    color: #cbd5e1 !important;
+    border-color: #293548 !important;
+}
+
+body.dark-mode .tx-icon.income,
+body.dark-mode .tx-icon.expense,
+body.dark-mode .completed {
+    border-color: transparent !important;
+}
+
+/* Buttons / controls */
+body.dark-mode .btn-outline-secondary,
+body.dark-mode .btn-outline-dark,
+body.dark-mode .settings-reset-btn,
+body.dark-mode .tx-pagination button,
+body.dark-mode .sidebar-collapse-toggle {
+    background: #172033 !important;
+    color: #e2e8f0 !important;
+    border-color: #334155 !important;
+}
+
+body.dark-mode .btn-light,
+body.dark-mode .btn-outline-light {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #475569 !important;
+}
+
+/* Alerts */
+body.dark-mode .alert-secondary,
+body.dark-mode .alert-light {
+    background: #1e293b !important;
+    color: #cbd5e1 !important;
+    border-color: #334155 !important;
+}
+body.dark-mode .alert-warning {
+    background: #422006 !important;
+    color: #fde68a !important;
+    border-color: #92400e !important;
+}
+
+/* Dashboard/analytics/report utility surfaces */
+body.dark-mode .quick-actions,
+body.dark-mode .quick-access,
+body.dark-mode .recent-transactions,
+body.dark-mode .recent-income,
+body.dark-mode .recent-expense,
+body.dark-mode .bb-panel,
+body.dark-mode .analytics-panel,
+body.dark-mode .analytics-card,
+body.dark-mode .analytics-kpi,
+body.dark-mode .report-card {
+    border-color: #293548 !important;
+}
+
+body.dark-mode .analytics-kpi,
+body.dark-mode .analytics-panel,
+body.dark-mode .analytics-chart-card,
+body.dark-mode .analytics-table-card {
+    background: #111827 !important;
+    color: #e5e7eb !important;
+}
+
+body.dark-mode .reports-category-list div,
+body.dark-mode .report-category-list div,
+body.dark-mode .normal-plan-card {
+    background: #172033 !important;
+    color: #cbd5e1 !important;
+}
+
+/* Profile */
+body.dark-mode .profile-card {
+    box-shadow: 0 20px 55px rgba(0,0,0,.28) !important;
+}
+body.dark-mode .profile-header {
+    border-color: #293548;
+}
+body.dark-mode .profile-eyebrow {
+    color: #93c5fd !important;
+}
+body.dark-mode .profile-subscription {
+    background: #172033 !important;
+}
+
+/* Admin */
+body.dark-mode .bb-admin-page > h2 {
+    color: #f8fafc !important;
+}
+body.dark-mode .bb-admin-stat,
+body.dark-mode .bb-admin-finance-grid article,
+body.dark-mode .bb-activity-page .card {
+    background: #111827 !important;
+    border-color: #293548 !important;
+}
+body.dark-mode .bb-activity-page .table thead th {
+    color: #94a3b8 !important;
+}
+
+/* Settings */
+body.dark-mode .settings-divider,
+body.dark-mode .settings-card {
+    border-color: #293548 !important;
+}
+body.dark-mode .settings-success {
+    background: #052e1b !important;
+    border-color: #166534 !important;
+    color: #86efac !important;
+}
+
+/* Navbar */
+body.dark-mode .bb-navbar,
+body.dark-mode .navbar,
+body.dark-mode .app-navbar,
+body.dark-mode .top-navbar,
+body.dark-mode .dashboard-navbar {
+    background: rgba(15,23,42,.96) !important;
+    border-color: #293548 !important;
+    color: #e2e8f0 !important;
+}
+body.dark-mode .bb-navbar-welcome,
+body.dark-mode .bb-user-role {
+    color: #94a3b8 !important;
+}
+body.dark-mode .bb-navbar-logout {
+    background: #111827 !important;
+    border-color: #7f1d1d !important;
+}
+
+/* Prevent legacy white Bootstrap backgrounds from leaking through. */
+body.dark-mode .bg-white,
+body.dark-mode .bg-light {
+    background-color: #172033 !important;
+}
+body.dark-mode .text-dark {
+    color: #f8fafc !important;
+}
+body.dark-mode .text-muted {
+    color: #94a3b8 !important;
+}
+
+
+/* Page-specific legacy cards and panels */
+body.dark-mode .income-total-card,
+body.dark-mode .income-create-card,
+body.dark-mode .income-list-card,
+body.dark-mode .income-empty,
+body.dark-mode .expense-summary-badge,
+body.dark-mode .expense-create-card,
+body.dark-mode .expense-list-card,
+body.dark-mode .expense-empty,
+body.dark-mode .bb-bank-header,
+body.dark-mode .bb-bank-summary,
+body.dark-mode .bb-bank-card,
+body.dark-mode .bb-bank-form-card,
+body.dark-mode .budget-card,
+body.dark-mode .bb-goal-create-card,
+body.dark-mode .bb-goal-card,
+body.dark-mode .analytics-hero,
+body.dark-mode .analytics-view-row,
+body.dark-mode .analytics-kpi,
+body.dark-mode .analytics-panel,
+body.dark-mode .analytics-chart-card,
+body.dark-mode .analytics-table-card,
+body.dark-mode .dash-stat,
+body.dark-mode .dashboard-section,
+body.dark-mode .dashboard-filter-grid,
+body.dark-mode .dashboard-two-column,
+body.dark-mode .dashboard-container > section:not(.dashboard-hero),
+body.dark-mode .settings-options-grid,
+body.dark-mode .settings-account-grid {
+    background: #111827 !important;
+    color: #e5e7eb !important;
+    border-color: #293548 !important;
+}
+
+body.dark-mode .income-create-card input,
+body.dark-mode .income-create-card select,
+body.dark-mode .expense-create-card input,
+body.dark-mode .expense-create-card select,
+body.dark-mode .bb-bank-form-card input,
+body.dark-mode .bb-bank-form-card select,
+body.dark-mode .budget-card input,
+body.dark-mode .budget-card select,
+body.dark-mode .bb-goal-create-card input,
+body.dark-mode .bb-goal-create-card select {
+    background: #0f172a !important;
+    color: #e5e7eb !important;
+    border-color: #334155 !important;
+}
+
+body.dark-mode .income-create-card h2,
+body.dark-mode .income-list-card h2,
+body.dark-mode .expense-create-card h2,
+body.dark-mode .expense-list-card h2,
+body.dark-mode .bb-bank-page h1,
+body.dark-mode .budget-page h1,
+body.dark-mode .bb-savings-page h1,
+body.dark-mode .bb-analytics-page h1,
+body.dark-mode .dashboard-container h1 {
+    color: #f8fafc !important;
+}
+
+body.dark-mode .income-create-card p,
+body.dark-mode .income-list-card p,
+body.dark-mode .expense-create-card p,
+body.dark-mode .expense-list-card p,
+body.dark-mode .bb-bank-header p,
+body.dark-mode .bb-savings-header p,
+body.dark-mode .analytics-hero p,
+body.dark-mode .dashboard-hero p {
+    color: #94a3b8 !important;
+}
+
+body.dark-mode .income-table th,
+body.dark-mode .expense-table th,
+body.dark-mode .income-table td,
+body.dark-mode .expense-table td {
+    border-color: #293548 !important;
+}
+
+body.dark-mode .income-table thead,
+body.dark-mode .expense-table thead {
+    background: #172033 !important;
+    color: #94a3b8 !important;
+}
+
+body.dark-mode .income-table tbody tr,
+body.dark-mode .expense-table tbody tr {
+    background: #111827 !important;
+    color: #cbd5e1 !important;
+}
+
+body.dark-mode .income-table tbody td,
+body.dark-mode .expense-table tbody td {
+    color: #cbd5e1 !important;
+}
+
+body.dark-mode .budget-form-header,
+body.dark-mode .budget-list-header,
+body.dark-mode .budget-input-wrap,
+body.dark-mode .custom-month-input,
+body.dark-mode .budget-overview-card {
+    border-color: #293548 !important;
+}
+
+body.dark-mode .budget-input-wrap,
+body.dark-mode .custom-month-input > div {
+    background: #0f172a !important;
+}
+
+body.dark-mode .bb-bank-summary,
+body.dark-mode .bb-bank-card,
+body.dark-mode .bb-goal-card {
+    box-shadow: 0 10px 30px rgba(0,0,0,.22) !important;
+}
+
+/* Charts: most chart components inherit text colour from their cards,
+   while SVG/grid defaults need an explicit dark surface. */
+body.dark-mode .recharts-cartesian-grid line {
+    stroke: #334155 !important;
+}
+body.dark-mode .recharts-text {
+    fill: #94a3b8 !important;
+}
+body.dark-mode .recharts-default-tooltip,
+body.dark-mode .recharts-tooltip-wrapper {
+    color: #e5e7eb !important;
+}
+body.dark-mode .recharts-tooltip-wrapper .recharts-default-tooltip {
+    background: #111827 !important;
+    border-color: #334155 !important;
+}
+
+/* Footer */
+body.dark-mode footer {
+    color: #94a3b8 !important;
+}

@@ -1,0 +1,1187 @@
+/* =========================================================
+   BUDGETBUDDY DASHBOARD
+   LIGHT PROFESSIONAL FINANCIAL UI
+========================================================= */
+
+.dashboard-page {
+  min-height: 100vh;
+  background: #f5f7fb;
+  color: #172033;
+  padding: 24px;
+}
+
+.dashboard-container {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.dashboard-hero {
+  background: linear-gradient(
+    135deg,
+    #ffffff,
+    #f8fbff
+  );
+
+  border: 1px solid #e4e9f2;
+  border-radius: 20px;
+  padding: 28px;
+  margin-bottom: 22px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  box-shadow:
+    0 8px 30px rgba(30, 55, 90, 0.07);
+}
+
+.dashboard-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #2563eb;
+  margin-bottom: 8px;
+}
+
+.dashboard-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dashboard-title-row h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.dashboard-hero p {
+  margin: 8px 0 12px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.dashboard-meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.dashboard-pro-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 6px 10px;
+  border-radius: 999px;
+
+  background: #fff7d6;
+  color: #b77900;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.hero-health-mini {
+  min-width: 130px;
+  padding: 12px 15px;
+  border-radius: 14px;
+  background: #f1f6ff;
+  border: 1px solid #dce8ff;
+  text-align: center;
+}
+
+.hero-health-mini span {
+  display: block;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.hero-health-mini strong {
+  display: block;
+  margin-top: 3px;
+  color: #2563eb;
+  font-size: 20px;
+}
+
+.dashboard-refresh-btn {
+  border: 0;
+  border-radius: 12px;
+  background: #2563eb;
+  color: #fff;
+
+  padding: 12px 18px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  cursor: pointer;
+  font-weight: 700;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.dashboard-refresh-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 18px rgba(37, 99, 235, 0.25);
+}
+
+.dashboard-refresh-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   KPI CARDS
+========================================================= */
+
+.dashboard-summary-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.dash-stat {
+  position: relative;
+
+  min-height: 150px;
+  padding: 20px;
+
+  border-radius: 18px;
+  background: #fff;
+
+  border: 1px solid #e6eaf0;
+
+  box-shadow:
+    0 7px 22px rgba(30, 55, 90, 0.06);
+
+  overflow: hidden;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.dash-stat:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 14px 30px rgba(30, 55, 90, 0.11);
+}
+
+.dash-stat::after {
+  content: "";
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  right: -30px;
+  bottom: -35px;
+  background: rgba(37, 99, 235, 0.05);
+}
+
+.dash-stat-icon {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 11px;
+  margin-bottom: 12px;
+
+  background: #eef4ff;
+  color: #2563eb;
+}
+
+.dash-stat.income .dash-stat-icon {
+  background: #e9f9f0;
+  color: #10a45b;
+}
+
+.dash-stat.expense .dash-stat-icon {
+  background: #fff0f0;
+  color: #e54848;
+}
+
+.dash-stat.balance .dash-stat-icon {
+  background: #edf3ff;
+  color: #2563eb;
+}
+
+.dash-stat.savings .dash-stat-icon {
+  background: #fff7df;
+  color: #c48700;
+}
+
+.dash-stat-label {
+  display: block;
+
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.dash-stat strong {
+  display: block;
+
+  margin-top: 5px;
+
+  font-size: 25px;
+  line-height: 1.2;
+
+  color: #111827;
+}
+
+.dash-stat small {
+  display: block;
+  margin-top: 6px;
+
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   INSIGHT CARDS
+========================================================= */
+
+.dashboard-insight-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.insight-card {
+  background: #fff;
+  border: 1px solid #e5e9f0;
+  border-radius: 16px;
+  padding: 15px;
+
+  display: flex;
+  align-items: center;
+  gap: 13px;
+
+  box-shadow:
+    0 5px 18px rgba(30, 55, 90, 0.045);
+}
+
+.insight-icon {
+  width: 42px;
+  height: 42px;
+
+  flex: 0 0 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: #eff5ff;
+  color: #2563eb;
+}
+
+.insight-card span {
+  display: block;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #94a3b8;
+}
+
+.insight-card strong {
+  display: block;
+  margin-top: 2px;
+
+  color: #172033;
+  font-size: 17px;
+}
+
+.insight-card small {
+  display: block;
+  margin-top: 2px;
+
+  color: #64748b;
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   CHART GRID
+========================================================= */
+
+.dashboard-chart-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.7fr)
+    minmax(300px, 0.8fr);
+
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.dash-panel {
+  background: #fff;
+  border: 1px solid #e5e9f0;
+  border-radius: 18px;
+
+  padding: 18px;
+
+  box-shadow:
+    0 6px 22px rgba(30, 55, 90, 0.055);
+
+  min-width: 0;
+}
+
+.dash-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  margin-bottom: 12px;
+}
+
+.dash-panel-head > div span {
+  display: block;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+
+  color: #2563eb;
+}
+
+.dash-panel-head h2 {
+  margin: 3px 0 0;
+
+  font-size: 18px;
+  color: #172033;
+}
+
+.dash-panel-head small {
+  display: block;
+  margin-top: 4px;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.dash-panel-head > svg {
+  color: #2563eb;
+  font-size: 20px;
+}
+
+.dash-chart {
+  width: 100%;
+  height: 310px;
+}
+
+.advanced-chart {
+  height: 330px;
+}
+
+
+/* =========================================================
+   TOOLTIP
+========================================================= */
+
+.financial-tooltip {
+  min-width: 180px;
+
+  background: #ffffff;
+  border: 1px solid #e4e9f1;
+  border-radius: 12px;
+
+  padding: 10px 12px;
+
+  box-shadow:
+    0 10px 25px rgba(20, 35, 60, 0.12);
+}
+
+.financial-tooltip-title {
+  font-weight: 800;
+  font-size: 12px;
+  margin-bottom: 7px;
+  color: #172033;
+}
+
+.financial-tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+
+  font-size: 11px;
+  padding: 3px 0;
+}
+
+.financial-tooltip-row span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+}
+
+.tooltip-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+
+/* =========================================================
+   PIE / CATEGORY
+========================================================= */
+
+.dash-category-chart {
+  width: 100%;
+  height: 220px;
+}
+
+.dash-category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.category-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 8px 10px;
+
+  border-radius: 9px;
+  background: #f8fafc;
+}
+
+.category-list-item span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  color: #475569;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.category-list-item span i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.category-list-item strong {
+  font-size: 11px;
+  color: #172033;
+}
+
+
+/* =========================================================
+   BANK ANALYSIS
+========================================================= */
+
+.full-width-chart {
+  margin-bottom: 18px;
+}
+
+.bank-chart {
+  width: 100%;
+  height: 320px;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.dash-empty {
+  min-height: 120px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   BUDGET + SAVINGS
+========================================================= */
+
+.dashboard-progress-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.progress-panel {
+  min-width: 0;
+}
+
+.progress-overall {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin: 8px 0 6px;
+}
+
+.progress-overall span {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.progress-overall strong {
+  color: #172033;
+  font-size: 14px;
+}
+
+.progress-track {
+  height: 8px;
+
+  border-radius: 999px;
+  background: #edf1f6;
+
+  overflow: hidden;
+}
+
+.progress-track > span {
+  display: block;
+
+  height: 100%;
+
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      90deg,
+      #2563eb,
+      #4f8cff
+    );
+
+  transition: width 0.5s ease;
+}
+
+.progress-track.small {
+  height: 6px;
+}
+
+.progress-scroll {
+  margin-top: 14px;
+
+  max-height: 330px;
+
+  overflow-y: auto;
+
+  padding-right: 5px;
+}
+
+.progress-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.progress-scroll::-webkit-scrollbar-thumb {
+  background: #d8dee8;
+  border-radius: 10px;
+}
+
+.progress-item {
+  padding: 13px;
+
+  border-radius: 13px;
+
+  background: #f8fafc;
+
+  border: 1px solid #edf0f5;
+
+  margin-bottom: 9px;
+}
+
+.progress-item-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+
+  margin-bottom: 8px;
+}
+
+.progress-item-top > div {
+  min-width: 0;
+}
+
+.progress-item-top strong {
+  display: block;
+
+  color: #172033;
+  font-size: 13px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.progress-item-top small {
+  display: block;
+  margin-top: 2px;
+
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+.progress-item-top > b {
+  font-size: 12px;
+  color: #2563eb;
+}
+
+.progress-item-top > b.warning {
+  color: #d18a00;
+}
+
+.progress-item-top > b.danger {
+  color: #dc3d3d;
+}
+
+.progress-item-bottom {
+  display: flex;
+  justify-content: space-between;
+
+  margin-top: 7px;
+
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   SMART INSIGHTS
+========================================================= */
+
+.advanced-insights-panel {
+  background: #ffffff;
+
+  border: 1px solid #e5e9f0;
+  border-radius: 18px;
+
+  padding: 20px;
+  margin-bottom: 18px;
+
+  box-shadow:
+    0 6px 22px rgba(30, 55, 90, 0.05);
+}
+
+.advanced-insights-header {
+  display: flex;
+  justify-content: space-between;
+
+  margin-bottom: 16px;
+}
+
+.advanced-insights-header span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  color: #2563eb;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.advanced-insights-header h2 {
+  margin: 4px 0 0;
+
+  font-size: 19px;
+}
+
+.advanced-insights-header > svg {
+  color: #f3ad1c;
+  font-size: 25px;
+}
+
+.smart-insights-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+.smart-insight {
+  display: flex;
+  gap: 10px;
+
+  padding: 13px;
+
+  background: #f8fafc;
+
+  border: 1px solid #edf0f5;
+  border-radius: 13px;
+}
+
+.smart-insight-icon {
+  width: 34px;
+  height: 34px;
+
+  flex: 0 0 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  background: #eef4ff;
+  color: #2563eb;
+}
+
+.smart-insight strong {
+  display: block;
+  font-size: 12px;
+}
+
+.smart-insight p {
+  margin: 4px 0 0;
+
+  color: #64748b;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+
+/* =========================================================
+   PRO SECTION
+========================================================= */
+
+.pro-intelligence {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+
+  padding: 22px;
+
+  border-radius: 18px;
+
+  margin-bottom: 18px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fffdf5,
+      #ffffff
+    );
+
+  border: 1px solid #f0df9d;
+
+  box-shadow:
+    0 7px 25px rgba(130, 100, 20, 0.06);
+}
+
+.pro-intelligence > div:first-child {
+  max-width: 620px;
+}
+
+.pro-intelligence span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  color: #b17a00;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.pro-intelligence h2 {
+  margin: 5px 0;
+
+  font-size: 21px;
+}
+
+.pro-intelligence p {
+  margin: 0;
+
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.pro-metrics {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(100px, 1fr));
+
+  gap: 9px;
+}
+
+.pro-metrics > div {
+  min-width: 105px;
+
+  padding: 12px;
+
+  text-align: center;
+
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  border: 1px solid #eee4c3;
+}
+
+.pro-metrics strong {
+  display: block;
+
+  color: #b17a00;
+  font-size: 20px;
+}
+
+.pro-metrics small {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #94a3b8;
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   NORMAL PLAN
+========================================================= */
+
+.normal-upgrade {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+
+  padding: 20px;
+
+  border-radius: 18px;
+
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+
+  margin-bottom: 18px;
+}
+
+.normal-upgrade > div:first-child {
+  max-width: 650px;
+}
+
+.normal-upgrade span {
+  color: #64748b;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.normal-upgrade h2 {
+  margin: 4px 0;
+
+  font-size: 19px;
+}
+
+.normal-upgrade p {
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.upgrade-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  justify-content: flex-end;
+}
+
+.upgrade-points span {
+  padding: 8px 10px;
+
+  border-radius: 9px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e5e9f0;
+
+  color: #475569;
+
+  font-size: 10px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   SEARCH / FILTER
+========================================================= */
+
+.dashboard-filter-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 2fr)
+    minmax(220px, 1fr);
+
+  gap: 12px;
+
+  margin-bottom: 16px;
+}
+
+
+/* =========================================================
+   RECENT DATA
+========================================================= */
+
+.dashboard-two-column {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 16px;
+
+  margin-bottom: 16px;
+}
+
+.dashboard-section {
+  margin-bottom: 20px;
+}
+
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+.dash-panel,
+.dash-stat,
+.insight-card,
+.smart-insight {
+  animation: dashboardFadeUp 0.45s ease both;
+}
+
+@keyframes dashboardFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.spin {
+  animation: dashboardSpin 0.8s linear infinite;
+}
+
+@keyframes dashboardSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1200px) {
+
+  .dashboard-summary-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-insight-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .smart-insights-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .pro-intelligence {
+    flex-direction: column;
+  }
+
+}
+
+
+@media (max-width: 900px) {
+
+  .dashboard-page {
+    padding: 15px;
+  }
+
+  .dashboard-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .hero-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .dashboard-chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-progress-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-two-column {
+    grid-template-columns: 1fr;
+  }
+
+  .normal-upgrade {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .upgrade-points {
+    justify-content: flex-start;
+  }
+
+  .pro-metrics {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .dashboard-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-insight-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .smart-insights-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-title-row h1 {
+    font-size: 22px;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-health-mini {
+    width: 100%;
+  }
+
+  .dashboard-refresh-btn {
+    justify-content: center;
+  }
+
+  .dash-chart {
+    height: 280px;
+  }
+
+  .bank-chart {
+    height: 280px;
+  }
+
+  .pro-metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+
+}
+
+/* =========================================================
+   BUDGETBUDDY - SIDEBAR SAFE LAYOUT
+   Prevent page content from rendering underneath sidebar
+   ========================================================= */
+
+/* --bb-sidebar-width is the single shared variable defined once in
+   global.css and owned by sidebar.css - this file only reads it. */
+
+/* Main application content */
+.dashboard-page {
+  margin-left: var(--bb-sidebar-width);
+  width: calc(100% - var(--bb-sidebar-width));
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Dashboard inner container */
+.dashboard-container {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Prevent charts/cards from overflowing into sidebar */
+.dashboard-page *,
+.dashboard-page *::before,
+.dashboard-page *::after {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .dashboard-page {
+    margin-left: 0;
+    width: 100%;
+  }
+}
