@@ -13,22 +13,11 @@ The application provides a clean and user-friendly interface for managing everyd
 ### 🚀 Try BudgetBuddy Online
 
 **Frontend Live Demo:**  
-👉 PASTE YOUR DEPLOYED FRONTEND URL HERE
-
-> Example:
-> https://your-budgetbuddy-frontend.vercel.app
+👉https://budgetbuddy-th94.onrender.com
 
 **Backend API:**  
-👉 PASTE YOUR DEPLOYED BACKEND API URL HERE
+👉 https://budgetbuddy-backend-z6k1.onrender.com
 
-> Example:
-> https://your-budgetbuddy-backend.onrender.com
-
-### 📂 GitHub Repository
-
-https://github.com/springboardmentor9999x-rgb/BudgetBuddy-4
-
----
 
 # ✨ Project Overview
 
