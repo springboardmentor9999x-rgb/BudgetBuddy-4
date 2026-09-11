@@ -1,81 +1,45 @@
-"""BudgetBuddy email service using Gmail SMTP."""
+"""BudgetBuddy email service using Resend HTTP API."""
 
 import asyncio
 import logging
-import smtplib
-import ssl
-from email.message import EmailMessage
+from html import escape
+
+import resend
 
 from app.config import settings
 
 logger = logging.getLogger("budgetbuddy.email")
 
 
+def _email_configured() -> bool:
+    return bool(
+        settings.RESEND_API_KEY.strip()
+        and settings.RESEND_FROM_EMAIL.strip()
+    )
+
+
 def _send_sync(subject: str, recipient: str, html_body: str) -> None:
-    """Send one email synchronously using Gmail SMTP."""
+    """Send one email synchronously using Resend."""
 
     if not recipient or not recipient.strip():
         raise ValueError("Recipient email address is required.")
 
-    if not settings.email_configured:
+    if not _email_configured():
         raise RuntimeError(
-            "Gmail SMTP is not configured. "
-            "Set MAIL_USERNAME, MAIL_PASSWORD and MAIL_FROM."
+            "Resend email is not configured. "
+            "Set RESEND_API_KEY and RESEND_FROM_EMAIL."
         )
 
-    msg = EmailMessage()
-    msg["Subject"] = subject
+    resend.api_key = settings.RESEND_API_KEY.strip()
 
-    # The sender should normally be the same Gmail account used
-    # for SMTP authentication.
-    msg["From"] = settings.MAIL_FROM
-    msg["To"] = recipient.strip()
+    params = {
+        "from": settings.RESEND_FROM_EMAIL.strip(),
+        "to": [recipient.strip()],
+        "subject": subject,
+        "html": html_body,
+    }
 
-    msg.set_content(
-        "Please open this email in an HTML-capable mail client."
-    )
-
-    msg.add_alternative(html_body, subtype="html")
-
-    context = ssl.create_default_context()
-
-    # Gmail:
-    # Port 465 = SSL
-    # Port 587 = STARTTLS
-    if settings.MAIL_SSL_TLS:
-        with smtplib.SMTP_SSL(
-            settings.MAIL_SERVER,
-            settings.MAIL_PORT,
-            context=context,
-            timeout=20,
-        ) as server:
-
-            server.login(
-                settings.MAIL_USERNAME,
-                settings.MAIL_PASSWORD,
-            )
-
-            server.send_message(msg)
-
-    else:
-        with smtplib.SMTP(
-            settings.MAIL_SERVER,
-            settings.MAIL_PORT,
-            timeout=20,
-        ) as server:
-
-            server.ehlo()
-
-            if settings.MAIL_STARTTLS:
-                server.starttls(context=context)
-                server.ehlo()
-
-            server.login(
-                settings.MAIL_USERNAME,
-                settings.MAIL_PASSWORD,
-            )
-
-            server.send_message(msg)
+    resend.Emails.send(params)
 
 
 async def _send_email(
@@ -85,16 +49,16 @@ async def _send_email(
     console_fallback_text: str | None = None,
 ) -> None:
     """
-    Send an email through Gmail SMTP.
+    Send an email through Resend.
 
-    If SMTP is unavailable, do NOT crash the signup/reset request.
-    Instead, print the verification/reset information to the backend
-    logs so the application can continue working.
+    If email delivery fails, log the error and print the
+    verification/reset information so the application itself
+    does not become unavailable.
     """
 
-    if not settings.email_configured:
+    if not _email_configured():
         logger.warning(
-            "SMTP is not configured. "
+            "Resend is not configured. "
             "Using console fallback instead of sending email."
         )
 
@@ -106,7 +70,6 @@ async def _send_email(
             f"{console_fallback_text or ''}\n"
             "=========================================================\n"
         )
-
         return
 
     try:
@@ -124,15 +87,10 @@ async def _send_email(
 
     except Exception:
         logger.exception(
-            "SMTP email delivery failed for %s. "
+            "Email delivery failed for %s. "
             "Using console fallback.",
             recipient,
         )
-
-        # IMPORTANT:
-        # Do not re-raise the SMTP exception.
-        # This prevents signup/password-reset from becoming HTTP 503
-        # just because the external SMTP server cannot be reached.
 
         print(
             "\n"
@@ -143,24 +101,22 @@ async def _send_email(
             "=========================================================\n"
         )
 
-        return
-
 
 def _verification_html(otp: str) -> str:
-    """Create the HTML verification email."""
-
     return f"""
     <html>
-    <body style="font-family:Arial,sans-serif;background:#f5f7fb;padding:30px">
-
+    <body style="
+        font-family: Arial, sans-serif;
+        background: #f5f7fb;
+        padding: 30px;
+    ">
         <div style="
-            max-width:560px;
-            margin:auto;
-            background:#fff;
-            padding:35px;
-            border-radius:18px;
+            max-width: 560px;
+            margin: auto;
+            background: #fff;
+            padding: 35px;
+            border-radius: 18px;
         ">
-
             <h1 style="color:#2563eb">
                 BudgetBuddy
             </h1>
@@ -180,15 +136,13 @@ def _verification_html(otp: str) -> str:
                 border-radius:16px;
                 text-align:center;
             ">
-
                 <strong style="
                     font-size:34px;
                     letter-spacing:10px;
                     color:#1d4ed8;
                 ">
-                    {otp}
+                    {escape(otp)}
                 </strong>
-
             </div>
 
             <p>
@@ -206,9 +160,7 @@ def _verification_html(otp: str) -> str:
             <p style="color:#94a3b8">
                 — The BudgetBuddy Team
             </p>
-
         </div>
-
     </body>
     </html>
     """
@@ -234,48 +186,52 @@ async def send_welcome_email(
 ) -> None:
     """Send the welcome email after verification."""
 
+    safe_name = escape(full_name or "there")
+
+    html = f"""
+    <html>
+    <body style="
+        font-family:Arial,sans-serif;
+        background:#f5f7fb;
+        padding:30px;
+    ">
+        <div style="
+            max-width:560px;
+            margin:auto;
+            background:#fff;
+            padding:35px;
+            border-radius:18px;
+        ">
+            <h1 style="color:#2563eb">
+                Welcome to BudgetBuddy!
+            </h1>
+
+            <p>
+                Hi <strong>{safe_name}</strong>,
+            </p>
+
+            <p>
+                Your email has been successfully verified.
+                Your BudgetBuddy account is now ready.
+            </p>
+
+            <p>
+                Start managing your income, expenses,
+                budgets and savings goals.
+            </p>
+
+            <p style="color:#94a3b8">
+                — The BudgetBuddy Team
+            </p>
+        </div>
+    </body>
+    </html>
+    """
+
     await _send_email(
         "Welcome to BudgetBuddy 🎉",
         email,
-        f"""
-        <html>
-        <body style="font-family:Arial,sans-serif;background:#f5f7fb;padding:30px">
-
-            <div style="
-                max-width:560px;
-                margin:auto;
-                background:#fff;
-                padding:35px;
-                border-radius:18px;
-            ">
-
-                <h1 style="color:#2563eb">
-                    Welcome to BudgetBuddy!
-                </h1>
-
-                <p>
-                    Hi <strong>{full_name or "there"}</strong>,
-                </p>
-
-                <p>
-                    Your email has been successfully verified.
-                    Your BudgetBuddy account is now ready.
-                </p>
-
-                <p>
-                    Start managing your income, expenses,
-                    budgets and savings goals.
-                </p>
-
-                <p style="color:#94a3b8">
-                    — The BudgetBuddy Team
-                </p>
-
-            </div>
-
-        </body>
-        </html>
-        """,
+        html,
         console_fallback_text=(
             f"Welcome email for {full_name or email}."
         ),
@@ -293,36 +249,38 @@ async def send_password_reset_email(
         f"/reset-password/{token}"
     )
 
+    html = f"""
+    <html>
+    <body style="font-family:Arial,sans-serif">
+
+        <h2>
+            Password reset
+        </h2>
+
+        <p>
+            Use the link below to reset your BudgetBuddy password:
+        </p>
+
+        <p>
+            <a href="{escape(link)}">
+                {escape(link)}
+            </a>
+        </p>
+
+        <p>
+            This link expires in
+            {settings.PASSWORD_RESET_TOKEN_EXPIRE_MINUTES}
+            minutes.
+        </p>
+
+    </body>
+    </html>
+    """
+
     await _send_email(
         "BudgetBuddy - Password Reset",
         email,
-        f"""
-        <html>
-        <body style="font-family:Arial,sans-serif">
-
-            <h2>
-                Password reset
-            </h2>
-
-            <p>
-                Use the link below to reset your BudgetBuddy password:
-            </p>
-
-            <p>
-                <a href="{link}">
-                    {link}
-                </a>
-            </p>
-
-            <p>
-                This link expires in
-                {settings.PASSWORD_RESET_TOKEN_EXPIRE_MINUTES}
-                minutes.
-            </p>
-
-        </body>
-        </html>
-        """,
+        html,
         console_fallback_text=f"Password reset link: {link}",
     )
 
@@ -333,23 +291,25 @@ async def send_security_alert_email(
 ) -> None:
     """Send a security alert email."""
 
+    html = f"""
+    <html>
+    <body style="font-family:Arial,sans-serif">
+
+        <h2>
+            Security alert
+        </h2>
+
+        <p>
+            {escape(message)}
+        </p>
+
+    </body>
+    </html>
+    """
+
     await _send_email(
         "BudgetBuddy - Security Alert",
         email,
-        f"""
-        <html>
-        <body style="font-family:Arial,sans-serif">
-
-            <h2>
-                Security alert
-            </h2>
-
-            <p>
-                {message}
-            </p>
-
-        </body>
-        </html>
-        """,
+        html,
         console_fallback_text=message,
     )
