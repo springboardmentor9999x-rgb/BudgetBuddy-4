@@ -8,17 +8,23 @@ import resend
 
 from app.config import settings
 
+
 logger = logging.getLogger("budgetbuddy.email")
 
 
 def _email_configured() -> bool:
+    """Check whether Resend credentials are configured."""
     return bool(
         settings.RESEND_API_KEY.strip()
         and settings.RESEND_FROM_EMAIL.strip()
     )
 
 
-def _send_sync(subject: str, recipient: str, html_body: str) -> None:
+def _send_sync(
+    subject: str,
+    recipient: str,
+    html_body: str,
+) -> None:
     """Send one email synchronously using Resend."""
 
     if not recipient or not recipient.strip():
@@ -27,9 +33,11 @@ def _send_sync(subject: str, recipient: str, html_body: str) -> None:
     if not _email_configured():
         raise RuntimeError(
             "Resend email is not configured. "
-            "Set RESEND_API_KEY and RESEND_FROM_EMAIL."
+            "Set RESEND_API_KEY and RESEND_FROM_EMAIL "
+            "in the environment variables."
         )
 
+    # Set Resend API key.
     resend.api_key = settings.RESEND_API_KEY.strip()
 
     params = {
@@ -39,7 +47,13 @@ def _send_sync(subject: str, recipient: str, html_body: str) -> None:
         "html": html_body,
     }
 
-    resend.Emails.send(params)
+    # Send through Resend HTTP API.
+    response = resend.Emails.send(params)
+
+    logger.info(
+        "Resend API response received: %s",
+        response,
+    )
 
 
 async def _send_email(
@@ -51,26 +65,30 @@ async def _send_email(
     """
     Send an email through Resend.
 
-    If email delivery fails, log the error and print the
-    verification/reset information so the application itself
-    does not become unavailable.
+    If Resend is not configured, raise a clear configuration error.
+
+    If Resend itself fails, raise the actual exception so Render logs
+    show the real reason instead of hiding the problem.
     """
 
+    # ------------------------------------------------------------
+    # CHECK RESEND CONFIGURATION
+    # ------------------------------------------------------------
+
     if not _email_configured():
-        logger.warning(
-            "Resend is not configured. "
-            "Using console fallback instead of sending email."
+        logger.error(
+            "RESEND IS NOT CONFIGURED. "
+            "Check RESEND_API_KEY and RESEND_FROM_EMAIL "
+            "in Render Environment Variables."
         )
 
-        print(
-            "\n"
-            "==================== EMAIL FALLBACK ====================\n"
-            f"To: {recipient}\n"
-            f"Subject: {subject}\n"
-            f"{console_fallback_text or ''}\n"
-            "=========================================================\n"
+        raise RuntimeError(
+            "Resend email is not configured."
         )
-        return
+
+    # ------------------------------------------------------------
+    # SEND EMAIL
+    # ------------------------------------------------------------
 
     try:
         await asyncio.to_thread(
@@ -81,28 +99,43 @@ async def _send_email(
         )
 
         logger.info(
-            "Email sent successfully to %s",
+            "Email sent successfully through Resend to %s",
             recipient,
         )
 
-    except Exception:
+    # ============================================================
+    # THIS IS THE PART YOU ASKED ABOUT
+    # ============================================================
+
+    except Exception as exc:
+
         logger.exception(
-            "Email delivery failed for %s. "
-            "Using console fallback.",
+            "RESEND EMAIL DELIVERY FAILED. "
+            "Recipient=%s Error=%s",
             recipient,
+            exc,
         )
 
+        # Print useful information in Render logs.
         print(
             "\n"
-            "==================== EMAIL FALLBACK ====================\n"
+            "==================== RESEND EMAIL ERROR ====================\n"
             f"To: {recipient}\n"
             f"Subject: {subject}\n"
-            f"{console_fallback_text or ''}\n"
-            "=========================================================\n"
+            f"Error: {exc}\n"
+            f"Fallback: {console_fallback_text or ''}\n"
+            "==============================================================\n"
         )
+
+        # IMPORTANT:
+        # Re-raise the original exception so the signup endpoint
+        # can return the actual failure instead of hiding it.
+        raise
 
 
 def _verification_html(otp: str) -> str:
+    """Create the HTML verification email."""
+
     return f"""
     <html>
     <body style="
@@ -110,14 +143,16 @@ def _verification_html(otp: str) -> str:
         background: #f5f7fb;
         padding: 30px;
     ">
+
         <div style="
             max-width: 560px;
             margin: auto;
-            background: #fff;
+            background: #ffffff;
             padding: 35px;
             border-radius: 18px;
         ">
-            <h1 style="color:#2563eb">
+
+            <h1 style="color:#2563eb;">
                 BudgetBuddy
             </h1>
 
@@ -126,7 +161,8 @@ def _verification_html(otp: str) -> str:
             </h2>
 
             <p>
-                Use this 6-digit code to verify your BudgetBuddy account:
+                Use this 6-digit code to verify your
+                BudgetBuddy account:
             </p>
 
             <div style="
@@ -136,6 +172,7 @@ def _verification_html(otp: str) -> str:
                 border-radius:16px;
                 text-align:center;
             ">
+
                 <strong style="
                     font-size:34px;
                     letter-spacing:10px;
@@ -143,6 +180,7 @@ def _verification_html(otp: str) -> str:
                 ">
                     {escape(otp)}
                 </strong>
+
             </div>
 
             <p>
@@ -154,13 +192,16 @@ def _verification_html(otp: str) -> str:
             </p>
 
             <p>
-                If you did not create this account, ignore this email.
+                If you did not create this account,
+                ignore this email.
             </p>
 
-            <p style="color:#94a3b8">
+            <p style="color:#94a3b8;">
                 — The BudgetBuddy Team
             </p>
+
         </div>
+
     </body>
     </html>
     """
@@ -191,18 +232,20 @@ async def send_welcome_email(
     html = f"""
     <html>
     <body style="
-        font-family:Arial,sans-serif;
+        font-family: Arial, sans-serif;
         background:#f5f7fb;
         padding:30px;
     ">
+
         <div style="
             max-width:560px;
             margin:auto;
-            background:#fff;
+            background:#ffffff;
             padding:35px;
             border-radius:18px;
         ">
-            <h1 style="color:#2563eb">
+
+            <h1 style="color:#2563eb;">
                 Welcome to BudgetBuddy!
             </h1>
 
@@ -220,10 +263,12 @@ async def send_welcome_email(
                 budgets and savings goals.
             </p>
 
-            <p style="color:#94a3b8">
+            <p style="color:#94a3b8;">
                 — The BudgetBuddy Team
             </p>
+
         </div>
+
     </body>
     </html>
     """
@@ -251,14 +296,17 @@ async def send_password_reset_email(
 
     html = f"""
     <html>
-    <body style="font-family:Arial,sans-serif">
+    <body style="
+        font-family:Arial,sans-serif;
+    ">
 
         <h2>
             Password reset
         </h2>
 
         <p>
-            Use the link below to reset your BudgetBuddy password:
+            Use the link below to reset your
+            BudgetBuddy password:
         </p>
 
         <p>
@@ -293,7 +341,9 @@ async def send_security_alert_email(
 
     html = f"""
     <html>
-    <body style="font-family:Arial,sans-serif">
+    <body style="
+        font-family:Arial,sans-serif;
+    ">
 
         <h2>
             Security alert
