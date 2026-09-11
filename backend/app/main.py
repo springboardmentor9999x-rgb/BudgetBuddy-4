@@ -41,10 +41,12 @@ logger = logging.getLogger("budgetbuddy")
 
 
 # =========================================================
-# DATABASE TABLE CREATION
+# DATABASE STARTUP INITIALIZATION
 # =========================================================
-
-Base.metadata.create_all(bind=engine)
+# IMPORTANT: Do not connect to the database while this module is being
+# imported. Render/Uvicorn must be able to create the FastAPI application
+# and bind to $PORT first. Database initialization is therefore performed
+# during FastAPI startup instead of at module import time.
 
 
 # =========================================================
@@ -676,9 +678,6 @@ def _migrate_sqlite_schema():
         raise
 
 
-# Run migration after create_all()
-_migrate_sqlite_schema()
-
 
 def _enforce_primary_admin():
     """Keep exactly one configured Admin identity for the demo."""
@@ -753,10 +752,6 @@ def _bootstrap_admin_account():
         db.close()
 
 
-_enforce_primary_admin()
-_bootstrap_admin_account()
-
-
 # =========================================================
 # CREATE FASTAPI APPLICATION
 # =========================================================
@@ -769,6 +764,39 @@ app = FastAPI(
         "platform API."
     ),
 )
+
+
+@app.on_event("startup")
+def startup_event():
+    """
+    Initialize the database after the FastAPI application has been created.
+
+    Keeping database work out of module import time is important on Render:
+    Uvicorn can import app.main and bind to the platform-provided $PORT
+    without being blocked by a database connection or migration.
+    """
+    try:
+        logger.info("Starting BudgetBuddy database initialization...")
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database tables created/verified successfully.")
+
+        _migrate_sqlite_schema()
+        logger.info("Database schema migration check completed.")
+
+        _enforce_primary_admin()
+        _bootstrap_admin_account()
+        logger.info("BudgetBuddy database initialization completed successfully.")
+
+    except Exception:
+        # Do not prevent Uvicorn from starting/listening on $PORT because of
+        # a database initialization problem. The exception is logged in full
+        # so the actual DB configuration/connection problem is visible in
+        # Render logs, while /health remains available for deployment checks.
+        logger.exception(
+            "BudgetBuddy database initialization failed. "
+            "The API process will remain running; check DATABASE_URL "
+            "and database connectivity in the Render environment."
+        )
 
 
 # =========================================================
