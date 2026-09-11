@@ -23,8 +23,18 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 import { useAuth } from "../context/AuthContext";
-import { saveAppSettings, getAppSettings, DEFAULT_SETTINGS } from "../utils/settings";
-import { updateNotificationPreferences, updateTheme } from "../services/settingsService";
+
+import {
+    saveAppSettings,
+    getAppSettings,
+    DEFAULT_SETTINGS
+} from "../utils/settings";
+
+import {
+    updateNotificationPreferences,
+    updateTheme
+} from "../services/settingsService";
+
 import { toast } from "../utils/notifications";
 
 
@@ -39,7 +49,7 @@ function Settings() {
         showBalances: true,
         automaticLogout: false,
         notifications: true,
-        darkMode: false,
+        darkMode: false
     };
 
     const [settings, setSettings] = useState(defaultSettings);
@@ -50,9 +60,21 @@ function Settings() {
     useEffect(() => {
 
         try {
-            setSettings(getAppSettings());
+
+            const storedSettings = getAppSettings();
+
+            setSettings({
+                ...defaultSettings,
+                ...storedSettings
+            });
+
         } catch (error) {
-            console.error("Unable to load settings:", error);
+
+            console.error(
+                "Unable to load settings:",
+                error
+            );
+
         }
 
     }, []);
@@ -66,7 +88,6 @@ function Settings() {
         }));
 
         setSaved(false);
-
     };
 
 
@@ -78,26 +99,46 @@ function Settings() {
 
         try {
 
+            /*
+             * Save settings locally first.
+             */
             saveAppSettings(settings);
 
+
+            /*
+             * Apply dark mode immediately.
+             */
             document.body.classList.toggle(
                 "dark-mode",
                 Boolean(settings.darkMode)
             );
 
+
+            /*
+             * Sync settings with backend.
+             */
             try {
 
                 await Promise.all([
                     updateNotificationPreferences({
-                        email_notifications_enabled: settings.notifications,
-                        app_notifications_enabled: settings.notifications,
+                        email_notifications_enabled:
+                            settings.notifications,
+
+                        app_notifications_enabled:
+                            settings.notifications
                     }),
+
                     updateTheme(
-                        settings.darkMode ? "dark" : "light"
-                    ),
+                        settings.darkMode
+                            ? "dark"
+                            : "light"
+                    )
                 ]);
 
-                toast.success("Settings saved and synced.");
+
+                toast.success(
+                    "Settings saved and synced."
+                );
 
             } catch (syncError) {
 
@@ -109,14 +150,16 @@ function Settings() {
                 toast.warning(
                     "Local settings saved. Server sync will retry next time."
                 );
-
             }
 
+
             setSaved(true);
+
 
             setTimeout(() => {
                 setSaved(false);
             }, 3000);
+
 
         } catch (error) {
 
@@ -125,32 +168,52 @@ function Settings() {
                 error
             );
 
+            toast.error(
+                "Unable to save settings."
+            );
+
         } finally {
 
             setSaving(false);
 
         }
-
     };
 
 
     const handleReset = () => {
 
-        setSettings(defaultSettings);
+        setSettings({
+            ...defaultSettings
+        });
 
         setSaved(false);
 
+
         saveAppSettings(DEFAULT_SETTINGS);
+
+
+        /*
+         * Reset theme.
+         */
+        document.body.classList.remove(
+            "dark-mode"
+        );
 
         updateTheme("light").catch(() => {});
 
+
+        /*
+         * Reset notifications.
+         */
         updateNotificationPreferences({
             email_notifications_enabled: true,
-            app_notifications_enabled: true,
+            app_notifications_enabled: true
         }).catch(() => {});
 
-        toast.info("Settings restored to defaults.");
 
+        toast.info(
+            "Settings restored to defaults."
+        );
     };
 
 
@@ -158,26 +221,60 @@ function Settings() {
 
         <div className="bb-settings-layout">
 
+            {/* =====================================================
+                SIDEBAR
+                ===================================================== */}
+
             <Sidebar />
+
+
+            {/* =====================================================
+                MAIN SETTINGS CONTENT
+                ===================================================== */}
 
             <div className="bb-settings-main">
 
-                <Navbar />
+                {/* =================================================
+                    NAVBAR
+                    Kept inside the main content shell so it does
+                    not become part of the sidebar area.
+                    ================================================= */}
+
+                <div className="bb-settings-navbar">
+
+                    <Navbar />
+
+                </div>
+
+
+                {/* =================================================
+                    SETTINGS PAGE
+                    ================================================= */}
 
                 <main className="bb-settings-page">
+
+
+                    {/* =================================================
+                        HERO
+                        ================================================= */}
 
                     <section className="settings-hero">
 
                         <div className="settings-hero-content">
 
                             <div className="settings-eyebrow">
+
                                 <FaCog />
+
                                 PREFERENCES
+
                             </div>
+
 
                             <h1>
                                 Settings
                             </h1>
+
 
                             <p>
                                 Customize how BudgetBuddy
@@ -187,28 +284,45 @@ function Settings() {
                         </div>
 
 
+                        {/* HERO ART */}
+
                         <div className="settings-hero-art">
 
                             <div className="settings-floating-icon icon-one">
+
                                 <FaBell />
+
                             </div>
+
 
                             <div className="settings-floating-icon icon-two">
+
                                 <FaShieldAlt />
+
                             </div>
+
 
                             <div className="settings-floating-icon icon-three">
+
                                 <FaPalette />
+
                             </div>
 
+
                             <div className="settings-main-icon">
+
                                 <FaCog />
+
                             </div>
 
                         </div>
 
                     </section>
 
+
+                    {/* =================================================
+                        SUCCESS MESSAGE
+                        ================================================= */}
 
                     {saved && (
 
@@ -225,18 +339,30 @@ function Settings() {
                     )}
 
 
+                    {/* =================================================
+                        SETTINGS FORM
+                        ================================================= */}
+
                     <form
                         className="settings-form"
                         onSubmit={handleSave}
                     >
+
+
+                        {/* =================================================
+                            REGIONAL PREFERENCES
+                            ================================================= */}
 
                         <section className="settings-card">
 
                             <div className="settings-card-heading">
 
                                 <div className="settings-heading-icon">
+
                                     <FaGlobe />
+
                                 </div>
+
 
                                 <div>
 
@@ -258,16 +384,25 @@ function Settings() {
 
                             </div>
 
+
                             <div className="settings-divider" />
 
+
                             <div className="settings-options-grid">
+
+
+                                {/* LANGUAGE */}
 
                                 <div className="settings-field">
 
                                     <label>
+
                                         <FaGlobe />
+
                                         Language
+
                                     </label>
+
 
                                     <select
                                         value={settings.language}
@@ -296,12 +431,18 @@ function Settings() {
                                 </div>
 
 
+                                {/* CURRENCY */}
+
                                 <div className="settings-field">
 
                                     <label>
+
                                         <FaMoneyBillWave />
+
                                         Currency
+
                                     </label>
+
 
                                     <select
                                         value={settings.currency}
@@ -334,12 +475,18 @@ function Settings() {
                                 </div>
 
 
+                                {/* DATE FORMAT */}
+
                                 <div className="settings-field">
 
                                     <label>
+
                                         <FaCalendarAlt />
+
                                         Date Format
+
                                     </label>
+
 
                                     <select
                                         value={settings.dateFormat}
@@ -372,13 +519,20 @@ function Settings() {
                         </section>
 
 
+                        {/* =================================================
+                            DASHBOARD PREFERENCES
+                            ================================================= */}
+
                         <section className="settings-card">
 
                             <div className="settings-card-heading">
 
                                 <div className="settings-heading-icon purple">
+
                                     <FaDesktop />
+
                                 </div>
+
 
                                 <div>
 
@@ -400,14 +554,20 @@ function Settings() {
 
                             </div>
 
+
                             <div className="settings-divider" />
 
+
+                            {/* SHOW BALANCES */}
 
                             <div className="settings-toggle-row">
 
                                 <div className="settings-toggle-icon">
+
                                     <FaMoneyBillWave />
+
                                 </div>
+
 
                                 <div className="settings-toggle-text">
 
@@ -421,6 +581,7 @@ function Settings() {
                                     </span>
 
                                 </div>
+
 
                                 <button
                                     type="button"
@@ -436,18 +597,28 @@ function Settings() {
                                         )
                                     }
                                     aria-label="Toggle account balances"
+                                    aria-pressed={
+                                        settings.showBalances
+                                    }
                                 >
+
                                     <span />
+
                                 </button>
 
                             </div>
 
 
+                            {/* AUTOMATIC LOGOUT */}
+
                             <div className="settings-toggle-row">
 
                                 <div className="settings-toggle-icon">
+
                                     <FaLock />
+
                                 </div>
+
 
                                 <div className="settings-toggle-text">
 
@@ -461,6 +632,7 @@ function Settings() {
                                     </span>
 
                                 </div>
+
 
                                 <button
                                     type="button"
@@ -476,18 +648,28 @@ function Settings() {
                                         )
                                     }
                                     aria-label="Toggle automatic logout"
+                                    aria-pressed={
+                                        settings.automaticLogout
+                                    }
                                 >
+
                                     <span />
+
                                 </button>
 
                             </div>
 
 
+                            {/* DARK MODE */}
+
                             <div className="settings-toggle-row">
 
                                 <div className="settings-toggle-icon">
+
                                     <FaPalette />
+
                                 </div>
+
 
                                 <div className="settings-toggle-text">
 
@@ -496,10 +678,12 @@ function Settings() {
                                     </strong>
 
                                     <span>
-                                        Use a low-light interface across BudgetBuddy.
+                                        Use a low-light interface
+                                        across BudgetBuddy.
                                     </span>
 
                                 </div>
+
 
                                 <button
                                     type="button"
@@ -515,18 +699,28 @@ function Settings() {
                                         )
                                     }
                                     aria-label="Toggle dark mode"
+                                    aria-pressed={
+                                        settings.darkMode
+                                    }
                                 >
+
                                     <span />
+
                                 </button>
 
                             </div>
 
 
+                            {/* NOTIFICATIONS */}
+
                             <div className="settings-toggle-row">
 
                                 <div className="settings-toggle-icon">
+
                                     <FaBell />
+
                                 </div>
+
 
                                 <div className="settings-toggle-text">
 
@@ -540,6 +734,7 @@ function Settings() {
                                     </span>
 
                                 </div>
+
 
                                 <button
                                     type="button"
@@ -555,8 +750,13 @@ function Settings() {
                                         )
                                     }
                                     aria-label="Toggle notifications"
+                                    aria-pressed={
+                                        settings.notifications
+                                    }
                                 >
+
                                     <span />
+
                                 </button>
 
                             </div>
@@ -564,13 +764,20 @@ function Settings() {
                         </section>
 
 
+                        {/* =================================================
+                            ACCOUNT INFORMATION
+                            ================================================= */}
+
                         <section className="settings-card">
 
                             <div className="settings-card-heading">
 
                                 <div className="settings-heading-icon blue">
+
                                     <FaUser />
+
                                 </div>
+
 
                                 <div>
 
@@ -591,9 +798,14 @@ function Settings() {
 
                             </div>
 
+
                             <div className="settings-divider" />
 
+
                             <div className="settings-account-grid">
+
+
+                                {/* ACCOUNT NAME */}
 
                                 <div className="settings-account-item">
 
@@ -608,6 +820,8 @@ function Settings() {
                                 </div>
 
 
+                                {/* EMAIL */}
+
                                 <div className="settings-account-item">
 
                                     <span>
@@ -620,6 +834,8 @@ function Settings() {
 
                                 </div>
 
+
+                                {/* ACCOUNT STATUS */}
 
                                 <div className="settings-account-item">
 
@@ -638,19 +854,31 @@ function Settings() {
                         </section>
 
 
+                        {/* =================================================
+                            ACTION BUTTONS
+                            ================================================= */}
+
                         <div className="settings-actions">
+
+
+                            {/* RESET */}
 
                             <button
                                 type="button"
                                 className="settings-reset-btn"
                                 onClick={handleReset}
                             >
+
                                 <FaUndo />
+
                                 <span>
                                     Reset
                                 </span>
+
                             </button>
 
+
+                            {/* SAVE */}
 
                             <button
                                 type="submit"
@@ -661,15 +889,21 @@ function Settings() {
                                 {saving ? (
 
                                     <>
+
                                         <span className="settings-spinner" />
+
                                         Saving...
+
                                     </>
 
                                 ) : (
 
                                     <>
+
                                         <FaSave />
+
                                         Save Changes
+
                                     </>
 
                                 )}
@@ -680,6 +914,11 @@ function Settings() {
 
                     </form>
 
+
+                    {/* =================================================
+                        FOOTER
+                        ================================================= */}
+
                     <Footer />
 
                 </main>
@@ -687,9 +926,7 @@ function Settings() {
             </div>
 
         </div>
-
     );
-
 }
 
 
