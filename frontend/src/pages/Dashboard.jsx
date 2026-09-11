@@ -125,7 +125,10 @@ function FinancialTooltip({ active, payload, label, currency }) {
               className="tooltip-dot"
               style={{
                 background:
-                  item.color || CHART_COLORS[index % CHART_COLORS.length],
+                  item.color ||
+                  CHART_COLORS[
+                    index % CHART_COLORS.length
+                  ],
               }}
             />
             {item.name || item.dataKey}
@@ -150,17 +153,36 @@ function Dashboard() {
     localStorage.getItem("user") || "null"
   );
 
+  /*
+   * IMPORTANT
+   * -------------------------------------------------------
+   * Admin is NOT a Pro/Premium customer.
+   *
+   * This variable MUST exist before it is used anywhere
+   * inside the Dashboard component.
+   */
+  const isAdmin =
+    String(user?.role || "")
+      .trim()
+      .toLowerCase() === "admin";
+
   const settings = useAppSettings();
 
   const currency =
     settings?.currency || "INR";
 
-  // Admin is a separate role, not a customer Premium/Pro tier.
-  // Only non-admin Premium accounts receive the PRO badge and Pro features.
+  /*
+   * Only normal users with a Premium account tier
+   * should receive Pro features.
+   *
+   * Admin must never be considered Pro.
+   */
   const isPro =
-    user?.role !== "admin" &&
-    String(user?.account_tier || "normal").toLowerCase() ===
-    "premium";
+    !isAdmin &&
+    String(user?.account_tier || "normal")
+      .trim()
+      .toLowerCase() === "premium";
+
 
   // -------------------------------------------------------
   // STATE
@@ -182,6 +204,7 @@ function Dashboard() {
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("");
+
 
   // -------------------------------------------------------
   // LOAD DATA
@@ -250,6 +273,7 @@ function Dashboard() {
     },
     [user?.id]
   );
+
 
   // -------------------------------------------------------
   // AUTO REFRESH
@@ -956,767 +980,773 @@ function Dashboard() {
           <QuickActions />
 
 
-          {isPro ? (
+          {/* =================================================
+              ADVANCED USER CONTENT
+          ================================================= */}
+
+          {isPro && (
             <>
-          {/* =================================================
-              ADVANCED INSIGHT ROW
-          ================================================= */}
+              {/* =================================================
+                  ADVANCED INSIGHT ROW
+              ================================================= */}
 
-          <section className="dashboard-insight-grid">
+              <section className="dashboard-insight-grid">
 
-            <div className="insight-card health-card">
+                <div className="insight-card health-card">
 
-              <div className="insight-icon">
-                <FaChartLine />
-              </div>
+                  <div className="insight-icon">
+                    <FaChartLine />
+                  </div>
 
-              <div>
-                <span>
-                  FINANCIAL HEALTH
-                </span>
+                  <div>
+                    <span>
+                      FINANCIAL HEALTH
+                    </span>
 
-                <strong>
-                  {financialHealth}/100
-                </strong>
+                    <strong>
+                      {financialHealth}/100
+                    </strong>
 
-                <small>
-                  {financialHealth >= 80
-                    ? "Excellent financial position"
-                    : financialHealth >= 60
-                    ? "Good — keep improving"
-                    : "Needs attention"}
-                </small>
-              </div>
+                    <small>
+                      {financialHealth >= 80
+                        ? "Excellent financial position"
+                        : financialHealth >= 60
+                        ? "Good — keep improving"
+                        : "Needs attention"}
+                    </small>
+                  </div>
 
-            </div>
+                </div>
 
 
-            <div className="insight-card">
+                <div className="insight-card">
 
-              <div className="insight-icon">
-                <FaFire />
-              </div>
+                  <div className="insight-icon">
+                    <FaFire />
+                  </div>
 
-              <div>
-                <span>
-                  TOP SPENDING
-                </span>
+                  <div>
+                    <span>
+                      TOP SPENDING
+                    </span>
 
-                <strong>
-                  {topSpendingCategory
-                    ? topSpendingCategory.name
-                    : "—"}
-                </strong>
+                    <strong>
+                      {topSpendingCategory
+                        ? topSpendingCategory.name
+                        : "—"}
+                    </strong>
 
-                <small>
-                  {topSpendingCategory
-                    ? formatMoney(
-                        topSpendingCategory.value,
+                    <small>
+                      {topSpendingCategory
+                        ? formatMoney(
+                            topSpendingCategory.value,
+                            currency
+                          )
+                        : "No expenses yet"}
+                    </small>
+                  </div>
+
+                </div>
+
+
+                <div className="insight-card">
+
+                  <div className="insight-icon">
+                    <FaBullseye />
+                  </div>
+
+                  <div>
+                    <span>
+                      SAVINGS TARGET
+                    </span>
+
+                    <strong>
+                      {savingsPercentage.toFixed(0)}%
+                    </strong>
+
+                    <small>
+                      {formatMoney(
+                        totalSaved,
                         currency
-                      )
-                    : "No expenses yet"}
-                </small>
-              </div>
+                      )}{" "}
+                      /{" "}
+                      {formatMoney(
+                        totalTarget,
+                        currency
+                      )}
+                    </small>
+                  </div>
 
-            </div>
+                </div>
 
 
-            <div className="insight-card">
+                <div className="insight-card">
 
-              <div className="insight-icon">
-                <FaBullseye />
-              </div>
+                  <div className="insight-icon">
+                    {budgetAlerts.length > 0 ? (
+                      <FaExclamationTriangle />
+                    ) : (
+                      <FaCheckCircle />
+                    )}
+                  </div>
 
-              <div>
-                <span>
-                  SAVINGS TARGET
-                </span>
+                  <div>
+                    <span>
+                      BUDGET ALERTS
+                    </span>
 
-                <strong>
-                  {savingsPercentage.toFixed(0)}%
-                </strong>
+                    <strong>
+                      {budgetAlerts.length}
+                    </strong>
 
-                <small>
-                  {formatMoney(
-                    totalSaved,
-                    currency
-                  )}{" "}
-                  /{" "}
-                  {formatMoney(
-                    totalTarget,
-                    currency
+                    <small>
+                      {budgetAlerts.length
+                        ? "Budget categories need attention"
+                        : "All budgets under control"}
+                    </small>
+                  </div>
+
+                </div>
+
+              </section>
+
+
+              {/* =================================================
+                  MAIN CASH FLOW
+              ================================================= */}
+
+              <section className="dashboard-chart-grid">
+
+                <article className="dash-panel dash-chart-large">
+
+                  <div className="dash-panel-head">
+
+                    <div>
+                      <span>
+                        CASH FLOW ANALYTICS
+                      </span>
+
+                      <h2>
+                        Income vs Expense
+                      </h2>
+
+                      <small>
+                        Recent financial activity
+                      </small>
+                    </div>
+
+                    <FaChartLine />
+
+                  </div>
+
+                  <div className="dash-chart advanced-chart">
+
+                    {dailyTrend.length > 0 ? (
+
+                      <ResponsiveContainer
+                        width="100%"
+                        height="100%"
+                      >
+
+                        <AreaChart
+                          data={dailyTrend}
+                        >
+
+                          <defs>
+
+                            <linearGradient
+                              id="incomeGradient"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="0%"
+                                stopOpacity={0.3}
+                              />
+
+                              <stop
+                                offset="100%"
+                                stopOpacity={0}
+                              />
+                            </linearGradient>
+
+                            <linearGradient
+                              id="expenseGradient"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="0%"
+                                stopOpacity={0.25}
+                              />
+
+                              <stop
+                                offset="100%"
+                                stopOpacity={0}
+                              />
+                            </linearGradient>
+
+                          </defs>
+
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            vertical={false}
+                            opacity={0.45}
+                          />
+
+                          <XAxis
+                            dataKey="label"
+                            tickLine={false}
+                          />
+
+                          <YAxis
+                            tickLine={false}
+                            tickFormatter={(value) =>
+                              `${Math.round(
+                                value / 1000
+                              )}k`
+                            }
+                          />
+
+                          <Tooltip
+                            content={
+                              <FinancialTooltip
+                                currency={currency}
+                              />
+                            }
+                          />
+
+                          <Legend />
+
+                          <Area
+                            type="monotone"
+                            dataKey="income"
+                            name="Income"
+                            stroke="#10b981"
+                            strokeWidth={3}
+                            fill="url(#incomeGradient)"
+                          />
+
+                          <Area
+                            type="monotone"
+                            dataKey="expense"
+                            name="Expense"
+                            stroke="#ef4444"
+                            strokeWidth={3}
+                            fill="url(#expenseGradient)"
+                          />
+
+                          <Area
+                            type="monotone"
+                            dataKey="savings"
+                            name="Net Flow"
+                            stroke="#2563eb"
+                            strokeWidth={2}
+                            strokeDasharray="6 4"
+                            fill="none"
+                          />
+
+                        </AreaChart>
+
+                      </ResponsiveContainer>
+
+                    ) : (
+
+                      <div className="dash-empty">
+                        No transaction data available
+                      </div>
+
+                    )}
+
+                  </div>
+
+                </article>
+
+
+                {/* =================================================
+                    EXPENSE CATEGORY
+                ================================================= */}
+
+                <article className="dash-panel">
+
+                  <div className="dash-panel-head">
+
+                    <div>
+                      <span>
+                        SPENDING ANALYTICS
+                      </span>
+
+                      <h2>
+                        Expense by Category
+                      </h2>
+                    </div>
+
+                    <FaChartPie />
+
+                  </div>
+
+                  {expenseCategoryData.length > 0 ? (
+
+                    <div className="dash-category-chart">
+
+                      <ResponsiveContainer
+                        width="100%"
+                        height="100%"
+                      >
+
+                        <PieChart>
+
+                          <Pie
+                            data={
+                              expenseCategoryData
+                            }
+                            dataKey="value"
+                            nameKey="name"
+                            innerRadius={58}
+                            outerRadius={88}
+                            paddingAngle={3}
+                          >
+
+                            {expenseCategoryData.map(
+                              (item, index) => (
+                                <Cell
+                                  key={
+                                    `${item.name}-${index}`
+                                  }
+                                  fill={
+                                    CHART_COLORS[
+                                      index %
+                                        CHART_COLORS.length
+                                    ]
+                                  }
+                                />
+                              )
+                            )}
+
+                          </Pie>
+
+                          <Tooltip
+                            formatter={(value) =>
+                              formatMoney(
+                                value,
+                                currency
+                              )
+                            }
+                          />
+
+                        </PieChart>
+
+                      </ResponsiveContainer>
+
+                    </div>
+
+                  ) : (
+
+                    <div className="dash-empty">
+                      No expense categories yet.
+                    </div>
+
                   )}
-                </small>
-              </div>
 
-            </div>
+                  <div className="dash-category-list">
 
+                    {expenseCategoryData
+                      .slice(0, 5)
+                      .map((item, index) => (
 
-            <div className="insight-card">
-
-              <div className="insight-icon">
-                {budgetAlerts.length > 0
-                  ? <FaExclamationTriangle />
-                  : <FaCheckCircle />}
-              </div>
-
-              <div>
-                <span>
-                  BUDGET ALERTS
-                </span>
-
-                <strong>
-                  {budgetAlerts.length}
-                </strong>
-
-                <small>
-                  {budgetAlerts.length
-                    ? "Budget categories need attention"
-                    : "All budgets under control"}
-                </small>
-              </div>
-
-            </div>
-
-          </section>
-
-
-          {/* =================================================
-              MAIN CASH FLOW
-          ================================================= */}
-
-          <section className="dashboard-chart-grid">
-
-            <article className="dash-panel dash-chart-large">
-
-              <div className="dash-panel-head">
-
-                <div>
-                  <span>
-                    CASH FLOW ANALYTICS
-                  </span>
-
-                  <h2>
-                    Income vs Expense
-                  </h2>
-
-                  <small>
-                    Recent financial activity
-                  </small>
-                </div>
-
-                <FaChartLine />
-
-              </div>
-
-              <div className="dash-chart advanced-chart">
-
-                {dailyTrend.length > 0 ? (
-
-                  <ResponsiveContainer
-                    width="100%"
-                    height="100%"
-                  >
-
-                    <AreaChart
-                      data={dailyTrend}
-                    >
-
-                      <defs>
-
-                        <linearGradient
-                          id="incomeGradient"
-                          x1="0"
-                          y1="0"
-                          x2="0"
-                          y2="1"
+                        <div
+                          key={item.name}
+                          className="category-list-item"
                         >
-                          <stop
-                            offset="0%"
-                            stopOpacity={0.3}
-                          />
 
-                          <stop
-                            offset="100%"
-                            stopOpacity={0}
-                          />
-                        </linearGradient>
+                          <span>
+                            <i
+                              style={{
+                                background:
+                                  CHART_COLORS[
+                                    index %
+                                      CHART_COLORS.length
+                                  ],
+                              }}
+                            />
 
-                        <linearGradient
-                          id="expenseGradient"
-                          x1="0"
-                          y1="0"
-                          x2="0"
-                          y2="1"
-                        >
-                          <stop
-                            offset="0%"
-                            stopOpacity={0.25}
-                          />
+                            {item.name}
+                          </span>
 
-                          <stop
-                            offset="100%"
-                            stopOpacity={0}
-                          />
-                        </linearGradient>
+                          <strong>
+                            {formatMoney(
+                              item.value,
+                              currency
+                            )}
+                          </strong>
 
-                      </defs>
+                        </div>
 
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        vertical={false}
-                        opacity={0.45}
-                      />
+                      ))}
 
-                      <XAxis
-                        dataKey="label"
-                        tickLine={false}
-                      />
-
-                      <YAxis
-                        tickLine={false}
-                        tickFormatter={(value) =>
-                          `${Math.round(
-                            value / 1000
-                          )}k`
-                        }
-                      />
-
-                      <Tooltip
-                        content={
-                          <FinancialTooltip
-                            currency={currency}
-                          />
-                        }
-                      />
-
-                      <Legend />
-
-                      <Area
-                        type="monotone"
-                        dataKey="income"
-                        name="Income"
-                        stroke="#10b981"
-                        strokeWidth={3}
-                        fill="url(#incomeGradient)"
-                      />
-
-                      <Area
-                        type="monotone"
-                        dataKey="expense"
-                        name="Expense"
-                        stroke="#ef4444"
-                        strokeWidth={3}
-                        fill="url(#expenseGradient)"
-                      />
-
-                      <Area
-                        type="monotone"
-                        dataKey="savings"
-                        name="Net Flow"
-                        stroke="#2563eb"
-                        strokeWidth={2}
-                        strokeDasharray="6 4"
-                        fill="none"
-                      />
-
-                    </AreaChart>
-
-                  </ResponsiveContainer>
-
-                ) : (
-
-                  <div className="dash-empty">
-                    No transaction data available
                   </div>
 
-                )}
+                </article>
 
-              </div>
-
-            </article>
+              </section>
 
 
-            {/* =================================================
-                EXPENSE CATEGORY
-            ================================================= */}
+              {/* =================================================
+                  DAILY TREND
+              ================================================= */}
 
-            <article className="dash-panel">
+              <section className="dashboard-chart-grid">
 
-              <div className="dash-panel-head">
+                <article className="dash-panel dash-chart-large">
 
-                <div>
-                  <span>
-                    SPENDING ANALYTICS
-                  </span>
+                  <div className="dash-panel-head">
 
-                  <h2>
-                    Expense by Category
-                  </h2>
-                </div>
-
-                <FaChartPie />
-
-              </div>
-
-              {expenseCategoryData.length > 0 ? (
-
-                <div className="dash-category-chart">
-
-                  <ResponsiveContainer
-                    width="100%"
-                    height="100%"
-                  >
-
-                    <PieChart>
-
-                      <Pie
-                        data={
-                          expenseCategoryData
-                        }
-                        dataKey="value"
-                        nameKey="name"
-                        innerRadius={58}
-                        outerRadius={88}
-                        paddingAngle={3}
-                      >
-
-                        {expenseCategoryData.map(
-                          (item, index) => (
-                            <Cell
-                              key={
-                                `${item.name}-${index}`
-                              }
-                              fill={
-                                CHART_COLORS[
-                                  index %
-                                    CHART_COLORS.length
-                                ]
-                              }
-                            />
-                          )
-                        )}
-
-                      </Pie>
-
-                      <Tooltip
-                        formatter={(value) =>
-                          formatMoney(
-                            value,
-                            currency
-                          )
-                        }
-                      />
-
-                    </PieChart>
-
-                  </ResponsiveContainer>
-
-                </div>
-
-              ) : (
-
-                <div className="dash-empty">
-                  No expense categories yet.
-                </div>
-
-              )}
-
-              <div className="dash-category-list">
-
-                {expenseCategoryData
-                  .slice(0, 5)
-                  .map((item, index) => (
-
-                    <div
-                      key={item.name}
-                      className="category-list-item"
-                    >
-
+                    <div>
                       <span>
-                        <i
-                          style={{
-                            background:
-                              CHART_COLORS[
-                                index %
-                                  CHART_COLORS.length
-                              ],
-                          }}
-                        />
-
-                        {item.name}
+                        DAILY PERFORMANCE
                       </span>
 
-                      <strong>
-                        {formatMoney(
-                          item.value,
-                          currency
-                        )}
-                      </strong>
+                      <h2>
+                        Daily Income / Expense Trend
+                      </h2>
+                    </div>
+
+                    <FaChartLine />
+
+                  </div>
+
+                  <div className="dash-chart">
+
+                    {dailyTrend.length > 0 ? (
+
+                      <ResponsiveContainer
+                        width="100%"
+                        height="100%"
+                      >
+
+                        <BarChart
+                          data={dailyTrend}
+                        >
+
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            vertical={false}
+                            opacity={0.4}
+                          />
+
+                          <XAxis
+                            dataKey="label"
+                          />
+
+                          <YAxis
+                            tickFormatter={(value) =>
+                              `${Math.round(
+                                value / 1000
+                              )}k`
+                            }
+                          />
+
+                          <Tooltip
+                            content={
+                              <FinancialTooltip
+                                currency={currency}
+                              />
+                            }
+                          />
+
+                          <Legend />
+
+                          <Bar
+                            dataKey="income"
+                            name="Income"
+                            fill="#10b981"
+                            radius={[
+                              5,
+                              5,
+                              0,
+                              0,
+                            ]}
+                          />
+
+                          <Bar
+                            dataKey="expense"
+                            name="Expense"
+                            fill="#ef4444"
+                            radius={[
+                              5,
+                              5,
+                              0,
+                              0,
+                            ]}
+                          />
+
+                        </BarChart>
+
+                      </ResponsiveContainer>
+
+                    ) : (
+
+                      <div className="dash-empty">
+                        No daily transaction data available.
+                      </div>
+
+                    )}
+
+                  </div>
+
+                </article>
+
+
+                {/* =================================================
+                    INCOME CATEGORY
+                ================================================= */}
+
+                <article className="dash-panel">
+
+                  <div className="dash-panel-head">
+
+                    <div>
+                      <span>
+                        INCOME ANALYTICS
+                      </span>
+
+                      <h2>
+                        Income by Category
+                      </h2>
+                    </div>
+
+                    <FaCoins />
+
+                  </div>
+
+                  {incomeCategoryData.length > 0 ? (
+
+                    <div className="dash-category-chart">
+
+                      <ResponsiveContainer
+                        width="100%"
+                        height="100%"
+                      >
+
+                        <PieChart>
+
+                          <Pie
+                            data={
+                              incomeCategoryData
+                            }
+                            dataKey="value"
+                            nameKey="name"
+                            innerRadius={58}
+                            outerRadius={88}
+                            paddingAngle={3}
+                          >
+
+                            {incomeCategoryData.map(
+                              (item, index) => (
+                                <Cell
+                                  key={
+                                    `${item.name}-${index}`
+                                  }
+                                  fill={
+                                    CHART_COLORS[
+                                      (index + 2) %
+                                        CHART_COLORS.length
+                                    ]
+                                  }
+                                />
+                              )
+                            )}
+
+                          </Pie>
+
+                          <Tooltip
+                            formatter={(value) =>
+                              formatMoney(
+                                value,
+                                currency
+                              )
+                            }
+                          />
+
+                        </PieChart>
+
+                      </ResponsiveContainer>
 
                     </div>
 
-                  ))}
+                  ) : (
 
-              </div>
-
-            </article>
-
-          </section>
-
-
-          {/* =================================================
-              DAILY TREND
-          ================================================= */}
-
-          <section className="dashboard-chart-grid">
-
-            <article className="dash-panel dash-chart-large">
-
-              <div className="dash-panel-head">
-
-                <div>
-                  <span>
-                    DAILY PERFORMANCE
-                  </span>
-
-                  <h2>
-                    Daily Income / Expense Trend
-                  </h2>
-                </div>
-
-                <FaChartLine />
-
-              </div>
-
-              <div className="dash-chart">
-
-                {dailyTrend.length > 0 ? (
-
-                  <ResponsiveContainer
-                    width="100%"
-                    height="100%"
-                  >
-
-                    <BarChart
-                      data={dailyTrend}
-                    >
-
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        vertical={false}
-                        opacity={0.4}
-                      />
-
-                      <XAxis
-                        dataKey="label"
-                      />
-
-                      <YAxis
-                        tickFormatter={(value) =>
-                          `${Math.round(
-                            value / 1000
-                          )}k`
-                        }
-                      />
-
-                      <Tooltip
-                        content={
-                          <FinancialTooltip
-                            currency={currency}
-                          />
-                        }
-                      />
-
-                      <Legend />
-
-                      <Bar
-                        dataKey="income"
-                        name="Income"
-                        fill="#10b981"
-                        radius={[
-                          5,
-                          5,
-                          0,
-                          0,
-                        ]}
-                      />
-
-                      <Bar
-                        dataKey="expense"
-                        name="Expense"
-                        fill="#ef4444"
-                        radius={[
-                          5,
-                          5,
-                          0,
-                          0,
-                        ]}
-                      />
-
-                    </BarChart>
-
-                  </ResponsiveContainer>
-
-                ) : (
-
-                  <div className="dash-empty">
-                    No daily transaction data available.
-                  </div>
-
-                )}
-
-              </div>
-
-            </article>
-
-
-            {/* =================================================
-                INCOME CATEGORY
-            ================================================= */}
-
-            <article className="dash-panel">
-
-              <div className="dash-panel-head">
-
-                <div>
-                  <span>
-                    INCOME ANALYTICS
-                  </span>
-
-                  <h2>
-                    Income by Category
-                  </h2>
-                </div>
-
-                <FaCoins />
-
-              </div>
-
-              {incomeCategoryData.length > 0 ? (
-
-                <div className="dash-category-chart">
-
-                  <ResponsiveContainer
-                    width="100%"
-                    height="100%"
-                  >
-
-                    <PieChart>
-
-                      <Pie
-                        data={
-                          incomeCategoryData
-                        }
-                        dataKey="value"
-                        nameKey="name"
-                        innerRadius={58}
-                        outerRadius={88}
-                        paddingAngle={3}
-                      >
-
-                        {incomeCategoryData.map(
-                          (item, index) => (
-                            <Cell
-                              key={
-                                `${item.name}-${index}`
-                              }
-                              fill={
-                                CHART_COLORS[
-                                  (index + 2) %
-                                    CHART_COLORS.length
-                                ]
-                              }
-                            />
-                          )
-                        )}
-
-                      </Pie>
-
-                      <Tooltip
-                        formatter={(value) =>
-                          formatMoney(
-                            value,
-                            currency
-                          )
-                        }
-                      />
-
-                    </PieChart>
-
-                  </ResponsiveContainer>
-
-                </div>
-
-              ) : (
-
-                <div className="dash-empty">
-                  No income categories yet.
-                </div>
-
-              )}
-
-              <div className="dash-category-list">
-
-                {incomeCategoryData
-                  .slice(0, 5)
-                  .map((item, index) => (
-
-                    <div
-                      key={item.name}
-                      className="category-list-item"
-                    >
-
-                      <span>
-                        <i
-                          style={{
-                            background:
-                              CHART_COLORS[
-                                (index + 2) %
-                                  CHART_COLORS.length
-                              ],
-                          }}
-                        />
-
-                        {item.name}
-                      </span>
-
-                      <strong>
-                        {formatMoney(
-                          item.value,
-                          currency
-                        )}
-                      </strong>
-
+                    <div className="dash-empty">
+                      No income categories yet.
                     </div>
 
-                  ))}
+                  )}
 
-              </div>
+                  <div className="dash-category-list">
 
-            </article>
+                    {incomeCategoryData
+                      .slice(0, 5)
+                      .map((item, index) => (
 
-          </section>
+                        <div
+                          key={item.name}
+                          className="category-list-item"
+                        >
+
+                          <span>
+                            <i
+                              style={{
+                                background:
+                                  CHART_COLORS[
+                                    (index + 2) %
+                                      CHART_COLORS.length
+                                  ],
+                              }}
+                            />
+
+                            {item.name}
+                          </span>
+
+                          <strong>
+                            {formatMoney(
+                              item.value,
+                              currency
+                            )}
+                          </strong>
+
+                        </div>
+
+                      ))}
+
+                  </div>
+
+                </article>
+
+              </section>
 
 
-          {/* =================================================
-              BANK ANALYSIS
-          ================================================= */}
+              {/* =================================================
+                  BANK ANALYSIS
+              ================================================= */}
 
-          <section className="dash-panel full-width-chart">
+              <section className="dash-panel full-width-chart">
 
-            <div className="dash-panel-head">
+                <div className="dash-panel-head">
 
-              <div>
-                <span>
-                  BANK & ACCOUNT ANALYTICS
-                </span>
+                  <div>
+                    <span>
+                      BANK & ACCOUNT ANALYTICS
+                    </span>
 
-                <h2>
-                  Bank-wise Financial Activity
-                </h2>
+                    <h2>
+                      Bank-wise Financial Activity
+                    </h2>
 
-                <small>
-                  Compare income and expenses across
-                  linked bank accounts.
-                </small>
-              </div>
+                    <small>
+                      Compare income and expenses across
+                      linked bank accounts.
+                    </small>
+                  </div>
 
-              <FaUniversity />
+                  <FaUniversity />
 
-            </div>
-
-            <div className="bank-chart">
-
-              {bankAnalysis.length > 0 ? (
-
-                <ResponsiveContainer
-                  width="100%"
-                  height="100%"
-                >
-
-                  <BarChart
-                    data={bankAnalysis}
-                    margin={{
-                      top: 15,
-                      right: 20,
-                      left: 10,
-                      bottom: 10,
-                    }}
-                  >
-
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      vertical={false}
-                      opacity={0.4}
-                    />
-
-                    <XAxis
-                      dataKey="bank"
-                    />
-
-                    <YAxis
-                      tickFormatter={(value) =>
-                        `${Math.round(
-                          value / 1000
-                        )}k`
-                      }
-                    />
-
-                    <Tooltip
-                      content={
-                        <FinancialTooltip
-                          currency={currency}
-                        />
-                      }
-                    />
-
-                    <Legend />
-
-                    <Bar
-                      dataKey="income"
-                      name="Income"
-                      fill="#10b981"
-                      radius={[
-                        5,
-                        5,
-                        0,
-                        0,
-                      ]}
-                    />
-
-                    <Bar
-                      dataKey="expense"
-                      name="Expense"
-                      fill="#ef4444"
-                      radius={[
-                        5,
-                        5,
-                        0,
-                        0,
-                      ]}
-                    />
-
-                  </BarChart>
-
-                </ResponsiveContainer>
-
-              ) : (
-
-                <div className="dash-empty">
-                  Add bank accounts and transactions
-                  to see bank-wise analysis.
                 </div>
 
-              )}
+                <div className="bank-chart">
 
-            </div>
+                  {bankAnalysis.length > 0 ? (
 
-          </section>
+                    <ResponsiveContainer
+                      width="100%"
+                      height="100%"
+                    >
 
+                      <BarChart
+                        data={bankAnalysis}
+                        margin={{
+                          top: 15,
+                          right: 20,
+                          left: 10,
+                          bottom: 10,
+                        }}
+                      >
+
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          vertical={false}
+                          opacity={0.4}
+                        />
+
+                        <XAxis
+                          dataKey="bank"
+                        />
+
+                        <YAxis
+                          tickFormatter={(value) =>
+                            `${Math.round(
+                              value / 1000
+                            )}k`
+                          }
+                        />
+
+                        <Tooltip
+                          content={
+                            <FinancialTooltip
+                              currency={currency}
+                            />
+                          }
+                        />
+
+                        <Legend />
+
+                        <Bar
+                          dataKey="income"
+                          name="Income"
+                          fill="#10b981"
+                          radius={[
+                            5,
+                            5,
+                            0,
+                            0,
+                          ]}
+                        />
+
+                        <Bar
+                          dataKey="expense"
+                          name="Expense"
+                          fill="#ef4444"
+                          radius={[
+                            5,
+                            5,
+                            0,
+                            0,
+                          ]}
+                        />
+
+                      </BarChart>
+
+                    </ResponsiveContainer>
+
+                  ) : (
+
+                    <div className="dash-empty">
+                      Add bank accounts and transactions
+                      to see bank-wise analysis.
+                    </div>
+
+                  )}
+
+                </div>
+
+              </section>
 
             </>
-          ) : null}
+          )}
+
 
           {/* =================================================
               BUDGET + SAVINGS
@@ -2011,134 +2041,135 @@ function Dashboard() {
           </section>
 
 
-          {isPro ? (
-            <>
           {/* =================================================
               ADVANCED FINANCIAL INSIGHTS
           ================================================= */}
 
-          <section className="advanced-insights-panel">
+          {isPro && (
+            <section className="advanced-insights-panel">
 
-            <div className="advanced-insights-header">
-
-              <div>
-                <span>
-                  <FaLightbulb />
-                  SMART FINANCIAL INSIGHTS
-                </span>
-
-                <h2>
-                  What your dashboard is telling you
-                </h2>
-              </div>
-
-              <FaTrophy />
-
-            </div>
-
-
-            <div className="smart-insights-grid">
-
-              <div className="smart-insight">
-
-                <div className="smart-insight-icon">
-                  <FaArrowUp />
-                </div>
+              <div className="advanced-insights-header">
 
                 <div>
+                  <span>
+                    <FaLightbulb />
+                    SMART FINANCIAL INSIGHTS
+                  </span>
 
-                  <strong>
-                    Cash Flow
-                  </strong>
+                  <h2>
+                    What your dashboard is telling you
+                  </h2>
+                </div>
 
-                  <p>
-                    {summary.balance >= 0
-                      ? "Your recorded income is currently covering your expenses."
-                      : "Your expenses are currently higher than your recorded income."}
-                  </p>
+                <FaTrophy />
+
+              </div>
+
+
+              <div className="smart-insights-grid">
+
+                <div className="smart-insight">
+
+                  <div className="smart-insight-icon">
+                    <FaArrowUp />
+                  </div>
+
+                  <div>
+
+                    <strong>
+                      Cash Flow
+                    </strong>
+
+                    <p>
+                      {summary.balance >= 0
+                        ? "Your recorded income is currently covering your expenses."
+                        : "Your expenses are currently higher than your recorded income."}
+                    </p>
+
+                  </div>
+
+                </div>
+
+
+                <div className="smart-insight">
+
+                  <div className="smart-insight-icon">
+                    <FaChartPie />
+                  </div>
+
+                  <div>
+
+                    <strong>
+                      Spending Concentration
+                    </strong>
+
+                    <p>
+                      {topSpendingCategory
+                        ? `${topSpendingCategory.name} is currently your highest spending category.`
+                        : "Add expenses to identify your biggest spending category."}
+                    </p>
+
+                  </div>
+
+                </div>
+
+
+                <div className="smart-insight">
+
+                  <div className="smart-insight-icon">
+                    <FaBullseye />
+                  </div>
+
+                  <div>
+
+                    <strong>
+                      Savings Momentum
+                    </strong>
+
+                    <p>
+                      {savingsPercentage >= 80
+                        ? "Excellent progress toward your savings targets."
+                        : savingsPercentage >= 50
+                        ? "Your savings are moving in the right direction."
+                        : "Increase regular savings contributions to reach your targets faster."}
+                    </p>
+
+                  </div>
+
+                </div>
+
+
+                <div className="smart-insight">
+
+                  <div className="smart-insight-icon">
+                    <FaExclamationTriangle />
+                  </div>
+
+                  <div>
+
+                    <strong>
+                      Budget Discipline
+                    </strong>
+
+                    <p>
+                      {budgetAlerts.length === 0
+                        ? "Your current budgets are below the warning threshold."
+                        : `${budgetAlerts.length} budget ${
+                            budgetAlerts.length === 1
+                              ? "category is"
+                              : "categories are"
+                          } approaching or exceeding the limit.`}
+                    </p>
+
+                  </div>
 
                 </div>
 
               </div>
 
+            </section>
+          )}
 
-              <div className="smart-insight">
-
-                <div className="smart-insight-icon">
-                  <FaChartPie />
-                </div>
-
-                <div>
-
-                  <strong>
-                    Spending Concentration
-                  </strong>
-
-                  <p>
-                    {topSpendingCategory
-                      ? `${topSpendingCategory.name} is currently your highest spending category.`
-                      : "Add expenses to identify your biggest spending category."}
-                  </p>
-
-                </div>
-
-              </div>
-
-
-              <div className="smart-insight">
-
-                <div className="smart-insight-icon">
-                  <FaBullseye />
-                </div>
-
-                <div>
-
-                  <strong>
-                    Savings Momentum
-                  </strong>
-
-                  <p>
-                    {savingsPercentage >= 80
-                      ? "Excellent progress toward your savings targets."
-                      : savingsPercentage >= 50
-                      ? "Your savings are moving in the right direction."
-                      : "Increase regular savings contributions to reach your targets faster."}
-                  </p>
-
-                </div>
-
-              </div>
-
-
-              <div className="smart-insight">
-
-                <div className="smart-insight-icon">
-                  <FaExclamationTriangle />
-                </div>
-
-                <div>
-
-                  <strong>
-                    Budget Discipline
-                  </strong>
-
-                  <p>
-                    {budgetAlerts.length === 0
-                      ? "Your current budgets are below the warning threshold."
-                      : `${budgetAlerts.length} budget ${budgetAlerts.length === 1 ? "category is" : "categories are"} approaching or exceeding the limit.`}
-                  </p>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </section>
-
-
-            </>
-          ) : null}
 
           {/* =================================================
               PRO / NORMAL
@@ -2196,10 +2227,12 @@ function Dashboard() {
 
                 <div>
                   <strong>
-                    {savingsCards.filter(
-                      (item) =>
-                        item.pct >= 80
-                    ).length}
+                    {
+                      savingsCards.filter(
+                        (item) =>
+                          item.pct >= 80
+                      ).length
+                    }
                   </strong>
 
                   <small>
@@ -2223,6 +2256,7 @@ function Dashboard() {
             </section>
 
           )}
+
 
           {!isAdmin && !isPro && (
 
